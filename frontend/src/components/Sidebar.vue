@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useSidebar } from "../composables/useSidebar";
+import { useRouter } from "vue-router";
 
-
+const { currentRoute } = useRouter();
 const { isOpen } = useSidebar();
 const activeClass = ref(
   "bg-gray-600 bg-opacity-25 text-gray-100 border-gray-100"
@@ -27,37 +28,6 @@ const inactiveClass = ref(
       class="fixed inset-y-0 left-0 z-30 w-64 overflow-y-auto transition duration-300 transform bg-gray-900 lg:translate-x-0 lg:static lg:inset-0"
     >
       <img class="w-full" src="/public/logo-big-white-no-motto.png" alt="" />
-
-      <!-- START profile zone -->
-      <div class="flex flex-col w-full my-8 py-8 px-2 bg-slate-800">
-        
-        <!-- <button class="flex mx-4 text-gray-600 focus:outline-none">
-        </button> -->
-
-        <div class="flex items-center gap-x-2 ">
-          <img
-            class="object-cover w-14 h-14 rounded-lg"
-            src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=faceare&facepad=3&w=688&h=688&q=100"
-            alt=""
-          />
-
-          <div>
-            <h1
-              class="text-xl font-semibold text-gray-700 capitalize dark:text-white"
-            >
-              Mia John
-            </h1>
-
-            <p class="text-base text-gray-500 dark:text-gray-400">
-              miajohn@merakiui.com
-            </p>
-          </div>
-        </div>
-        <!-- <EllipsisVerticalIcon class="h-7 w-7 text-white" /> -->
-        
-      </div>
-
-      <!-- END profile zone -->
 
       <nav class="mt-10">
         <router-link
@@ -224,6 +194,55 @@ const inactiveClass = ref(
           <span class="mx-4">Blank</span>
         </router-link>
       </nav>
+      <!-- START profile zone -->
+      <div class="fixed bottom-0 w-full">
+        <div
+          v-if="currentRoute.name != 'Me'"
+          class="flex flex-col w-full py-8 px-2 bg-slate-800"
+        >
+          <div class="flex items-center gap-x-2">
+            <img
+              class="object-cover w-14 h-14 rounded-lg"
+              src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=faceare&facepad=3&w=688&h=688&q=100"
+              alt=""
+            />
+
+            <div>
+              <h1
+                class="text-xl font-semibold text-gray-700 capitalize dark:text-white"
+              >
+                Mia John
+              </h1>
+
+              <p class="text-base text-gray-500 dark:text-gray-400">
+                miajohn@merakiui.com
+              </p>
+            </div>
+          </div>
+          <div
+            class="flex row gap-x-5 item-center w-full mt-4 text-white text-md"
+          >
+            <button
+              class="px-4 py-1 bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:bg-blue-400 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+            >
+              Edit Profile
+            </button>
+            <button
+              class="px-4 py-1 bg-red-500 rounded-lg hover:bg-red-400 focus:outline-none focus:bg-red-400 focus:ring focus:ring-red-300 focus:ring-opacity-50"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+        <div  class="flex flex-col w-full pb-4 pt-5 px-2 bg-slate-800" v-else>
+          <button
+              class="px-4 py-1 mx-auto text-white bg-red-500 rounded-lg hover:bg-red-400 focus:outline-none focus:bg-red-400 focus:ring focus:ring-red-300 focus:ring-opacity-50"
+            >
+              Logout
+            </button>
+        </div>
+        <!-- END profile zone -->
+      </div>
     </div>
   </div>
 </template>

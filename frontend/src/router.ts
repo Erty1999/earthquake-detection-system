@@ -11,6 +11,7 @@ import Card from "./views/Card.vue";
 import Blank from "./views/Blank.vue";
 import Register from "./views/Register.vue";
 import Index from "./views/Index.vue"
+import Me from "./views/Me.vue"
 
 const routes: RouteRecordRaw[] = [
   {
@@ -30,6 +31,11 @@ const routes: RouteRecordRaw[] = [
     name: "Register",
     component: Register,
     meta: { layout: "empty" },
+  },
+  {
+    path: "/me",
+    name: "Me",
+    component: Me,
   },
   {
     path: "/dashboard",
