@@ -2,6 +2,8 @@
 import { ref } from 'vue'
 import { useSidebar } from '../composables/useSidebar'
 
+
+
 const dropdownOpen = ref(false)
 const { isOpen } = useSidebar()
 </script>
@@ -51,6 +53,9 @@ const { isOpen } = useSidebar()
         >
       </div>
     </div>
+
+
+
 
     <div class="flex items-center">
       <button class="flex mx-4 text-gray-600 focus:outline-none">

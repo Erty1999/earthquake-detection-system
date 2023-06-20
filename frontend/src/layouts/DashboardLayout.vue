@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Sidebar from '../components/Sidebar.vue'
-import Header from '../components/Header.vue'
+// import Header from '../components/Header.vue'
 </script>
 
 <template>
@@ -8,7 +8,7 @@ import Header from '../components/Header.vue'
     <Sidebar />
 
     <div class="flex-1 flex flex-col overflow-hidden">
-      <Header />
+      <!-- <Header /> -->
 
       <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
         <div class="container mx-auto px-6 py-8">
