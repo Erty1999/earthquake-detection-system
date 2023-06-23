@@ -4,6 +4,7 @@ import { useSidebar } from "../composables/useSidebar";
 import { useRouter } from "vue-router";
 
 const { currentRoute } = useRouter();
+const router = useRouter();
 const { isOpen } = useSidebar();
 const activeClass = ref(
   "bg-gray-600 bg-opacity-25 text-gray-100 border-gray-100"
@@ -11,6 +12,9 @@ const activeClass = ref(
 const inactiveClass = ref(
   "border-gray-900 text-gray-500 hover:bg-gray-600 hover:bg-opacity-25 hover:text-gray-100"
 );
+function logout() {
+  router.push("/login");
+}
 </script>
 
 <template>
@@ -224,22 +228,25 @@ const inactiveClass = ref(
           >
             <button
               class="px-4 py-1 bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:bg-blue-400 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+              @click="router.push('/Me')"
             >
               Edit Profile
             </button>
             <button
               class="px-4 py-1 bg-red-500 rounded-lg hover:bg-red-400 focus:outline-none focus:bg-red-400 focus:ring focus:ring-red-300 focus:ring-opacity-50"
+              @click="logout"
             >
               Logout
             </button>
           </div>
         </div>
-        <div  class="flex flex-col w-full pb-4 pt-5 px-2 bg-slate-800" v-else>
+        <div v-else class="flex flex-col w-full pb-4 pt-5 px-2 bg-slate-800">
           <button
-              class="px-4 py-1 mx-auto text-white bg-red-500 rounded-lg hover:bg-red-400 focus:outline-none focus:bg-red-400 focus:ring focus:ring-red-300 focus:ring-opacity-50"
-            >
-              Logout
-            </button>
+            class="px-4 py-1 mx-auto text-white bg-red-500 rounded-lg hover:bg-red-400 focus:outline-none focus:bg-red-400 focus:ring focus:ring-red-300 focus:ring-opacity-50"
+            @click="logout"
+          >
+            Logout
+          </button>
         </div>
         <!-- END profile zone -->
       </div>

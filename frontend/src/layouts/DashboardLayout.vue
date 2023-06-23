@@ -11,11 +11,10 @@ const { isOpen } = useSidebar();
     <Sidebar />
 
     <div class="flex-1 flex flex-col overflow-hidden">
-
       <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
         <div class="container mx-auto px-6 py-8">
           <!-- open sidebar icon -->
-          <div class="flex items-center justify-between mb-4 ">
+          <div class="flex items-center justify-between mb-4">
             <button
               class="text-gray-500 focus:outline-none lg:hidden"
               @click="isOpen = true"
