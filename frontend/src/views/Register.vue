@@ -1,4 +1,22 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref } from "vue";
+
+const telNumber = ref("");
+
+function acceptNumber(e: InputEvent | any) {
+  let x = telNumber.value
+    .replace(/\D/g, "")
+    .match(/(\d{0,2})(\d{0,3})(\d{0,3})(\d{0,4})/);
+
+  telNumber.value = !x![2]
+    ? x![1]
+    : "+" + x![1] + " " + x![2] + " " + x![3] + (x![4] ? " " + x![4] : "");
+
+  if (x![1] && x![2] && !x![3] && e.inputType === "deleteContentBackward") {
+    telNumber.value = telNumber.value.slice(0, -1);
+  }
+}
+</script>
 
 <template>
   <section class="bg-white dark:bg-gray-900">
@@ -48,11 +66,11 @@
 
             <div>
               <label class="block mb-2 text-sm text-gray-600 dark:text-gray-200"
-                >Phone number</label
+                >Birthday</label
               >
               <input
-                type="text"
-                placeholder="XXX-XX-XXXX-XXX"
+                type="date"
+                placeholder=" "
                 class="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
               />
             </div>
@@ -63,6 +81,7 @@
               >
               <input
                 type="email"
+                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                 placeholder="johnsnow@example.com"
                 class="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
               />
@@ -74,6 +93,7 @@
               >
               <input
                 type="password"
+                pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
                 placeholder="Enter your password"
                 class="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
               />
@@ -85,11 +105,36 @@
               >
               <input
                 type="password"
+                pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
                 placeholder="Enter your password"
                 class="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
               />
             </div>
-            <div class="flex col-span-2 mt-5 ">
+            <div>
+              <label class="block mb-2 text-sm text-gray-600 dark:text-gray-200"
+                >Phone number</label
+              >
+              <input
+                type="tel"
+                pattern="[+][0-9]{2}[ ][0-9]{3}[ ][0-9]{3}[ ][0-9]{4}"
+                placeholder="+xx xxx xxx xxxx"
+                class="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
+                v-model="telNumber"
+                @input="acceptNumber"
+              />
+            </div>
+
+            <div>
+              <label class="block mb-2 text-sm text-gray-600 dark:text-gray-200"
+                >Telegram User ID</label
+              >
+              <input
+                type="text"
+                placeholder="Enter your password"
+                class="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
+              />
+            </div>
+            <div class="flex md:col-span-2 mt-5">
               <button
                 class="flex items-center m-auto justify-between gap-x-4 pl-6 pr-4 py-3 text-sm tracking-wide text-white capitalize transition-colors duration-300 transform bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50"
               >
