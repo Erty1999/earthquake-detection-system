@@ -1,23 +1,32 @@
 import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
 
-//Guardare tipi 
+//Guardare tipi
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  name: string;
+  firstName: string;
 
   @Column()
-  surname: string;
+  lastName: string;
 
   @Column()
   password: string;
 
   @Column()
-  email: number;
+  email: string;
 
   @Column()
-  isPublished: boolean;
+  phoneNumber: number;
+
+  @Column()
+  telegramID: string;
+
+  @Column()
+  avatar: string;
+
+  @Column()
+  isAdmin: boolean;
 }
