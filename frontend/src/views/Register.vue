@@ -1,7 +1,23 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import useAxios from "../composables/useAxios";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/vue/20/solid";
 
+const currentDate = ref(new Date().toISOString().slice(0, 10));
+const firstName = ref("");
+const lastName = ref("");
+const birthday = ref("");
+const email = ref("");
+const pwd = ref("");
+const pwdConf = ref("");
 const telNumber = ref("");
+const telegramID = ref("");
+
+const error = ref("");
+const isLoading = ref(true);
+const items = ref();
+const showPwd = ref(false);
+const showPwdConf = ref(false);
 
 function acceptNumber(e: InputEvent | any) {
   let x = telNumber.value
@@ -15,6 +31,35 @@ function acceptNumber(e: InputEvent | any) {
   if (x![1] && x![2] && !x![3] && e.inputType === "deleteContentBackward") {
     telNumber.value = telNumber.value.slice(0, -1);
   }
+}
+
+function show(type: number) {
+  if (type === 1) {
+    showPwd.value = !showPwd.value;
+    return;
+  }
+  showPwdConf.value = !showPwdConf.value;
+}
+
+async function submit() {
+  error.value = "";
+  if (pwd.value != pwdConf.value) {
+    error.value = "Passwords do not match";
+    return;
+  }
+
+  useAxios()
+    .get("/")
+    .then((response) => {
+      items.value = response.data;
+    })
+    .catch((error) => {
+      console.error(error);
+    })
+    .finally(() => {
+      isLoading.value = false;
+      console.log(items.value);
+    });
 }
 </script>
 
@@ -40,16 +85,27 @@ function acceptNumber(e: InputEvent | any) {
           >
             Get your free account
           </h1>
+          <div
+            v-if="error"
+            class="w-fit p-2 mx-auto my-4 rounded-md bg-red-500"
+          >
+            {{ error }}
+          </div>
 
-          <form class="grid grid-cols-1 gap-6 mt-8 md:grid-cols-2">
+          <form
+            class="grid grid-cols-1 gap-6 mt-8 md:grid-cols-2"
+            @submit.prevent="submit"
+          >
             <div>
               <label class="block mb-2 text-sm text-gray-600 dark:text-gray-200"
                 >First Name</label
               >
               <input
+                v-model="firstName"
                 type="text"
                 placeholder="John"
                 class="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
+                required
               />
             </div>
 
@@ -58,9 +114,11 @@ function acceptNumber(e: InputEvent | any) {
                 >Last name</label
               >
               <input
+                v-model="lastName"
                 type="text"
                 placeholder="Snow"
                 class="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
+                required
               />
             </div>
 
@@ -69,9 +127,12 @@ function acceptNumber(e: InputEvent | any) {
                 >Birthday</label
               >
               <input
+                v-model="birthday"
+                v-bind:max="currentDate"
                 type="date"
                 placeholder=" "
                 class="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
+                required
               />
             </div>
 
@@ -80,10 +141,12 @@ function acceptNumber(e: InputEvent | any) {
                 >Email address</label
               >
               <input
+                v-model="email"
                 type="email"
                 pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                 placeholder="johnsnow@example.com"
                 class="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
+                required
               />
             </div>
 
@@ -91,24 +154,82 @@ function acceptNumber(e: InputEvent | any) {
               <label class="block mb-2 text-sm text-gray-600 dark:text-gray-200"
                 >Password</label
               >
-              <input
-                type="password"
-                pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
-                placeholder="Enter your password"
-                class="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
-              />
+              <div class="w-full flex bg-gray-400 rounded-lg">
+                <input
+                  v-if="!showPwd"
+                  v-model="pwd"
+                  type="password"
+                  title=" the password must contains at least 8 characters, an uppercase letter and a digit"
+                  pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                  placeholder="Enter your password"
+                  class="block px-5 py-3 w-10/12 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-l-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
+                  required
+                />
+                <input
+                  v-else
+                  v-model="pwd"
+                  type="text"
+                  title=" the password must contains at least 8 characters, an uppercase letter and a digit"
+                  pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                  placeholder="Enter your password"
+                  class="block px-5 py-3 w-10/12 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-l-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
+                  required
+                />
+                <div
+                  class="grow flex justify-center cursor-pointer"
+                  @click="show(1)"
+                >
+                  <EyeIcon
+                    v-if="!showPwd"
+                    class="w-6 text-gray-800 focus:outline-none focus:ring focus:ring-opacity-40"
+                  />
+                  <EyeSlashIcon
+                    v-else
+                    class="w-6 text-gray-800 focus:outline-none focus:ring focus:ring-opacity-40"
+                  />
+                </div>
+              </div>
             </div>
 
             <div>
               <label class="block mb-2 text-sm text-gray-600 dark:text-gray-200"
                 >Confirm password</label
               >
-              <input
-                type="password"
-                pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
-                placeholder="Enter your password"
-                class="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
-              />
+              <div class="w-full flex bg-gray-400 rounded-lg">
+                <input
+                  v-if="!showPwdConf"
+                  v-model="pwdConf"
+                  type="password"
+                  title=" the password must contains at least 8 characters, an uppercase letter and a digit"
+                  pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                  placeholder="Enter your password"
+                  class="block px-5 py-3 w-10/12 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-l-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
+                  required
+                />
+                <input
+                  v-else
+                  v-model="pwdConf"
+                  type="text"
+                  title=" the password must contains at least 8 characters, an uppercase letter and a digit"
+                  pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                  placeholder="Enter your password"
+                  class="block px-5 py-3 w-10/12 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-l-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
+                  required
+                />
+                <div
+                  class="grow flex justify-center cursor-pointer"
+                  @click="show(2)"
+                >
+                  <EyeIcon
+                    v-if="!showPwdConf"
+                    class="w-6 text-gray-800 focus:outline-none focus:ring focus:ring-opacity-40"
+                  />
+                  <EyeSlashIcon
+                    v-else
+                    class="w-6 text-gray-800 focus:outline-none focus:ring focus:ring-opacity-40"
+                  />
+                </div>
+              </div>
             </div>
             <div>
               <label class="block mb-2 text-sm text-gray-600 dark:text-gray-200"
@@ -129,6 +250,7 @@ function acceptNumber(e: InputEvent | any) {
                 >Telegram User ID</label
               >
               <input
+                v-model="telegramID"
                 type="text"
                 placeholder="Enter your password"
                 class="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
