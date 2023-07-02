@@ -4,6 +4,7 @@ import useAxios from "../composables/useAxios";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/vue/20/solid";
 
 const currentDate = ref(new Date().toISOString().slice(0, 10));
+
 const firstName = ref("");
 const lastName = ref("");
 const birthday = ref("");
@@ -13,12 +14,14 @@ const pwdConf = ref("");
 const telNumber = ref("");
 const telegramID = ref("");
 
-const error = ref("");
-const isLoading = ref(true);
-const items = ref();
 const showPwd = ref(false);
 const showPwdConf = ref(false);
 
+const error = ref("");
+const isLoading = ref(true);
+const items = ref();
+
+//Function that parse number value in a +xx xxx xxx xxxx format
 function acceptNumber(e: InputEvent | any) {
   let x = telNumber.value
     .replace(/\D/g, "")
@@ -33,6 +36,7 @@ function acceptNumber(e: InputEvent | any) {
   }
 }
 
+//Function that manage the show/unshow passwords interactions
 function show(type: number) {
   if (type === 1) {
     showPwd.value = !showPwd.value;
@@ -41,15 +45,32 @@ function show(type: number) {
   showPwdConf.value = !showPwdConf.value;
 }
 
+//Function that manage the submit event
 async function submit() {
   error.value = "";
+
+  //check possible input errors
   if (pwd.value != pwdConf.value) {
     error.value = "Passwords do not match";
     return;
   }
-
+  //Reparse tel number format
+  let telnumberParsed = "";
+  if (telNumber.value) {
+    telnumberParsed = telNumber.value.slice(1).replace(/\s+/g, "");
+  }
+  //Register the new user
   useAxios()
-    .get("/")
+    .post("/register", {
+      firstName: firstName.value,
+      lastName: lastName.value,
+      birthday: birthday.value,
+      email: email.value,
+      pwd: pwd.value,
+      pwdConf: pwdConf.value,
+      telNumber: telnumberParsed,
+      telegramUserID: telegramID.value,
+    })
     .then((response) => {
       items.value = response.data;
     })

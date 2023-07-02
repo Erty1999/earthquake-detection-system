@@ -20,8 +20,6 @@ useAxios()
   });
 
 const router = useRouter();
-// const email = ref("johndoe@mail.com");
-// const password = ref("@#!@#asdf1231!_!@#");
 
 function login() {
   router.push("/dashboard");
