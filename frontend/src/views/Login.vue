@@ -1,6 +1,22 @@
 <script setup lang="ts">
-// import { ref } from "vue";
+import { ref, toRaw } from "vue";
 import { useRouter } from "vue-router";
+import useAxios from "../composables/useAxios";
+const isLoading = ref(true);
+const items = ref();
+
+useAxios()
+  .get("/")
+  .then((response) => {
+    items.value = response.data;
+  })
+  .catch((error) => {
+    console.error(error);
+  })
+  .finally(() => {
+    isLoading.value = false;
+    console.log(toRaw(items.value));
+  });
 
 const router = useRouter();
 // const email = ref("johndoe@mail.com");

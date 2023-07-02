@@ -2,6 +2,7 @@ import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import helmet from "helmet";
 import express from "express";
+import cors from "cors";
 import "reflect-metadata";
 
 import "express-async-errors";
@@ -12,6 +13,8 @@ async function main() {
   await AppDataSource.initialize();
   const app = express();
 
+  app.use(cors());
+
   // Basic middleware
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
@@ -21,7 +24,7 @@ async function main() {
   // logger
   app.use(morgan("dev"));
 
-  // safety (se caga il cazzo brucialo in dev)
+  // safety (se caga il cazzo bruciare in dev)
   app.use(helmet());
 
   // TODO: routes mettere in un altro file
