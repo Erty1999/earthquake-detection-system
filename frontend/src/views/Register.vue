@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import useAxios from "../composables/useAxios";
+
 import { EyeIcon, EyeSlashIcon } from "@heroicons/vue/20/solid";
+import { userStore, User } from "../store/user";
 
 const currentDate = ref(new Date().toISOString().slice(0, 10));
 
@@ -18,8 +19,10 @@ const showPwd = ref(false);
 const showPwdConf = ref(false);
 
 const error = ref("");
-const isLoading = ref(true);
-const items = ref();
+
+
+//Pinia store
+const store = userStore();
 
 //Function that parse number value in a +xx xxx xxx xxxx format
 function acceptNumber(e: InputEvent | any) {
@@ -54,33 +57,27 @@ async function submit() {
     error.value = "Passwords do not match";
     return;
   }
+
   //Reparse tel number format
   let telnumberParsed = "";
   if (telNumber.value) {
     telnumberParsed = telNumber.value.slice(1).replace(/\s+/g, "");
   }
-  //Register the new user
-  useAxios()
-    .post("/register", {
-      firstName: firstName.value,
-      lastName: lastName.value,
-      birthday: birthday.value,
-      email: email.value,
-      pwd: pwd.value,
-      pwdConf: pwdConf.value,
-      telNumber: telnumberParsed,
-      telegramUserID: telegramID.value,
-    })
-    .then((response) => {
-      items.value = response.data;
-    })
-    .catch((error) => {
-      console.error(error);
-    })
-    .finally(() => {
-      isLoading.value = false;
-      console.log(items.value);
-    });
+
+  //New user istance
+  const newUser = {
+    firstName: firstName.value,
+    lastName: lastName.value,
+    birthday: birthday.value,
+    email: email.value,
+    telNumber: telnumberParsed,
+    telegramUserID: telegramID.value,
+  } as User;
+
+  //Register function call
+  const result = await store.register(newUser, pwd.value);
+
+  console.log(result);
 }
 </script>
 
@@ -99,7 +96,7 @@ async function submit() {
       >
         <div class="w-full">
           <div class="flex justify-center mx-auto">
-            <img class="w-60 h-65 mb-5" src="/public/logo.png" alt="" />
+            <img class="w-60 h-65 mb-5" src="/logo.png" alt="" />
           </div>
           <h1
             class="text-2xl font-semibold tracking-wider text-gray-800 capitalize dark:text-white text-center"
