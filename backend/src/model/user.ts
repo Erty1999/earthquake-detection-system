@@ -1,9 +1,8 @@
 import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
 
-//Guardare tipi
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn("uuid")
   id: number;
 
   @Column()
@@ -18,13 +17,13 @@ export class User {
   @Column()
   email: string;
 
-  @Column()
-  phoneNumber: number;
+  @Column({ nullable: true })
+  phoneNumber: string;
 
-  @Column()
+  @Column({ nullable: true })
   telegramID: string;
 
-  @Column()
+  @Column({ nullable: true })
   avatar: string;
 
   @Column()
