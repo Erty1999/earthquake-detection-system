@@ -1,9 +1,11 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { AppDataSource } from "../dataSource";
 
+import { AppDataSource } from "../dataSource";
 import { User } from "../model/user";
 import { Router } from "express";
+
+import verifyToken from "./utils"
 
 const router = Router();
 
@@ -11,14 +13,10 @@ router.get("/", async (req, res, next) => {
   res.json({ message: "hello" });
 });
 
-router.get("/error", async (req, res, next) => {
-  throw new Error(":(");
-});
-
 router.post("/login", async function (req, res, next) {
   //Data is fetched from the request body
   const { email, pwd } = req.body;
-  
+
   //Check required data existence
   if (!email || !pwd) {
     return res
@@ -28,7 +26,7 @@ router.post("/login", async function (req, res, next) {
 
   const userRepository = AppDataSource.getRepository(User);
 
-  //Check the new user alredy existsence
+  //Check if the user email exists
   const user = await userRepository.findOne({ where: [{ email }] });
   if (!user) {
     return res.status(401).json({ message: "Invalid email or password" });
@@ -94,6 +92,12 @@ router.post("/register", async (req, res, next) => {
   const token = jwt.sign({ id: user.id }, "secret", { expiresIn: "1h" });
 
   res.json({ token });
+});
+
+
+router.get("/protected", verifyToken, async (req, res) => {
+  console.log((req as any).user);
+  res.json({ message: "Protected route" });
 });
 
 export default router;
