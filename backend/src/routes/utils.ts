@@ -28,7 +28,9 @@ export default function verifyToken(req: any, res: any, next: any) {
     if (!user) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
-    //Return the user info through the request
+
+    //Return the user info through the request (except the password)
+    delete (user as any).password;
     req.user = user;
     next();
   });

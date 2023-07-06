@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import useAxios from "../composables/useAxios";
+import useToken from "../composables/useToken";
 
 export type User = {
   id: string;
@@ -40,9 +41,11 @@ export const userStore = defineStore("userStore", () => {
         })
         .catch((e) => {
           error = e;
+          console.log(e)
         });
 
       if (error) throw error;
+      
       return response;
     },
 
@@ -78,6 +81,8 @@ export const userStore = defineStore("userStore", () => {
     //   }
 
     //   user.value = toRaw(me.data.value) as User;
+    // const cookie = useToken();
+    //   cookie.set("EA-session", (response as any).token);
 
     //   return value;
     // },

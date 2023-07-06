@@ -5,7 +5,7 @@ import { AppDataSource } from "../dataSource";
 import { User } from "../model/user";
 import { Router } from "express";
 
-import verifyToken from "./utils"
+import verifyToken from "./utils";
 
 const router = Router();
 
@@ -45,6 +45,8 @@ router.post("/login", async function (req, res, next) {
 });
 
 router.post("/register", async (req, res, next) => {
+  let error = false;
+
   //Data is fetched from the request body
   const {
     firstName,
@@ -62,7 +64,7 @@ router.post("/register", async (req, res, next) => {
       .status(400)
       .json({ message: "Missing required user information" });
   }
-
+  
   const userRepository = AppDataSource.getRepository(User);
 
   //Check if the new user alredy exists
@@ -86,18 +88,24 @@ router.post("/register", async (req, res, next) => {
     isAdmin: admin,
   });
 
-  await userRepository.save(user);
+  await userRepository.save(user).catch((e) => {
+    error = true;
+  });
 
-  //Session token creation
-  const token = jwt.sign({ id: user.id }, "secret", { expiresIn: "1h" });
+  //Check if the save was successful
+  if (error) {
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
 
-  res.json({ token });
+
+  res.status(200).json({ message: "User created correctly" });
 });
 
-
-router.get("/protected", verifyToken, async (req, res) => {
-  console.log((req as any).user);
-  res.json({ message: "Protected route" });
+router.get("/me", verifyToken, async (req, res) => {
+  /*Recover user info through the request by 
+    the execution of the verifyToken function*/
+  let user = (req as any).user;
+  res.json(user);
 });
 
 export default router;

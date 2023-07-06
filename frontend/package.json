@@ -10,9 +10,11 @@
   },
   "dependencies": {
     "@heroicons/vue": "^2.0.18",
+    "@vueuse/core": "^10.2.1",
     "axios": "^1.4.0",
     "chart.js": "^4.3.0",
     "pinia": "^2.1.4",
+    "universal-cookie": "^4.0.4",
     "vue": "^3.2.47",
     "vue-chartjs": "^5.2.0",
     "vue-router": "^4.2.2"

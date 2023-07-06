@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 import { EyeIcon, EyeSlashIcon } from "@heroicons/vue/20/solid";
 import { userStore, User } from "../store/user";
@@ -20,6 +21,7 @@ const showPwdConf = ref(false);
 
 const error = ref("");
 
+const router = useRouter();
 
 //Pinia store
 const store = userStore();
@@ -75,9 +77,14 @@ async function submit() {
   } as User;
 
   //Register function call
-  const result = await store.register(newUser, pwd.value);
+  await store.register(newUser, pwd.value).catch((e) => {
+    error.value =
+      e.response.data.message ?? "Internal server error, please try again...";
+  });
 
-  console.log(result);
+  if (error.value) return;
+
+  return await router.push("/login");
 }
 </script>
 
@@ -116,7 +123,7 @@ async function submit() {
           >
             <div>
               <label class="block mb-2 text-sm text-gray-600 dark:text-gray-200"
-                >First Name</label
+                >First Name<sup class="text-gray-500">*</sup></label
               >
               <input
                 v-model="firstName"
@@ -129,7 +136,7 @@ async function submit() {
 
             <div>
               <label class="block mb-2 text-sm text-gray-600 dark:text-gray-200"
-                >Last name</label
+                >Last name<sup class="text-gray-500">*</sup></label
               >
               <input
                 v-model="lastName"
@@ -142,7 +149,7 @@ async function submit() {
 
             <div>
               <label class="block mb-2 text-sm text-gray-600 dark:text-gray-200"
-                >Birthday</label
+                >Birthday<sup class="text-gray-500">*</sup></label
               >
               <input
                 v-model="birthday"
@@ -156,7 +163,7 @@ async function submit() {
 
             <div>
               <label class="block mb-2 text-sm text-gray-600 dark:text-gray-200"
-                >Email address</label
+                >Email address<sup class="text-gray-500">*</sup></label
               >
               <input
                 v-model="email"
@@ -170,7 +177,7 @@ async function submit() {
 
             <div>
               <label class="block mb-2 text-sm text-gray-600 dark:text-gray-200"
-                >Password</label
+                >Password<sup class="text-gray-500">**</sup></label
               >
               <div class="w-full flex bg-gray-400 rounded-lg">
                 <input
@@ -211,14 +218,14 @@ async function submit() {
 
             <div>
               <label class="block mb-2 text-sm text-gray-600 dark:text-gray-200"
-                >Confirm password</label
+                >Confirm password<sup class="text-gray-500">**</sup></label
               >
               <div class="w-full flex bg-gray-400 rounded-lg">
                 <input
                   v-if="!showPwdConf"
                   v-model="pwdConf"
                   type="password"
-                  title=" the password must contains at least 8 characters, an uppercase letter and a digit"
+                  title=" The password must contains at least 8 characters, an uppercase letter and a digit"
                   pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
                   placeholder="Enter your password"
                   class="block px-5 py-3 w-10/12 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-l-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
@@ -228,7 +235,7 @@ async function submit() {
                   v-else
                   v-model="pwdConf"
                   type="text"
-                  title=" the password must contains at least 8 characters, an uppercase letter and a digit"
+                  title=" The password must contains at least 8 characters, an uppercase letter and a digit"
                   pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
                   placeholder="Enter your password"
                   class="block px-5 py-3 w-10/12 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-l-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
@@ -295,6 +302,13 @@ async function submit() {
               </button>
             </div>
           </form>
+          <div class="block mt-9 text-xs text-gray-500">
+            <sup> *</sup> Required fields
+          </div>
+          <div class="block mt-1 text-xs text-gray-500">
+            <sup>**</sup> The password must contains at least 8 characters, an
+            uppercase letter and a digit
+          </div>
         </div>
       </div>
     </div>
