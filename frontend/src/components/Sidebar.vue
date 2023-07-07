@@ -1,18 +1,26 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useSidebar } from "../composables/useSidebar";
 import { useRouter } from "vue-router";
+import { userStore } from "../store/user";
 
 const { currentRoute } = useRouter();
-const router = useRouter();
 const { isOpen } = useSidebar();
+
+const router = useRouter();
+const store = userStore();
+
+const user = computed(() => store.user);
+
 const activeClass = ref(
   "bg-gray-600 bg-opacity-25 text-gray-100 border-gray-100"
 );
 const inactiveClass = ref(
   "border-gray-900 text-gray-500 hover:bg-gray-600 hover:bg-opacity-25 hover:text-gray-100"
 );
-function logout() {
+
+async function logout() {
+  await store.logout();
   router.push("/login");
 }
 </script>
@@ -198,33 +206,35 @@ function logout() {
           <span class="mx-4">Blank</span>
         </router-link>
       </nav>
+
       <!-- START profile zone -->
       <div class="fixed bottom-0 w-full">
         <div
           v-if="currentRoute.name != 'Me'"
-          class="flex flex-col w-full py-8 px-2 bg-slate-800"
+          class="flex flex-col w-full pb-8 pt-4 px-2 bg-slate-800"
         >
-          <div class="flex items-center gap-x-2">
-            <img
-              class="object-cover w-14 h-14 rounded-lg"
-              src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=faceare&facepad=3&w=688&h=688&q=100"
-              alt=""
-            />
-
-            <div>
+          <img
+            v-if="user?.avatar"
+            class="object-cover w-14 h-14 rounded-lg m-auto"
+            src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=faceare&facepad=3&w=688&h=688&q=100"
+            alt=""
+          />
+          <div
+            class="flex flex-col justify-center items-center gap-y-1 py-2 w-full"
+          >
+            <div class="m-auto">
               <h1
                 class="text-xl font-semibold text-gray-700 capitalize dark:text-white"
               >
-                Mia John
+                {{ user?.firstName }} {{ user?.lastName }}
               </h1>
-
-              <p class="text-base text-gray-500 dark:text-gray-400">
-                miajohn@merakiui.com
-              </p>
             </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              {{ user?.email }}
+            </p>
           </div>
           <div
-            class="flex row gap-x-5 item-center w-full mt-4 text-white text-md"
+            class="flex row gap-x-5 item-center m-auto mt-4 text-white text-md"
           >
             <button
               class="px-4 py-1 bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:bg-blue-400 focus:ring focus:ring-blue-300 focus:ring-opacity-50"

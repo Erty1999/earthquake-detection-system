@@ -13,6 +13,7 @@ export type User = {
   telNumber: string;
   telegramUserID: string;
   isAdmin?: boolean;
+  avatar?: Object;
 };
 
 export type Credentials = {
@@ -75,7 +76,10 @@ export const userStore = defineStore("userStore", () => {
 
       //Create session cookie
       const cookie = useToken();
-      cookie.set("EA-session", value.token);
+      cookie.set("EA-session", value.token, {
+        sameSite: "none",
+        secure: true,
+      });
 
       return value;
     },
@@ -83,7 +87,10 @@ export const userStore = defineStore("userStore", () => {
     async logout() {
       //Remove session cookie
       const cookie = useToken();
-      cookie.remove("EA-session");
+      cookie.remove("EA-session", {
+        sameSite: "none",
+        secure: true,
+      });
 
       //Delete store user istance
       user.value = null;
