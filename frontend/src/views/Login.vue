@@ -1,29 +1,52 @@
 <script setup lang="ts">
-import { ref, toRaw } from "vue";
+import { ref } from "vue";
+
 import { useRouter } from "vue-router";
-import useAxios from "../composables/useAxios";
 
-const isLoading = ref(true);
-const items = ref();
-
-useAxios()
-  .get("/")
-  .then((response) => {
-    items.value = response.data;
-  })
-  .catch((error) => {
-    console.error(error);
-  })
-  .finally(() => {
-    isLoading.value = false;
-    console.log(toRaw(items.value));
-  });
+import { EyeIcon, EyeSlashIcon } from "@heroicons/vue/20/solid";
+import { userStore } from "../store/user";
 
 const router = useRouter();
+const store = userStore();
 
-function login() {
-  router.push("/dashboard");
+const error = ref("");
+const email = ref("");
+const pwd = ref("");
+
+const showPwd = ref(false);
+
+//Function that manage the show/unshow password interactions
+function show() {
+  showPwd.value = !showPwd.value;
 }
+
+//Function that manage the submit event
+async function submit() {
+  error.value = "";
+
+  //check possible input errors
+  if (!pwd.value || !email.value) {
+    error.value = "Please complete all fields";
+    return;
+  }
+
+  //Credential
+  const credential = {
+    email: email.value,
+    pwd: pwd.value,
+  };
+
+  //Register function call
+  await store.login(credential).catch((e) => {
+    error.value =
+      e.response.data.message ?? "Internal server error, please try again...";
+  });
+
+  if (error.value) return;
+
+  return await router.push("/dashboard");
+}
+
 </script>
 
 <template>
@@ -34,9 +57,14 @@ function login() {
           <div class="flex justify-center mx-auto">
             <img class="w-60 h-65" src="/public/logo.png" alt="" />
           </div>
-
-          <div class="mt-20">
-            <form @submit.prevent="login">
+          <div
+            v-if="error"
+            class="w-fit mt-10 p-2 mx-auto mb-4 rounded-md bg-red-500"
+          >
+            {{ error }}
+          </div>
+          <div class="mt-10">
+            <form @submit.prevent="submit">
               <div>
                 <label
                   for="email"
@@ -44,11 +72,12 @@ function login() {
                   >Email Address</label
                 >
                 <input
+                  v-model="email"
                   type="email"
-                  name="email"
-                  id="email"
-                  placeholder="example@example.com"
-                  class="block w-full px-4 py-2 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
+                  pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                  placeholder="johnsnow@example.com"
+                  class="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
+                  required
                 />
               </div>
 
@@ -60,17 +89,44 @@ function login() {
                     >Password</label
                   >
                 </div>
-
-                <input
-                  type="password"
-                  name="password"
-                  id="password"
-                  placeholder="Your Password"
-                  class="block w-full px-4 py-2 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
-                />
+                <div class="w-full flex bg-gray-400 rounded-lg">
+                  <input
+                    v-if="!showPwd"
+                    v-model="pwd"
+                    type="password"
+                    title=" the password must contains at least 8 characters, an uppercase letter and a digit"
+                    pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                    placeholder="Your Password"
+                    class="block h-full w-10/12 px-4 py-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-l-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
+                    required
+                  />
+                  <input
+                    v-else
+                    v-model="pwd"
+                    type="text"
+                    title=" the password must contains at least 8 characters, an uppercase letter and a digit"
+                    pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                    placeholder="Your Password"
+                    class="block h-full w-10/12 px-4 py-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-l-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
+                    required
+                  />
+                  <div
+                    class="grow flex justify-center cursor-pointer"
+                    @click="show()"
+                  >
+                    <EyeIcon
+                      v-if="!showPwd"
+                      class="w-6 text-gray-800 focus:outline-none focus:ring focus:ring-opacity-40"
+                    />
+                    <EyeSlashIcon
+                      v-else
+                      class="w-6 text-gray-800 focus:outline-none focus:ring focus:ring-opacity-40"
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div class="mt-6">
+              <div class="mt-12">
                 <button
                   class="w-full px-4 py-2 tracking-wide text-white transition-colors duration-300 transform bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:bg-blue-400 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
                 >

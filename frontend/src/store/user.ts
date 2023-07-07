@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import useAxios from "../composables/useAxios";
+import useAuthAxios from "../composables/useAuthAxios";
 import useToken from "../composables/useToken";
 
 export type User = {
@@ -11,6 +12,7 @@ export type User = {
   birthday: string;
   telNumber: string;
   telegramUserID: string;
+  isAdmin?: boolean;
 };
 
 export type Credentials = {
@@ -41,57 +43,71 @@ export const userStore = defineStore("userStore", () => {
         })
         .catch((e) => {
           error = e;
-          console.log(e)
         });
 
       if (error) throw error;
-      
+
       return response;
     },
 
-    // async login(credentials: Credentials) {
-    //   const { data, error } = await useFetch("/api/user/login", {
-    //     method: "POST",
-    //     body: {
-    //       identifier: credentials.identifier,
-    //       password: credentials.password,
-    //     },
-    //   });
+    async login(credentials: Credentials) {
+      let error;
+      let response;
 
-    //   if (error.value) {
-    //     throw error.value;
-    //   }
+      await useAxios()
+        .post("/login", {
+          email: credentials.email,
+          pwd: credentials.pwd,
+        })
+        .then((res) => {
+          response = res.data;
+        })
+        .catch((e) => {
+          error = e;
+        });
 
-    //   const value = data.value as { jwt: string; user: User };
+      if (error) throw error;
 
-    //   const token = useToken();
-    //   token.value = value.jwt;
+      const value = response as any as { user: User; token: string };
 
-    //   //Recover user avatar
-    //   const me = await useFetch("/api/user/me", {
-    //     method: "GET",
-    //     headers: {
-    //       Authorization: "Bearer " + value.jwt,
-    //     },
-    //   });
+      //Populate the store user istance
+      user.value = value.user;
 
-    //   if (me.error.value) {
-    //     token.value = null;
-    //     throw me.error.value;
-    //   }
+      //Create session cookie
+      const cookie = useToken();
+      cookie.set("EA-session", value.token);
 
-    //   user.value = toRaw(me.data.value) as User;
-    // const cookie = useToken();
-    //   cookie.set("EA-session", (response as any).token);
-
-    //   return value;
-    // },
+      return value;
+    },
 
     async logout() {
-      //   const token = useToken();
-      //   token.value = null;
+      //Remove session cookie
+      const cookie = useToken();
+      cookie.remove("EA-session");
 
+      //Delete store user istance
       user.value = null;
+    },
+
+    async me() {
+      let error;
+      let response;
+
+      await useAuthAxios()
+        .get("/me")
+        .then((res) => {
+          response = res.data;
+        })
+        .catch((e) => {
+          error = e;
+        });
+
+      if (error) throw error;
+
+      //Populate the store user istance
+      user.value = response as any as User;
+
+      return response;
     },
   };
 

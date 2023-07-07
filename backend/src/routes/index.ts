@@ -41,7 +41,8 @@ router.post("/login", async function (req, res, next) {
   //Session token creation
   const token = jwt.sign({ id: user.id }, "secret", { expiresIn: "1h" });
 
-  res.json({ token });
+  delete (user as any).password;
+  res.json({ user, token });
 });
 
 router.post("/register", async (req, res, next) => {
@@ -64,7 +65,7 @@ router.post("/register", async (req, res, next) => {
       .status(400)
       .json({ message: "Missing required user information" });
   }
-  
+
   const userRepository = AppDataSource.getRepository(User);
 
   //Check if the new user alredy exists
@@ -97,13 +98,12 @@ router.post("/register", async (req, res, next) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 
-
   res.status(200).json({ message: "User created correctly" });
 });
 
-router.get("/me", verifyToken, async (req, res) => {
-  /*Recover user info through the request by 
+/*Recover user info through the request by 
     the execution of the verifyToken function*/
+router.get("/me", verifyToken, async (req, res) => {
   let user = (req as any).user;
   res.json(user);
 });
