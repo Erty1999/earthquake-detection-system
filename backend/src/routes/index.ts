@@ -83,9 +83,10 @@ router.post("/register", async (req, res, next) => {
     firstName: firstName,
     lastName: lastName,
     email: email,
+    birthday: birthday,
     password: hashedPassword,
-    phoneNumber: telNumber,
-    telegramID: telegramUserID,
+    telNumber: telNumber,
+    telegramUserID: telegramUserID,
     isAdmin: admin,
   });
 
@@ -103,9 +104,52 @@ router.post("/register", async (req, res, next) => {
 
 /*Recover user info through the request by 
     the execution of the verifyToken function*/
-router.get("/me", verifyToken, async (req, res) => {
+router.get("/me", verifyToken, async (req, res, next) => {
   let user = (req as any).user;
   res.json(user);
+});
+
+router.put("/users/:id", async (req, res, next) => {
+  const id = req.params.id as any;
+
+  const userRepository = AppDataSource.getRepository(User);
+
+  const user = await userRepository.findOne({ where: [{ id }] });
+  if (!user) {
+    return res.status(404).send("User not found");
+  }
+
+  //Data is fetched from the request body
+  const {
+    firstName,
+    lastName,
+    birthday,
+    email,
+    telNumber,
+    telegramUserID,
+    pwd,
+  } = req.body;
+
+  //Update User
+  user.firstName = firstName;
+  user.lastName = lastName;
+  user.email = email;
+  user.birthday = birthday;
+  user.telNumber = telNumber;
+  user.telegramUserID = telegramUserID;
+
+  console.log(firstName)
+
+  if (pwd) {
+    console.log(pwd)
+    //Password hashing
+    const hashedPassword = await bcrypt.hash(pwd, 10);
+    user.password = hashedPassword;
+  }
+
+  //Save updates
+  await userRepository.save(user);
+  res.send(user);
 });
 
 export default router;

@@ -1,7 +1,25 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
+import { userStore } from "../store/user";
 
-const telNumber = ref("");
+const store = userStore();
+const user = computed(() => store.user);
+
+const currentDate = ref(new Date().toISOString().slice(0, 10));
+
+const firstName = ref(user.value?.firstName ?? "");
+const lastName = ref(user.value?.lastName ?? "");
+const birthday = ref(user.value?.birthday ?? "");
+const email = ref(user.value?.email ?? "");
+const telNumber = ref(user.value?.telNumber ?? "");
+const telegramID = ref(user.value?.telegramUserID ?? "");
+const pwd = ref("");
+const pwdConf = ref("");
+
+// const showPwd = ref(false);
+// const showPwdConf = ref(false);
+
+// const error = ref("");
 
 function acceptNumber(e: InputEvent | any) {
   let x = telNumber.value
@@ -16,6 +34,9 @@ function acceptNumber(e: InputEvent | any) {
     telNumber.value = telNumber.value.slice(0, -1);
   }
 }
+//Initial telNumbet parsing
+acceptNumber(null);
+
 </script>
 
 <template>
@@ -94,15 +115,16 @@ function acceptNumber(e: InputEvent | any) {
             </div>
             <div class="text-center">
               <h3
-                class="text-4xl font-semibold leading-normal mb-2 text-gray-800"
+                class="text-4xl font-semibold leading-normal mb-2 text-gray-800 capitalize"
               >
-                Jenna Stones
+                {{ user?.firstName ?? "User" }} {{ user?.lastName ?? "Name" }}
               </h3>
             </div>
             <form class="mb-2 p-5 w-full">
               <div class="grid md:grid-cols-2 md:gap-6">
                 <div class="relative z-0 w-full mb-6 group">
                   <input
+                    v-model="firstName"
                     type="text"
                     name="first_name"
                     id="first_name"
@@ -118,6 +140,7 @@ function acceptNumber(e: InputEvent | any) {
                 </div>
                 <div class="relative z-0 w-full mb-6 group">
                   <input
+                    v-model="lastName"
                     type="text"
                     name="last_name"
                     id="last_name"
@@ -135,11 +158,12 @@ function acceptNumber(e: InputEvent | any) {
               <div class="grid md:grid-cols-2 md:gap-6 mt-4">
                 <div class="relative z-0 w-full mb-6 group">
                   <input
+                    v-model="birthday"
+                    v-bind:max="currentDate"
                     type="date"
                     name="birthday"
                     id="birthday"
                     class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                    placeholder=" "
                     required
                   />
                   <label
@@ -150,10 +174,11 @@ function acceptNumber(e: InputEvent | any) {
                 </div>
                 <div class="relative z-0 w-full mb-6 group">
                   <input
+                    v-model="email"
                     type="text"
                     name="email"
                     id="email"
-                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                    pattern="[a-z0-9A-Z._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                     class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                     placeholder=" "
                     required
@@ -162,42 +187,6 @@ function acceptNumber(e: InputEvent | any) {
                     for="floating_last_name"
                     class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
                     >Email Address</label
-                  >
-                </div>
-              </div>
-              <div class="grid md:grid-cols-2 md:gap-6 mt-4">
-                <div class="relative z-0 w-full mb-6 group">
-                  <input
-                    type="password"
-                    pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
-                    title="Must contain at least one  number and one uppercase and lowercase letter, and at least 8 or more characters"
-                    name="pwd"
-                    id="pwd"
-                    class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                    placeholder=" "
-                    required
-                  />
-                  <label
-                    for="pwd"
-                    class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                    >Password</label
-                  >
-                </div>
-                <div class="relative z-0 w-full mb-6 group">
-                  <input
-                    type="password"
-                    name="pwdConf"
-                    pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
-                    title="Confirm password"
-                    id="pwdConf"
-                    class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                    placeholder=" "
-                    required
-                  />
-                  <label
-                    for="pwdConf"
-                    class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                    >Confirm Password</label
                   >
                 </div>
               </div>
@@ -222,6 +211,7 @@ function acceptNumber(e: InputEvent | any) {
                 </div>
                 <div class="relative z-0 w-full mb-6 group">
                   <input
+                    v-model="telegramID"
                     type="text"
                     name="telegramID"
                     id="telegramID"
@@ -232,6 +222,44 @@ function acceptNumber(e: InputEvent | any) {
                     for="telegramID"
                     class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
                     >Telegram User ID</label
+                  >
+                </div>
+              </div>
+              <div class="grid md:grid-cols-2 md:gap-6 mt-4">
+                <div class="relative z-0 w-full mb-6 group">
+                  <input
+                    v-model="pwd"
+                    type="password"
+                    pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                    title="Must contain at least one  number and one uppercase and lowercase letter, and at least 8 or more characters"
+                    name="pwd"
+                    id="pwd"
+                    class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                    placeholder=" "
+                    required
+                  />
+                  <label
+                    for="pwd"
+                    class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+                    >Password</label
+                  >
+                </div>
+                <div class="relative z-0 w-full mb-6 group">
+                  <input
+                    v-model="pwdConf"
+                    type="password"
+                    name="pwdConf"
+                    pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                    title="Confirm password"
+                    id="pwdConf"
+                    class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                    placeholder=" "
+                    required
+                  />
+                  <label
+                    for="pwdConf"
+                    class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+                    >Confirm Password</label
                   >
                 </div>
               </div>

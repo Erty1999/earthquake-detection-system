@@ -105,7 +105,11 @@ export const userStore = defineStore("userStore", () => {
         .then((res) => {
           response = res.data;
         })
-        .catch((e) => {
+        .catch(async (e) => {
+          //Delete coockie if the user is unauthorized
+          if (e.response.status === 401) {
+            await this.logout();
+          }
           error = e;
         });
 

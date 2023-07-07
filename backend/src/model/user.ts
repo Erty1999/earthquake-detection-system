@@ -9,6 +9,9 @@ export class User {
   firstName: string;
 
   @Column()
+  birthday: string;
+
+  @Column()
   lastName: string;
 
   @Column()
@@ -18,10 +21,10 @@ export class User {
   email: string;
 
   @Column({ nullable: true })
-  phoneNumber: string;
+  telNumber: string;
 
   @Column({ nullable: true })
-  telegramID: string;
+  telegramUserID: string;
 
   @Column({ nullable: true })
   avatar: string;
