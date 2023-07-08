@@ -120,6 +120,31 @@ export const userStore = defineStore("userStore", () => {
 
       return response;
     },
+    async updateUser(updatedUser: User, pwd: string) {
+      let error;
+      let response;
+
+      await useAuthAxios()
+        .put("/users/" + updatedUser.id, {
+          firstName: updatedUser.firstName,
+          lastName: updatedUser.lastName,
+          birthday: updatedUser.birthday,
+          email: updatedUser.email,
+          telNumber: updatedUser.telNumber,
+          telegramUserID: updatedUser.telegramUserID,
+          pwd: pwd,
+        })
+        .then((res) => {
+          response = res.data;
+        })
+        .catch((e) => {
+          error = e;
+        });
+
+      if (error) throw error;
+
+      return response;
+    },
   };
 
   return { user, ...actions };

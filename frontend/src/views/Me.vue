@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { userStore } from "../store/user";
+import { userStore, User } from "../store/user";
+
+import { EyeIcon, EyeSlashIcon } from "@heroicons/vue/24/outline";
 
 const store = userStore();
 const user = computed(() => store.user);
@@ -16,10 +18,12 @@ const telegramID = ref(user.value?.telegramUserID ?? "");
 const pwd = ref("");
 const pwdConf = ref("");
 
-// const showPwd = ref(false);
-// const showPwdConf = ref(false);
+const showPwd = ref(false);
+const showPwdConf = ref(false);
+const hasChanged = ref(false);
 
-// const error = ref("");
+const error = ref("");
+const success = ref("");
 
 function acceptNumber(e: InputEvent | any) {
   let x = telNumber.value
@@ -37,6 +41,76 @@ function acceptNumber(e: InputEvent | any) {
 //Initial telNumbet parsing
 acceptNumber(null);
 
+//Function that manage the show/unshow passwords interactions
+function show(type: number) {
+  if (type === 1) {
+    showPwd.value = !showPwd.value;
+    return;
+  }
+  showPwdConf.value = !showPwdConf.value;
+}
+function resetValues() {
+  firstName.value = user.value?.firstName ?? "";
+  lastName.value = user.value?.lastName ?? "";
+  birthday.value = user.value?.birthday ?? "";
+  email.value = user.value?.email ?? "";
+  telNumber.value = user.value?.telNumber ?? "";
+  telegramID.value = user.value?.telegramUserID ?? "";
+  pwd.value = "";
+  pwdConf.value = "";
+
+  showPwd.value = false;
+  showPwdConf.value = false;
+
+  acceptNumber(null);
+  hasChanged.value = false;
+}
+//Function that manage the submit event
+async function submit() {
+  error.value = "";
+  success.value = "";
+
+  //check possible input errors
+  if (pwd.value && pwd.value != pwdConf.value) {
+    error.value = "Passwords do not match";
+    return;
+  }
+
+  //Reparse tel number format
+  let telnumberParsed = "";
+  if (telNumber.value) {
+    telnumberParsed = telNumber.value.slice(1).replace(/\s+/g, "");
+  }
+
+  //New user istance
+  const newUser = {
+    id: user.value?.id,
+    firstName: firstName.value,
+    lastName: lastName.value,
+    birthday: birthday.value,
+    email: email.value,
+    telNumber: telnumberParsed,
+    telegramUserID: telegramID.value,
+  } as User;
+
+  //Register function call
+  const response = await store.updateUser(newUser, pwd.value).catch((e) => {
+    error.value =
+      e.response.data.message ?? "Internal server error, please try again...";
+  });
+
+  if (error.value) return;
+
+  //Update stored user info
+  store.user = response as any as User;
+  pwd.value = "";
+  pwdConf.value = "";
+
+  //Show success message
+  success.value = "Information successfully updated";
+
+  hasChanged.value = false;
+}
 </script>
 
 <template>
@@ -120,7 +194,28 @@ acceptNumber(null);
                 {{ user?.firstName ?? "User" }} {{ user?.lastName ?? "Name" }}
               </h3>
             </div>
-            <form class="mb-2 p-5 w-full">
+            <div
+              v-if="error"
+              class="w-fit p-2 mx-auto my-4 rounded-md bg-red-500"
+            >
+              {{ error }}
+            </div>
+            <div
+              v-if="success"
+              class="w-fit p-2 mx-auto my-4 rounded-md bg-green-500"
+            >
+              {{ success }}
+            </div>
+            <form
+              class="mb-2 p-5 w-full"
+              @submit.prevent="submit"
+              @reset.prevent="resetValues"
+              @change="
+                () => {
+                  hasChanged = true;
+                }
+              "
+            >
               <div class="grid md:grid-cols-2 md:gap-6">
                 <div class="relative z-0 w-full mb-6 group">
                   <input
@@ -215,7 +310,7 @@ acceptNumber(null);
                     type="text"
                     name="telegramID"
                     id="telegramID"
-                    class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                    class="block py-2.5 px-0 w-full text-sm text-gsubmitray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                     placeholder=" "
                   />
                   <label
@@ -229,15 +324,27 @@ acceptNumber(null);
                 <div class="relative z-0 w-full mb-6 group">
                   <input
                     v-model="pwd"
-                    type="password"
+                    v-bind:type="showPwd ? 'text' : 'password'"
                     pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
                     title="Must contain at least one  number and one uppercase and lowercase letter, and at least 8 or more characters"
                     name="pwd"
                     id="pwd"
                     class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                     placeholder=" "
-                    required
                   />
+                  <div
+                    class="absolute top-3 right-0 cursor-pointer"
+                    @click="show(1)"
+                  >
+                    <EyeIcon
+                      v-if="!showPwd"
+                      class="w-6 text-gray-800 focus:outline-none focus:ring focus:ring-opacity-40"
+                    />
+                    <EyeSlashIcon
+                      v-else
+                      class="w-6 text-gray-800 focus:outline-none focus:ring focus:ring-opacity-40"
+                    />
+                  </div>
                   <label
                     for="pwd"
                     class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
@@ -247,15 +354,27 @@ acceptNumber(null);
                 <div class="relative z-0 w-full mb-6 group">
                   <input
                     v-model="pwdConf"
-                    type="password"
+                    v-bind:type="showPwdConf ? 'text' : 'password'"
                     name="pwdConf"
                     pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
                     title="Confirm password"
                     id="pwdConf"
                     class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                     placeholder=" "
-                    required
                   />
+                  <div
+                    class="absolute top-3 right-0 cursor-pointer"
+                    @click="show(2)"
+                  >
+                    <EyeIcon
+                      v-if="!showPwdConf"
+                      class="w-6 text-gray-800 focus:outline-none focus:ring focus:ring-opacity-40"
+                    />
+                    <EyeSlashIcon
+                      v-else
+                      class="w-6 text-gray-800 focus:outline-none focus:ring focus:ring-opacity-40"
+                    />
+                  </div>
                   <label
                     for="pwdConf"
                     class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
@@ -263,12 +382,21 @@ acceptNumber(null);
                   >
                 </div>
               </div>
-              <div class="flex w-full mt-6">
+              <div
+                class="flex w-full mt-6 justify-center gap-x-6"
+                v-if="hasChanged"
+              >
                 <button
                   type="submit"
-                  class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-md sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mx-auto"
+                  class="sm:w-auto text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-md px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 >
                   Save changes
+                </button>
+                <button
+                  type="reset"
+                  class="font-medium rounded-lg text-md sm:w-auto px-5 py-2.5 text-center text-white bg-red-500 hover:bg-red-400 focus:outline-none focus:bg-red-400 focus:ring focus:ring-red-300 focus:ring-opacity-50"
+                >
+                  Reset Changes
                 </button>
               </div>
             </form>

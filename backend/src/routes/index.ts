@@ -109,14 +109,27 @@ router.get("/me", verifyToken, async (req, res, next) => {
   res.json(user);
 });
 
-router.put("/users/:id", async (req, res, next) => {
+router.put("/users/:id", verifyToken, async (req, res, next) => {
+  const reqUser = (req as any).user;
   const id = req.params.id as any;
+  let user;
 
   const userRepository = AppDataSource.getRepository(User);
 
-  const user = await userRepository.findOne({ where: [{ id }] });
+  try {
+    user = await userRepository.findOne({ where: [{ id }] }).catch();
+  } catch {
+    user = null;
+  }
+
+  //If no user has the requested id
   if (!user) {
     return res.status(404).send("User not found");
+  }
+
+  //If it is not an admin or the user itself return unauthorized
+  if (!reqUser.isAdmin && reqUser.id != user.id) {
+    return res.status(401).send("Unauthorized Operation");
   }
 
   //Data is fetched from the request body
@@ -127,21 +140,33 @@ router.put("/users/:id", async (req, res, next) => {
     email,
     telNumber,
     telegramUserID,
+    avatar,
+    isAdmin,
     pwd,
   } = req.body;
 
-  //Update User
-  user.firstName = firstName;
-  user.lastName = lastName;
-  user.email = email;
-  user.birthday = birthday;
-  user.telNumber = telNumber;
-  user.telegramUserID = telegramUserID;
+  //Only admin can change the admin status of a user
+  if (isAdmin && !reqUser.isAdmin) {
+    return res.status(401).send("Unauthorized Operation");
+  }
 
-  console.log(firstName)
+  //Check if the email is alredy in use
+  const existingEmailUser = await userRepository.findOne({ where: [{ email }] });
+  if (existingEmailUser && id != existingEmailUser.id) {
+    return res.status(409).json({ message: "Email already used" });
+  }
+
+  //Update User
+  user.firstName = firstName ?? user.firstName;
+  user.lastName = lastName ?? user.lastName;
+  user.email = email ?? user.email;
+  user.birthday = birthday ?? user.birthday;
+  user.telNumber = telNumber ?? user.telNumber;
+  user.telegramUserID = telegramUserID ?? user.telegramUserID;
+  user.avatar = avatar ?? user.avatar;
+  user.isAdmin = isAdmin ?? user.isAdmin;
 
   if (pwd) {
-    console.log(pwd)
     //Password hashing
     const hashedPassword = await bcrypt.hash(pwd, 10);
     user.password = hashedPassword;
@@ -149,6 +174,9 @@ router.put("/users/:id", async (req, res, next) => {
 
   //Save updates
   await userRepository.save(user);
+
+  //Return updated user
+  delete (user as any).password;
   res.send(user);
 });
 
