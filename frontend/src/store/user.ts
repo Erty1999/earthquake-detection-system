@@ -94,6 +94,7 @@ export const userStore = defineStore("userStore", () => {
 
       //Delete store user istance
       user.value = null;
+
     },
 
     async me() {

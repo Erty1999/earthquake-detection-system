@@ -2,7 +2,12 @@
 import { ref, computed } from "vue";
 import { userStore, User } from "../store/user";
 
-import { EyeIcon, EyeSlashIcon } from "@heroicons/vue/24/outline";
+import {
+  EyeIcon,
+  EyeSlashIcon,
+  UserCircleIcon,
+  ArrowUpTrayIcon,
+} from "@heroicons/vue/24/outline";
 
 const store = userStore();
 const user = computed(() => store.user);
@@ -122,10 +127,15 @@ async function submit() {
           background-image: url('https://images.unsplash.com/photo-1609568175100-55a3902e3188?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80');
         "
       >
-        <span
+        <div
           id="blackOverlay"
-          class="w-full h-full absolute opacity-50 bg-black rounded-t-lg"
-        ></span>
+          class="w-full h-full absolute bg-opacity-60 bg-black rounded-t-lg text-white flex"
+        >
+          <h1 class="mx-auto mt-36 font-bold caitalize text-2xl md:text-4xl">
+            {{ user?.firstName ?? "User" }}
+            {{ user?.lastName ?? "Name" }} Profile
+          </h1>
+        </div>
       </div>
       <div
         class="top-auto bottom-0 left-0 right-0 w-full absolute pointer-events-none overflow-hidden"
@@ -154,46 +164,32 @@ async function submit() {
           class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-xl rounded-lg -mt-64"
         >
           <div class="px-6">
-            <div class="flex flex-wrap justify-center">
+            <div class="flex flex-wrap justify-center mb-20">
               <div class="w-full lg:w-3/12 px-4 lg:order-2 flex justify-center">
                 <div class="relative">
                   <img
+                    v-if="user?.avatar"
                     alt="..."
                     src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=faceare&facepad=3&w=688&h=688&q=100"
                     class="shadow-xl rounded-full h-auto align-middle border-none absolute -m-16 -ml-20 lg:-ml-16"
                     style="max-width: 150px"
                   />
+                  <UserCircleIcon
+                    v-else
+                    class="shadow-xl rounded-full h-auto align-middle border-none absolute -m-16 -ml-20 lg:-ml-16 text-gray-900 bg-gray-300"
+                  />
                 </div>
               </div>
+            </div>
+            <!-- risolvere quiiiii -->
+            <div class="w-full flex justify-center mb-5">
               <div
-                class="w-full lg:w-4/12 px-4 lg:order-3 lg:text-right lg:self-center"
-              ></div>
-              <div class="w-full lg:w-4/12 px-4 lg:order-1 mt-16 lg:mt-0">
-                <div class="flex justify-center py-4 lg:pt-4 pt-8">
-                  <div class="mr-4 p-3 text-center">
-                    <span
-                      class="text-xl font-bold block uppercase tracking-wide text-gray-700"
-                      >22</span
-                    ><span class="text-sm text-gray-500">Followed Cities</span>
-                  </div>
-                  <div class="mr-4 p-3 text-center">
-                    <span
-                      class="text-xl font-bold block uppercase tracking-wide text-gray-700"
-                      >10</span
-                    ><span class="text-sm text-gray-500"
-                      >Cities with active notifications</span
-                    >
-                  </div>
-                </div>
+                class="-mt-14 ml-20 z-10 bg-gray-300 h-fit w-fit shadow-xl rounded-full p-2 border-2 border-gray-900 cursor-pointer"
+              >
+                <ArrowUpTrayIcon class="m-auto h-8 w-8 text-gray-900" />
               </div>
             </div>
-            <div class="text-center">
-              <h3
-                class="text-4xl font-semibold leading-normal mb-2 text-gray-800 capitalize"
-              >
-                {{ user?.firstName ?? "User" }} {{ user?.lastName ?? "Name" }}
-              </h3>
-            </div>
+
             <div
               v-if="error"
               class="w-fit p-2 mx-auto my-4 rounded-md bg-red-500"

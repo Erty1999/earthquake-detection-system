@@ -3,6 +3,7 @@ import { ref, computed } from "vue";
 import { useSidebar } from "../composables/useSidebar";
 import { useRouter } from "vue-router";
 import { userStore } from "../store/user";
+import { UserCircleIcon } from "@heroicons/vue/24/outline";
 
 const { currentRoute } = useRouter();
 const { isOpen } = useSidebar();
@@ -218,6 +219,10 @@ async function logout() {
             class="object-cover w-14 h-14 rounded-lg m-auto"
             src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=faceare&facepad=3&w=688&h=688&q=100"
             alt=""
+          />
+          <UserCircleIcon
+            v-else
+            class="shadow-xl rounded-full align-middle border-none w-14 h-14 text-gray-900 bg-gray-300 m-auto"
           />
           <div
             class="flex flex-col justify-center items-center gap-y-1 py-2 w-full"

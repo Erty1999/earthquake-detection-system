@@ -18,20 +18,24 @@ async function main() {
   // Basic middleware
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+  
   // TODO: get from env
   app.use(cookieParser("SECRET"));
 
   // logger
   app.use(morgan("dev"));
 
-  // safety (se caga il cazzo bruciare in dev)
+  // safety
   app.use(helmet());
 
-  // TODO: routes mettere in un altro file
+  app.use("/uploads", express.static("uploads"));
+
+  // routes
   app.use(router);
 
-  // TODO: get port from env
+  // port
   const port = 3100;
+
   app.listen(port, () => {
     console.log("Started on port " + port);
   });

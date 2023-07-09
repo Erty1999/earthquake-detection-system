@@ -3,9 +3,11 @@ import jwt from "jsonwebtoken";
 
 import { AppDataSource } from "../dataSource";
 import { User } from "../model/user";
+import { Image } from "../model/image";
 import { Router } from "express";
 
 import verifyToken from "./utils";
+import { upload } from "./mediaUpload";
 
 const router = Router();
 
@@ -109,75 +111,94 @@ router.get("/me", verifyToken, async (req, res, next) => {
   res.json(user);
 });
 
-router.put("/users/:id", verifyToken, async (req, res, next) => {
-  const reqUser = (req as any).user;
-  const id = req.params.id as any;
-  let user;
+router.put(
+  "/users/:id",
+  verifyToken,
+  async (req, res, next) => {
+    const reqUser = (req as any).user;
+    const id = req.params.id as any;
+    let user;
 
-  const userRepository = AppDataSource.getRepository(User);
+    const userRepository = AppDataSource.getRepository(User);
 
-  try {
-    user = await userRepository.findOne({ where: [{ id }] }).catch();
-  } catch {
-    user = null;
-  }
+    try {
+      user = await userRepository.findOne({ where: [{ id }] }).catch();
+    } catch {
+      user = null;
+    }
 
-  //If no user has the requested id
-  if (!user) {
-    return res.status(404).send("User not found");
-  }
+    //If no user has the requested id
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
 
-  //If it is not an admin or the user itself return unauthorized
-  if (!reqUser.isAdmin && reqUser.id != user.id) {
-    return res.status(401).send("Unauthorized Operation");
-  }
+    //If it is not an admin or the user itself return unauthorized
+    if (!reqUser.isAdmin && reqUser.id != user.id) {
+      return res.status(401).send("Unauthorized Operation");
+    }
 
-  //Data is fetched from the request body
-  const {
-    firstName,
-    lastName,
-    birthday,
-    email,
-    telNumber,
-    telegramUserID,
-    avatar,
-    isAdmin,
-    pwd,
-  } = req.body;
+    //Data is fetched from the request body
+    const {
+      firstName,
+      lastName,
+      birthday,
+      email,
+      telNumber,
+      telegramUserID,
+      avatar,
+      isAdmin,
+      pwd,
+    } = req.body;
 
-  //Only admin can change the admin status of a user
-  if (isAdmin && !reqUser.isAdmin) {
-    return res.status(401).send("Unauthorized Operation");
-  }
+    //Only admin can change the admin status of a user
+    if (isAdmin && !reqUser.isAdmin) {
+      return res.status(401).send("Unauthorized Operation");
+    }
 
-  //Check if the email is alredy in use
-  const existingEmailUser = await userRepository.findOne({ where: [{ email }] });
-  if (existingEmailUser && id != existingEmailUser.id) {
-    return res.status(409).json({ message: "Email already used" });
-  }
+    //Check if the email is alredy in use
+    const existingEmailUser = await userRepository.findOne({
+      where: [{ email }],
+    });
+    if (existingEmailUser && id != existingEmailUser.id) {
+      return res.status(409).json({ message: "Email already used" });
+    }
 
-  //Update User
-  user.firstName = firstName ?? user.firstName;
-  user.lastName = lastName ?? user.lastName;
-  user.email = email ?? user.email;
-  user.birthday = birthday ?? user.birthday;
-  user.telNumber = telNumber ?? user.telNumber;
-  user.telegramUserID = telegramUserID ?? user.telegramUserID;
-  user.avatar = avatar ?? user.avatar;
-  user.isAdmin = isAdmin ?? user.isAdmin;
+    //Update User
+    user.firstName = firstName ?? user.firstName;
+    user.lastName = lastName ?? user.lastName;
+    user.email = email ?? user.email;
+    user.birthday = birthday ?? user.birthday;
+    user.telNumber = telNumber ?? user.telNumber;
+    user.telegramUserID = telegramUserID ?? user.telegramUserID;
+    user.avatar = avatar ?? user.avatar;
+    user.isAdmin = isAdmin ?? user.isAdmin;
 
-  if (pwd) {
-    //Password hashing
-    const hashedPassword = await bcrypt.hash(pwd, 10);
-    user.password = hashedPassword;
-  }
+    if (pwd) {
+      //Password hashing
+      const hashedPassword = await bcrypt.hash(pwd, 10);
+      user.password = hashedPassword;
+    }
 
-  //Save updates
-  await userRepository.save(user);
+    //Save updates
+    await userRepository.save(user);
 
-  //Return updated user
-  delete (user as any).password;
-  res.send(user);
-});
+    //Return updated user
+    delete (user as any).password;
+    res.send(user);
+  },
+
+  router.post("/upload", upload.single("image"), async (req, res) => {
+    const file = req.file;
+    const imageUrl = `http://localhost:3100/${file?.path}`;
+
+    // Save imageUrl to the database using TypeORM
+    const imageRepository = AppDataSource.getRepository(Image);
+    const image = {} as Image;
+    image.url = imageUrl;
+    await imageRepository.save(image);
+
+    res.send({ message: "File uploaded successfully", imageUrl });
+  })
+);
 
 export default router;
