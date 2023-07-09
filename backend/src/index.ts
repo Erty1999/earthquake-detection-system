@@ -13,12 +13,13 @@ async function main() {
   await AppDataSource.initialize();
   const app = express();
 
+  app.use("/uploads", express.static("uploads"));
   app.use(cors());
 
   // Basic middleware
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-  
+
   // TODO: get from env
   app.use(cookieParser("SECRET"));
 
@@ -28,7 +29,7 @@ async function main() {
   // safety
   app.use(helmet());
 
-  app.use("/uploads", express.static("uploads"));
+
 
   // routes
   app.use(router);

@@ -30,6 +30,8 @@ const hasChanged = ref(false);
 const error = ref("");
 const success = ref("");
 
+const userAvatar = ref(null);
+
 function acceptNumber(e: InputEvent | any) {
   let x = telNumber.value
     .replace(/\D/g, "")
@@ -43,6 +45,7 @@ function acceptNumber(e: InputEvent | any) {
     telNumber.value = telNumber.value.slice(0, -1);
   }
 }
+
 //Initial telNumbet parsing
 acceptNumber(null);
 
@@ -98,7 +101,7 @@ async function submit() {
     telegramUserID: telegramID.value,
   } as User;
 
-  //Register function call
+  //Update function call
   const response = await store.updateUser(newUser, pwd.value).catch((e) => {
     error.value =
       e.response.data.message ?? "Internal server error, please try again...";
@@ -113,6 +116,50 @@ async function submit() {
 
   //Show success message
   success.value = "Information successfully updated";
+
+  hasChanged.value = false;
+}
+
+function uploadAvatar() {
+  (userAvatar as any).value.click();
+}
+
+async function avatarUploader() {
+  error.value = "";
+  const file = (userAvatar as any).value.files[0];
+
+  //Type check
+  const acceptedFileTypes = ["jpeg", "png", "gif", "svg", "ico", "tiff", "dvu"];
+  if (!acceptedFileTypes.some((t) => file.type.includes(t))) {
+    error.value = "File type not accepted, you can only upload image files.";
+    return;
+  }
+
+  const url = await store.uploadAvatar(file).catch((e: any) => {
+    error.value = e;
+  });
+
+  if (error.value) {
+    hasChanged.value = false;
+    return;
+  }
+
+  const user = store.user as User;
+  user.avatar = url;
+
+  //Update user info
+  const response = await store.updateUser(user, pwd.value).catch((e) => {
+    error.value =
+      e?.response?.data?.message ??
+      "Internal server error, please try again...";
+  });
+
+  if (error.value) return;
+
+  //Update stored user info
+  store.user = response as any as User;
+  pwd.value = "";
+  pwdConf.value = "";
 
   hasChanged.value = false;
 }
@@ -166,27 +213,35 @@ async function submit() {
           <div class="px-6">
             <div class="flex flex-wrap justify-center mb-20">
               <div class="w-full lg:w-3/12 px-4 lg:order-2 flex justify-center">
-                <div class="relative">
+                <div class="relative ">
                   <img
                     v-if="user?.avatar"
-                    alt="..."
-                    src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=faceare&facepad=3&w=688&h=688&q=100"
-                    class="shadow-xl rounded-full h-auto align-middle border-none absolute -m-16 -ml-20 lg:-ml-16"
+                    v-bind:src="user?.avatar"
+                    class="object-cover shadow-xl rounded-full h-32 w-32 align-middle absolute -m-16 -ml-18 lg:-ml-20 border-2 border-gray-900 bg-gray-300"
                     style="max-width: 150px"
                   />
                   <UserCircleIcon
                     v-else
-                    class="shadow-xl rounded-full h-auto align-middle border-none absolute -m-16 -ml-20 lg:-ml-16 text-gray-900 bg-gray-300"
+                    class="shadow-xl rounded-full h-32 align-middle border-none absolute -m-16 -ml-18 lg:-ml-20 text-gray-900 bg-gray-300"
                   />
                 </div>
               </div>
             </div>
-            <!-- risolvere quiiiii -->
+
             <div class="w-full flex justify-center mb-5">
               <div
                 class="-mt-14 ml-20 z-10 bg-gray-300 h-fit w-fit shadow-xl rounded-full p-2 border-2 border-gray-900 cursor-pointer"
+                @click="uploadAvatar"
               >
-                <ArrowUpTrayIcon class="m-auto h-8 w-8 text-gray-900" />
+                <ArrowUpTrayIcon class="m-auto h-5 w-5 text-gray-900" />
+                <input
+                  ref="userAvatar"
+                  type="file"
+                  id="avatar"
+                  hidden
+                  @change="avatarUploader"
+                  accept="image/png, image/jpeg, image/gif, image/svg, image/ico, image/tiff, image/dvu"
+                />
               </div>
             </div>
 

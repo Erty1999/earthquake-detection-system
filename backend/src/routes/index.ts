@@ -3,7 +3,6 @@ import jwt from "jsonwebtoken";
 
 import { AppDataSource } from "../dataSource";
 import { User } from "../model/user";
-import { Image } from "../model/image";
 import { Router } from "express";
 
 import verifyToken from "./utils";
@@ -190,13 +189,6 @@ router.put(
   router.post("/upload", upload.single("image"), async (req, res) => {
     const file = req.file;
     const imageUrl = `http://localhost:3100/${file?.path}`;
-
-    // Save imageUrl to the database using TypeORM
-    const imageRepository = AppDataSource.getRepository(Image);
-    const image = {} as Image;
-    image.url = imageUrl;
-    await imageRepository.save(image);
-
     res.send({ message: "File uploaded successfully", imageUrl });
   })
 );

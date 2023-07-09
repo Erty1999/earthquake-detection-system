@@ -79,7 +79,7 @@ async function submit() {
   //Register function call
   await store.register(newUser, pwd.value).catch((e) => {
     error.value =
-      e.response.data.message ?? "Internal server error, please try again...";
+      e?.response?.data?.message ?? "Internal server error, please try again...";
   });
 
   if (error.value) return;

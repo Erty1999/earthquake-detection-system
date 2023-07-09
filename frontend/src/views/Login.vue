@@ -39,7 +39,7 @@ async function submit() {
   //Register function call
   await store.login(credential).catch((e) => {
     error.value =
-      e.response.data.message ?? "Internal server error, please try again...";
+      e?.response?.data?.message ?? "Internal server error, please try again...";
   });
 
   if (error.value) return;
@@ -55,7 +55,7 @@ async function submit() {
       <div class="flex items-center w-full max-w-md px-6 mx-auto lg:w-2/6">
         <div class="flex-1">
           <div class="flex justify-center mx-auto">
-            <img class="w-60 h-65" src="/public/logo.png" alt="" />
+            <img class="w-60 h-65" src="/logo.png" alt="" />
           </div>
           <div
             v-if="error"

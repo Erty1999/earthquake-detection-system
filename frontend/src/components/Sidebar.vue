@@ -216,9 +216,8 @@ async function logout() {
         >
           <img
             v-if="user?.avatar"
-            class="object-cover w-14 h-14 rounded-lg m-auto"
-            src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=faceare&facepad=3&w=688&h=688&q=100"
-            alt=""
+            class="object-cover w-14 h-14 rounded-full m-auto bg-gray-300"
+            v-bind:src="user?.avatar"
           />
           <UserCircleIcon
             v-else
