@@ -4,7 +4,7 @@ import useToken from "../composables/useToken";
 const useAuthAxios = () => {
   const cookie = useToken();
   const jwt = cookie.get("EA-session");
-
+  
   if (!jwt) {
     throw new Error("no jwt provided");
   }

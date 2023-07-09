@@ -93,7 +93,7 @@ export const userStore = defineStore("userStore", () => {
       });
 
       //Delete store user istance
-      user.value = null;
+       user.value = null;
     },
 
     async me() {

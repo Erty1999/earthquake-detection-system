@@ -3,7 +3,12 @@ import { ref, computed } from "vue";
 import { useSidebar } from "../composables/useSidebar";
 import { useRouter } from "vue-router";
 import { userStore } from "../store/user";
-import { UserCircleIcon } from "@heroicons/vue/24/outline";
+import {
+  UserCircleIcon,
+  UserGroupIcon,
+  BuildingOffice2Icon,
+  CpuChipIcon,
+} from "@heroicons/vue/24/outline";
 
 const { currentRoute } = useRouter();
 const { isOpen } = useSidebar();
@@ -193,18 +198,47 @@ async function logout() {
           <span class="mx-4">Modal</span>
         </router-link>
 
-        <router-link
-          class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
-          :class="[$route.name === 'Blank' ? activeClass : inactiveClass]"
-          to="/blank"
+        <!-- START ADMIN PANEL -->
+        <div
+          class="flex mt-4 w-full bg-gradient-to-r from-gray-900 via-slate-400 to-gray-900"
+          v-if="user?.isAdmin"
         >
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"
-            />
-          </svg>
+          <span class="m-auto font-bold rounded-full p-2">Admin Panel</span>
+        </div>
 
-          <span class="mx-4">Blank</span>
+        <router-link
+          v-if="user?.isAdmin"
+          class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
+          :class="[$route.name === 'AdminUsers' ? activeClass : inactiveClass]"
+          to="/admin/Users"
+        >
+          <UserGroupIcon class="w-5 h-5" />
+
+          <span class="mx-4">Users Management</span>
+        </router-link>
+
+        <router-link
+          v-if="user?.isAdmin"
+          class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
+          :class="[$route.name === 'AdminCities' ? activeClass : inactiveClass]"
+          to="/admin/Cities"
+        >
+          <BuildingOffice2Icon class="w-5 h-5" />
+
+          <span class="mx-4">Cities Management</span>
+        </router-link>
+
+        <router-link
+          v-if="user?.isAdmin"
+          class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
+          :class="[
+            $route.name === 'AdminSensors' ? activeClass : inactiveClass,
+          ]"
+          to="/admin/Sensors"
+        >
+          <CpuChipIcon class="w-7 h-7" />
+
+          <span class="mx-4">Sensor Devices Management</span>
         </router-link>
       </nav>
 
@@ -233,12 +267,9 @@ async function logout() {
                 {{ user?.firstName }} {{ user?.lastName }}
               </h1>
             </div>
-            <p class="text-xs text-gray-500 dark:text-gray-400">
-              {{ user?.email }}
-            </p>
           </div>
           <div
-            class="flex row gap-x-5 item-center m-auto mt-4 text-white text-md"
+            class="flex row gap-x-5 item-center m-auto mt-2 text-white text-md"
           >
             <button
               class="px-4 py-1 bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:bg-blue-400 focus:ring focus:ring-blue-300 focus:ring-opacity-50"

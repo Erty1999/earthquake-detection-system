@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from "vue-router";
 
 import auth from "./middleware/require-auth";
 import noAuth from "./middleware/require-no-auth";
+import adminAuth from "./middleware/require-admin";
 
 import Dashboard from "./views/Dashboard.vue";
 import Forms from "./views/Forms.vue";
@@ -15,6 +16,11 @@ import Blank from "./views/Blank.vue";
 import Register from "./views/Register.vue";
 import Index from "./views/Index.vue";
 import Me from "./views/Me.vue";
+import Cities from "./views/admin/Cities.vue";
+import Sensors from "./views/admin/Sensors.vue";
+import Users from "./views/admin/Users.vue";
+import error403 from "./views/errors/error403.vue"
+import error404 from "./views/errors/error404.vue"
 
 const routes: RouteRecordRaw[] = [
   {
@@ -51,6 +57,24 @@ const routes: RouteRecordRaw[] = [
     beforeEnter: auth,
   },
   {
+    path: "/admin/cities",
+    name: "AdminCities",
+    component: Cities,
+    beforeEnter: [auth, adminAuth],
+  },
+  {
+    path: "/admin/sensors",
+    name: "AdminSensors",
+    component: Sensors,
+    beforeEnter: [auth, adminAuth],
+  },
+  {
+    path: "/admin/users",
+    name: "AdminUsers",
+    component: Users,
+    beforeEnter: [auth, adminAuth],
+  },
+  {
     path: "/forms",
     name: "Forms",
     component: Forms,
@@ -79,6 +103,19 @@ const routes: RouteRecordRaw[] = [
     path: "/blank",
     name: "Blank",
     component: Blank,
+  },
+  {
+    path: "/error403",
+    name: "error403",
+    component: error403,
+    meta: { layout: "empty" },
+  },
+  // Catch-all others route
+  {
+    path: '/:pathMatch(.*)*',
+    name: "error404",
+    component: error404,
+    meta: { layout: "empty" },
   },
 ];
 
