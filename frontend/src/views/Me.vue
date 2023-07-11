@@ -71,6 +71,7 @@ function resetValues() {
   showPwdConf.value = false;
 
   acceptNumber(null);
+  error.value = "";
   hasChanged.value = false;
 }
 //Function that manage the submit event
@@ -79,6 +80,10 @@ async function submit() {
   success.value = "";
 
   //check possible input errors
+  if (pwdConf.value && !pwd.value) {
+    error.value = "Passwords do not match";
+    return;
+  }
   if (pwd.value && pwd.value != pwdConf.value) {
     error.value = "Passwords do not match";
     return;
@@ -213,7 +218,7 @@ async function avatarUploader() {
           <div class="px-6">
             <div class="flex flex-wrap justify-center mb-20">
               <div class="w-full lg:w-3/12 px-4 lg:order-2 flex justify-center">
-                <div class="relative ">
+                <div class="relative">
                   <img
                     v-if="user?.avatar"
                     v-bind:src="user?.avatar"

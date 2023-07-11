@@ -124,7 +124,7 @@ export const userStore = defineStore("userStore", () => {
     async updateUser(updatedUser: User, pwd: string) {
       let error;
       let response;
-
+      
       await useAuthAxios()
         .put("/users/" + updatedUser.id, {
           firstName: updatedUser.firstName,
@@ -135,6 +135,7 @@ export const userStore = defineStore("userStore", () => {
           telegramUserID: updatedUser.telegramUserID,
           avatar : updatedUser.avatar ?? null,
           pwd: pwd,
+          isAdmin : updatedUser.isAdmin
         })
         .then((res) => {
           response = res.data;

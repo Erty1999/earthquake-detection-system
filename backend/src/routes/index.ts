@@ -5,13 +5,13 @@ import { AppDataSource } from "../dataSource";
 import { User } from "../model/user";
 import { Router } from "express";
 
-import verifyToken from "./utils";
+import { verifyToken, verifyTokenAdmin } from "./utils";
 import { upload } from "./mediaUpload";
 
 const router = Router();
 
 router.get("/", async (req, res, next) => {
-  res.json({ message: "hello" });
+  res.json({ message: "easter egg" });
 });
 
 router.post("/login", async function (req, res, next) {
@@ -186,10 +186,101 @@ router.put(
     res.send(user);
   },
 
+  //Images upload
   router.post("/upload", upload.single("image"), async (req, res) => {
     const file = req.file;
     const imageUrl = `http://localhost:3100/${file?.path}`;
     res.send({ message: "File uploaded successfully", imageUrl });
+  }),
+
+  //Admit admin to create new users
+  router.post("/admin/createUser", verifyTokenAdmin, async (req, res, next) => {
+    let error = false;
+
+    //Data is fetched from the request body
+    const {
+      firstName,
+      lastName,
+      birthday,
+      email,
+      telNumber,
+      telegramUserID,
+      pwd,
+    } = req.body;
+
+    //Check required data existence
+    if (!email || !pwd || !firstName || !lastName || !birthday) {
+      return res
+        .status(400)
+        .json({ message: "Missing required user information" });
+    }
+
+    const userRepository = AppDataSource.getRepository(User);
+
+    //Check if the new user alredy exists
+    const existingUser = await userRepository.findOne({ where: [{ email }] });
+    if (existingUser) {
+      return res.status(409).json({ message: "Email already used" });
+    }
+
+    //Password hashing
+    const hashedPassword = await bcrypt.hash(pwd, 10);
+
+    //Create New User (not Admin as default)
+    const admin = false;
+    const user = userRepository.create({
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      birthday: birthday,
+      password: hashedPassword,
+      telNumber: telNumber,
+      telegramUserID: telegramUserID,
+      isAdmin: admin,
+    });
+
+    await userRepository.save(user).catch((e) => {
+      error = true;
+    });
+
+    //Check if the save was successful
+    if (error) {
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+    delete (user as any).password
+    res.send(user);
+  }),
+
+  //Admit admin to see all the users
+  router.get("/admin/users", verifyTokenAdmin, async (req, res, next) => {
+    let error = false;
+
+    const userRepository = AppDataSource.getRepository(User);
+
+    //Check if the new user alredy exists
+    const userList = await userRepository
+      .find({
+        select: [
+          "id",
+          "firstName",
+          "lastName",
+          "email",
+          "birthday",
+          "telNumber",
+          "telegramUserID",
+          "isAdmin",
+          "avatar",
+        ],
+      })
+      .catch((e) => {
+        error = true;
+      });
+
+    if (error) {
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+
+    res.send(userList);
   })
 );
 
