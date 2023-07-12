@@ -25,13 +25,17 @@ export class City {
   @Column()
   state: string;
 
-  @OneToMany(() => Subscription, (subscription) => subscription.city)
+  @OneToMany(() => Subscription, (subscription) => subscription.city, {
+    cascade: true,
+    eager: true,
+    onDelete: "CASCADE",
+  })
   subscriptions: Subscription[];
 
   @ManyToMany(() => User, (user) => user.cities)
   @JoinTable()
   users: User[];
 
-  @OneToMany(() => iotThing, (iotThing) => iotThing.city)
+  @OneToMany(() => iotThing, (iotThing) => iotThing.city, { cascade: true, eager: true, onDelete: "SET NULL" })
   IoT_things: iotThing[];
 }

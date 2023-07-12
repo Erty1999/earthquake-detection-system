@@ -42,10 +42,14 @@ export class User {
   @Column()
   isAdmin: boolean;
 
-  @OneToMany(() => Subscription, (subscription) => subscription.user)
+  @OneToMany(() => Subscription, (subscription) => subscription.user, {
+    cascade: true,
+    eager: true,
+    onDelete : "CASCADE"
+  })
   subscriptions: Subscription[];
 
-  @ManyToMany(() => City, (city) => city.users)
+  @ManyToMany(() => City, (city) => city.users, { cascade: true, eager: true, })
   @JoinTable()
   cities: City[];
 }

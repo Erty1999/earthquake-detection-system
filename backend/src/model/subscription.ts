@@ -7,7 +7,7 @@ export class Subscription {
   @PrimaryGeneratedColumn("uuid")
   id: number;
 
-  @ManyToOne(() => User, (user) => user.subscriptions)
+  @ManyToOne(() => User, (user) => user.subscriptions,)
   user: User;
 
   @ManyToOne(() => City, (city) => city.subscriptions)

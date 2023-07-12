@@ -1,4 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, Index } from "typeorm";
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  Index,
+} from "typeorm";
 import { iotThing } from "./iotThing";
 
 @Entity()
@@ -6,7 +12,7 @@ export class recordData {
   @PrimaryGeneratedColumn("uuid")
   id: number;
 
-  @ManyToOne(() => iotThing, (iotThing) => iotThing.records)
+  @ManyToOne(() => iotThing, (iotThing) => iotThing.records, { eager: true })
   iotThing: iotThing;
 
   @Column()
@@ -16,6 +22,6 @@ export class recordData {
   timestamp: Date;
 
   @Index()
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
 }

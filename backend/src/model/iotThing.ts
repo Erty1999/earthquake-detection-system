@@ -23,9 +23,9 @@ export class iotThing {
   @Column()
   type: iotThingType;
 
-  @ManyToOne(() => City, (city) => city.IoT_things)
+  @ManyToOne(() => City, (city) => city.IoT_things, )
   city: City;
 
-  @OneToMany(() => recordData, (recordData) => recordData.iotThing)
+  @OneToMany(() => recordData, (recordData) => recordData.iotThing, { cascade: true,  onDelete: "SET NULL" })
   records: recordData[];
 }
