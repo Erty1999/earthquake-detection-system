@@ -1,4 +1,14 @@
-import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  ManyToMany,
+  JoinTable,
+} from "typeorm";
+
+import { Subscription } from "./subscription";
+import { City } from "./city";
 
 @Entity()
 export class User {
@@ -31,4 +41,11 @@ export class User {
 
   @Column()
   isAdmin: boolean;
+
+  @OneToMany(() => Subscription, (subscription) => subscription.user)
+  subscriptions: Subscription[];
+
+  @ManyToMany(() => City, (city) => city.users)
+  @JoinTable()
+  cities: City[];
 }
