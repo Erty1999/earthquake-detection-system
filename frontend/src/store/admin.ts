@@ -2,6 +2,15 @@ import { defineStore } from "pinia";
 import { User } from "./user";
 import useAuthAxios from "../composables/useAuthAxios";
 
+export type City = {
+  id: string;
+  name: string;
+  region: string;
+  state: string;
+  lowThresh: number;
+  highThresh: number;
+};
+
 export const adminStore = defineStore("adminStore", () => {
   const actions = {
     async createUser(newUser: User, pwd: string) {
@@ -36,6 +45,44 @@ export const adminStore = defineStore("adminStore", () => {
 
       await useAuthAxios()
         .get("/admin/users")
+        .then((res) => {
+          response = res.data;
+        })
+        .catch((e) => {
+          error = e;
+        });
+
+      if (error) throw error;
+
+      return response;
+    },
+
+    async createCity(city: City) {
+      let error;
+      let response;
+
+      await useAuthAxios()
+        .post("/admin/createCity", {
+          ...city,
+        })
+        .then((res) => {
+          response = res.data;
+        })
+        .catch((e) => {
+          error = e;
+        });
+
+      if (error) throw error;
+
+      return response;
+    },
+
+    async citiesList() {
+      let error;
+      let response;
+
+      await useAuthAxios()
+        .get("/admin/cities")
         .then((res) => {
           response = res.data;
         })

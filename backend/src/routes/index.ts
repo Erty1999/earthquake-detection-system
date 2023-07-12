@@ -7,6 +7,7 @@ import { Router } from "express";
 
 import { verifyToken, verifyTokenAdmin } from "./utils";
 import { upload } from "./mediaUpload";
+import { City } from "../model/city";
 
 const router = Router();
 
@@ -254,7 +255,6 @@ router.get("/admin/users", verifyTokenAdmin, async (req, res, next) => {
 
   const userRepository = AppDataSource.getRepository(User);
 
-  //Check if the new user alredy exists
   const userList = await userRepository
     .find({
       select: [
@@ -278,6 +278,88 @@ router.get("/admin/users", verifyTokenAdmin, async (req, res, next) => {
   }
 
   res.send(userList);
+});
+
+//Admit admin to create new city
+router.post("/admin/createCity", verifyTokenAdmin, async (req, res, next) => {
+  let error = false;
+
+  //Data is fetched from the request body
+  const { name, region, state, lowThresh, highThresh } = req.body;
+
+  //Check required data existence
+  if (!name || !region || !state || !lowThresh || !highThresh) {
+    return res.status(400).json({ message: "Missing required information" });
+  }
+
+  const cityRepository = AppDataSource.getRepository(City);
+
+  //Check if the new city alredy exists (can't exist 2 cities with the same name in the same state)
+  const existingUser = await cityRepository.findOne({
+    where: [{ name, state }],
+  });
+  if (existingUser) {
+    return res.status(409).json({ message: "City already stored" });
+  }
+
+  //Create New City (not Admin as default)
+  const admin = false;
+  const city = cityRepository.create({
+    name: name,
+    region: region,
+    state: state,
+    lowThresh: lowThresh,
+    highThresh: highThresh,
+  });
+
+  await cityRepository.save(city).catch((e) => {
+    error = true;
+  });
+
+  //Check if the save was successful
+  if (error) {
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+
+  res.send(city);
+});
+
+//Admit admin to see all the cities with relative relations
+router.get("/admin/cities", verifyTokenAdmin, async (req, res, next) => {
+  let error = false;
+
+  const cityRepository = AppDataSource.getRepository(City);
+
+  const cityList = await cityRepository.find().catch((e) => {
+    error = true;
+  });
+
+  if (error) {
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+
+  res.send(cityList);
+});
+
+//Return all the cities without relative relations
+router.get("/cities", verifyToken, async (req, res, next) => {
+  let error = false;
+
+  const cityRepository = AppDataSource.getRepository(City);
+
+  const cityList = await cityRepository
+    .find({
+      select: ["id", "name", "region", "state", "lowThresh", "highThresh"],
+    })
+    .catch((e) => {
+      error = true;
+    });
+
+  if (error) {
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+
+  res.send(cityList);
 });
 
 export default router;
