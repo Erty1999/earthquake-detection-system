@@ -6,7 +6,7 @@ import { userStore } from "../store/user";
 import {
   UserCircleIcon,
   UserGroupIcon,
-  BuildingOffice2Icon
+  BuildingOffice2Icon,
 } from "@heroicons/vue/24/outline";
 
 const { currentRoute } = useRouter();
@@ -42,7 +42,7 @@ async function logout() {
 
     <div
       :class="isOpen ? 'translate-x-0 ease-out' : '-translate-x-full ease-in'"
-      class="fixed inset-y-0 left-0 z-30 w-64 overflow-y-auto transition duration-300 transform bg-gray-900 lg:translate-x-0 lg:static lg:inset-0"
+      class="fixed min-h-screen flex flex-col inset-y-0 left-0 z-30 w-64 overflow-y-auto transition duration-300 transform bg-gray-900 lg:translate-x-0 lg:static lg:inset-0"
     >
       <img class="w-full" src="/logo-big-white-no-motto.png" alt="" />
 
@@ -226,11 +226,11 @@ async function logout() {
 
           <span class="mx-4">Cities Management</span>
         </router-link>
-
       </nav>
+      <div class="my-4"></div>
 
       <!-- START profile zone -->
-      <div class="fixed bottom-0 w-full">
+      <div class="mt-auto w-full">
         <div
           v-if="currentRoute.name != 'Me'"
           class="flex flex-col w-full pb-8 pt-4 px-2 bg-slate-800"
