@@ -6,8 +6,7 @@ import { userStore } from "../store/user";
 import {
   UserCircleIcon,
   UserGroupIcon,
-  BuildingOffice2Icon,
-  CpuChipIcon,
+  BuildingOffice2Icon
 } from "@heroicons/vue/24/outline";
 
 const { currentRoute } = useRouter();
@@ -228,18 +227,6 @@ async function logout() {
           <span class="mx-4">Cities Management</span>
         </router-link>
 
-        <router-link
-          v-if="user?.isAdmin"
-          class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
-          :class="[
-            $route.name === 'AdminSensors' ? activeClass : inactiveClass,
-          ]"
-          to="/admin/Sensors"
-        >
-          <CpuChipIcon class="w-7 h-7" />
-
-          <span class="mx-4">Sensor Devices Management</span>
-        </router-link>
       </nav>
 
       <!-- START profile zone -->

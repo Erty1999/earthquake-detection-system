@@ -3,7 +3,6 @@ import morgan from "morgan";
 import helmet from "helmet";
 import express from "express";
 import cors from "cors";
-import { recordData } from "./model/recordData";
 import "reflect-metadata";
 
 import "express-async-errors";

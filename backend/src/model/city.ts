@@ -9,7 +9,8 @@ import {
 
 import { User } from "./user";
 import { Subscription } from "./subscription";
-import { iotThing } from "./iotThing";
+import { Sensor } from "./sensor";
+import { recordData } from "./recordData";
 
 @Entity()
 export class City {
@@ -31,6 +32,18 @@ export class City {
   @Column()
   highThresh: number;
 
+  @Column()
+  shadowPrivateKey: string;
+
+  @Column()
+  shadowCertificate: string;
+
+  @Column()
+  shadowClientID: string;
+
+  @Column()
+  shadowEndpoint: string;
+
   @OneToMany(() => Subscription, (subscription) => subscription.city, {
     cascade: true,
     eager: true,
@@ -42,10 +55,17 @@ export class City {
   @JoinTable()
   users: User[];
 
-  @OneToMany(() => iotThing, (iotThing) => iotThing.city, {
+  @OneToMany(() => Sensor, (sensor) => sensor.city, {
     cascade: true,
     eager: true,
     onDelete: "SET NULL",
   })
-  IoT_things: iotThing[];
+  sensors: Sensor[];
+
+  @OneToMany(() => recordData, (recordData) => recordData.city, {
+    cascade: true,
+    onDelete: "CASCADE",
+    eager: true,
+  })
+  records: recordData[];
 }

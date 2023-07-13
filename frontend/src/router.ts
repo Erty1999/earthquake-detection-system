@@ -17,7 +17,6 @@ import Register from "./views/Register.vue";
 import Index from "./views/Index.vue";
 import Me from "./views/Me.vue";
 import Cities from "./views/admin/Cities.vue";
-import Sensors from "./views/admin/Sensors.vue";
 import Users from "./views/admin/Users.vue";
 import error403 from "./views/errors/error403.vue"
 import error404 from "./views/errors/error404.vue"
@@ -60,12 +59,6 @@ const routes: RouteRecordRaw[] = [
     path: "/admin/cities",
     name: "AdminCities",
     component: Cities,
-    beforeEnter: [auth, adminAuth],
-  },
-  {
-    path: "/admin/sensors",
-    name: "AdminSensors",
-    component: Sensors,
     beforeEnter: [auth, adminAuth],
   },
   {

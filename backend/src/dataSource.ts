@@ -2,7 +2,7 @@ import { DataSource } from "typeorm";
 import { User } from "./model/user";
 import { City } from "./model/city";
 import { Subscription } from "./model/subscription";
-import { iotThing } from "./model/iotThing";
+import { Sensor } from "./model/sensor";
 import { recordData } from "./model/recordData";
 
 export const AppDataSource = new DataSource({
@@ -14,7 +14,7 @@ export const AppDataSource = new DataSource({
   database: "esit",
   synchronize: true,
   logging: true,
-  entities: [User,City, Subscription, iotThing, recordData],
+  entities: [User,City, Subscription, Sensor, recordData],
   subscribers: [],
   migrations: [],
 });

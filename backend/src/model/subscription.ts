@@ -13,6 +13,12 @@ export class Subscription {
   @ManyToOne(() => City, (city) => city.subscriptions)
   city: City;
 
-  @Column()
-  notification: boolean;
+  @Column({default: false})
+  lowAlert: boolean;
+
+  @Column({default: false})
+  highAlert: boolean;
+
+  @Column({default: false})
+  sumUp: boolean;
 }
