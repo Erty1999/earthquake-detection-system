@@ -1,11 +1,11 @@
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  ManyToOne,
-  Index,
-} from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
 import { City } from "./city";
+
+enum Alertlevel {
+  none = "none",
+  low = "low",
+  high = "high",
+}
 
 @Entity()
 export class recordData {
@@ -13,10 +13,16 @@ export class recordData {
   id: number;
 
   @Column()
+  createdAt: Date;
+
+  @Column()
   activeSensors: number;
 
   @Column()
-  createdAt: Date;
+  totalSensors: number;
+
+  @Column()
+  alertLevel: Alertlevel;
 
   @ManyToOne(() => City, (city) => city.records)
   city: City;

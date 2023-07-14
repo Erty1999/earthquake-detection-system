@@ -14,6 +14,7 @@ export type User = {
   telegramUserID: string;
   isAdmin?: boolean;
   avatar?: string;
+  subscriptions: Array<any>;
 };
 
 export type Credentials = {
@@ -93,7 +94,7 @@ export const userStore = defineStore("userStore", () => {
       });
 
       //Delete store user istance
-       user.value = null;
+      user.value = null;
     },
 
     async me() {
@@ -124,7 +125,7 @@ export const userStore = defineStore("userStore", () => {
     async updateUser(updatedUser: User, pwd: string) {
       let error;
       let response;
-      
+
       await useAuthAxios()
         .put("/users/" + updatedUser.id, {
           firstName: updatedUser.firstName,
@@ -133,9 +134,9 @@ export const userStore = defineStore("userStore", () => {
           email: updatedUser.email,
           telNumber: updatedUser.telNumber,
           telegramUserID: updatedUser.telegramUserID,
-          avatar : updatedUser.avatar ?? null,
+          avatar: updatedUser.avatar ?? null,
           pwd: pwd,
-          isAdmin : updatedUser.isAdmin
+          isAdmin: updatedUser.isAdmin,
         })
         .then((res) => {
           response = res.data;
