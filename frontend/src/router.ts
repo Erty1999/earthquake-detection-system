@@ -5,7 +5,7 @@ import auth from "./middleware/require-auth";
 import noAuth from "./middleware/require-no-auth";
 import adminAuth from "./middleware/require-admin";
 
-import Dashboard from "./views/Dashboard.vue";
+import Home from "./views/Home.vue";
 import Forms from "./views/Forms.vue";
 import Tables from "./views/Tables.vue";
 import UIElements from "./views/UIElements.vue";
@@ -18,8 +18,10 @@ import Index from "./views/Index.vue";
 import Me from "./views/Me.vue";
 import Cities from "./views/admin/Cities.vue";
 import Users from "./views/admin/Users.vue";
-import error403 from "./views/errors/error403.vue"
-import error404 from "./views/errors/error404.vue"
+import error403 from "./views/errors/error403.vue";
+import error404 from "./views/errors/error404.vue";
+import CitiesList from "./views/Cities.vue";
+import NotificationCentre from "./views/NotificationCentre.vue";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -44,29 +46,56 @@ const routes: RouteRecordRaw[] = [
     beforeEnter: noAuth,
   },
   {
-    path: "/me",
+    path: "/Me",
     name: "Me",
     component: Me,
     beforeEnter: auth,
   },
   {
-    path: "/dashboard",
-    name: "Dashboard",
-    component: Dashboard,
+    path: "/Home",
+    name: "Home",
+    component: Home,
     beforeEnter: auth,
   },
   {
-    path: "/admin/cities",
+    path: "/Cities",
+    name: "Cities",
+    component: CitiesList,
+    beforeEnter: auth,
+  },
+  {
+    path: "/NotificationCentre",
+    name: "NotificationCentre",
+    component: NotificationCentre,
+    beforeEnter: auth,
+  },
+  {
+    path: "/Admin/Cities",
     name: "AdminCities",
     component: Cities,
     beforeEnter: [auth, adminAuth],
   },
   {
-    path: "/admin/users",
+    path: "/Admin/Users",
     name: "AdminUsers",
     component: Users,
     beforeEnter: [auth, adminAuth],
   },
+  {
+    path: "/error403",
+    name: "error403",
+    component: error403,
+    meta: { layout: "empty" },
+  },
+  // Catch-all others route
+  {
+    path: "/:pathMatch(.*)*",
+    name: "error404",
+    component: error404,
+    meta: { layout: "empty" },
+  },
+
+  //TODO: Remove
   {
     path: "/forms",
     name: "Forms",
@@ -96,19 +125,6 @@ const routes: RouteRecordRaw[] = [
     path: "/blank",
     name: "Blank",
     component: Blank,
-  },
-  {
-    path: "/error403",
-    name: "error403",
-    component: error403,
-    meta: { layout: "empty" },
-  },
-  // Catch-all others route
-  {
-    path: '/:pathMatch(.*)*',
-    name: "error404",
-    component: error404,
-    meta: { layout: "empty" },
   },
 ];
 

@@ -12,7 +12,7 @@ export default async function adminAuth(
     This function also repopulate the store user istance */
   const user = store.user;
 
-  //If it isn't an admin redirect him to the dashboard
+  //If it isn't an admin redirect him to the home
   if (!(user as any)?.isAdmin) {
     next("/error403");
     return;

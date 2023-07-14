@@ -44,7 +44,7 @@ async function submit() {
 
   if (error.value) return;
 
-  return await router.push("/dashboard");
+  return await router.push("/home");
 }
 
 </script>
