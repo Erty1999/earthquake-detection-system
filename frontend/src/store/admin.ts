@@ -94,6 +94,37 @@ export const adminStore = defineStore("adminStore", () => {
 
       return response;
     },
+
+    async uploadFile(file: File) {
+      let error;
+      let response;
+
+      //Parse image format
+      const formData = new FormData();
+      formData.append("file", file, file.name);
+
+      //Upload Image
+      await useAuthAxios()
+        .post("/admin/uploadFile", formData, {
+          headers: {
+            accept: "application/json",
+            "Accept-Language": "en-US,en;q=0.8",
+            "Content-Type": `multipart/form-data`,
+          },
+        })
+        .then((res) => {
+          response = res.data;
+        })
+        .catch((e) => {
+          error = e;
+        });
+
+      if (error) throw error;
+
+      //Return path
+      const path = (response as any).path;
+      return path;
+    },
   };
 
   return { ...actions };

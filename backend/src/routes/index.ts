@@ -8,6 +8,7 @@ import { Router } from "express";
 import { verifyToken, verifyTokenAdmin } from "./utils";
 import { upload } from "./mediaUpload";
 import { City } from "../model/city";
+import { uploadFile } from "./fileUpload";
 
 const router = Router();
 
@@ -361,5 +362,18 @@ router.get("/cities", verifyToken, async (req, res, next) => {
 
   res.send(cityList);
 });
+
+//Images upload
+router.post(
+  "/admin/uploadFile",
+  verifyTokenAdmin,
+  uploadFile.single("file"),
+  async (req, res) => {
+    console.log(req.file);
+    const file = req.file;
+    const path = file?.path;
+    res.send(path);
+  }
+);
 
 export default router;
