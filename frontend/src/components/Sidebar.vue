@@ -146,7 +146,7 @@ async function logout() {
             class="flex row gap-x-5 item-center m-auto mt-2 text-white text-md"
           >
             <button
-              class="px-4 py-1 bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:bg-blue-400 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+              class="px-4 py-1 bg-indigo-600 rounded-lg hover:bg-indigo-500 focus:outline-none focus:bg-indigo-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
               @click="router.push('/Me')"
             >
               Edit Profile

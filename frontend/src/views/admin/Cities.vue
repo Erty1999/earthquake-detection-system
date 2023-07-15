@@ -110,7 +110,7 @@ function onChangeInput() {
   success.value = "";
 }
 
-//USER LIST
+//CITIES LIST
 const citiesList = ref();
 onBeforeMount(async () => (citiesList.value = await store.citiesList()));
 

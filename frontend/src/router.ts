@@ -22,6 +22,7 @@ import error403 from "./views/errors/error403.vue";
 import error404 from "./views/errors/error404.vue";
 import CitiesList from "./views/Cities.vue";
 import NotificationCentre from "./views/NotificationCentre.vue";
+import City from "./views/City.vue";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -61,6 +62,12 @@ const routes: RouteRecordRaw[] = [
     path: "/Cities",
     name: "Cities",
     component: CitiesList,
+    beforeEnter: auth,
+  },
+  {
+    path: "/:state/:name",
+    name: "City",
+    component: City,
     beforeEnter: auth,
   },
   {

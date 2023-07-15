@@ -3,8 +3,7 @@ import {
   Column,
   PrimaryGeneratedColumn,
   OneToMany,
-  ManyToMany,
-  JoinTable,
+  Unique,
 } from "typeorm";
 
 import { User } from "./user";
@@ -13,6 +12,7 @@ import { iotThing } from "./iotThing";
 import { recordData } from "./recordData";
 
 @Entity()
+@Unique(["name", "state"])
 export class City {
   @PrimaryGeneratedColumn("uuid")
   id: number;
@@ -32,17 +32,12 @@ export class City {
   @Column()
   highThresh: number;
 
-
   @OneToMany(() => Subscription, (subscription) => subscription.city, {
     cascade: true,
     eager: true,
     onDelete: "CASCADE",
   })
   subscriptions: Subscription[];
-
-  @ManyToMany(() => User, (user) => user.cities)
-  @JoinTable()
-  users: User[];
 
   @OneToMany(() => iotThing, (iotThing) => iotThing.city, {
     cascade: true,

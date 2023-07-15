@@ -49,7 +49,4 @@ export class User {
   })
   subscriptions: Subscription[];
 
-  @ManyToMany(() => City, (city) => city.users, { cascade: true, eager: true, })
-  @JoinTable()
-  cities: City[];
 }

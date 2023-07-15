@@ -180,6 +180,83 @@ export const userStore = defineStore("userStore", () => {
       const url = (response as any).imageUrl;
       return url;
     },
+
+    async citiesList() {
+      let error;
+      let response;
+
+      await useAuthAxios()
+        .get("/cities")
+        .then((res) => {
+          response = res.data;
+        })
+        .catch((e) => {
+          error = e;
+        });
+
+      if (error) throw error;
+
+      for (let city of response as any) {
+        const sub = await this.isSubscribed(city.id);
+        city.isSubscribed = sub;
+      }
+
+      return response;
+    },
+
+    async subscription(cityID: string) {
+      let error;
+      let response;
+
+      await useAuthAxios()
+        .post("/subscription/" + cityID)
+        .then((res) => {
+          response = res.data;
+        })
+        .catch((e) => {
+          error = e;
+        });
+
+      if (error) throw error;
+
+      return response;
+    },
+
+    async isSubscribed(cityID: string) {
+      let error;
+      let response;
+
+      await useAuthAxios()
+        .get("/isSubscribed/" + cityID)
+        .then((res) => {
+          response = res.data;
+        })
+        .catch((e) => {
+          error = e;
+        });
+
+      if (error) throw error;
+
+      return response;
+    },
+
+    async unSubscription(cityID: string) {
+      let error;
+      let response;
+
+      await useAuthAxios()
+        .delete("/subscription/" + cityID)
+        .then((res) => {
+          response = res.data;
+        })
+        .catch((e) => {
+          error = e;
+        });
+
+      if (error) throw error;
+
+      return response;
+    },
   };
 
   return { user, ...actions };
