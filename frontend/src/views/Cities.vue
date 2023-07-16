@@ -9,7 +9,9 @@ const router = useRouter();
 
 //CITIES LIST
 const citiesList = ref();
-onBeforeMount(async () => (citiesList.value = await store.citiesList()));
+onBeforeMount(async () => {
+  citiesList.value = await store.citiesList();
+});
 
 //Function that manage the subscription
 async function follow(city: any) {
@@ -51,80 +53,79 @@ async function showDetails(city: any) {
           id="blackOverlay"
           class="w-full h-full absolute bg-opacity-60 bg-black rounded-t-lg text-white flex"
         >
-          <h1 class="mx-auto mt-20 font-bold caitalize text-2xl md:text-4xl bg-opacity-50 bg-black h-fit py-2 px-1 md:px-4 rounded-lg text-center">
+          <h1
+            class="mx-auto mt-20 font-bold caitalize text-2xl md:text-4xl h-fit py-2 px-1 md:px-4 rounded-lg text-center"
+          >
             Find your Cities and stay updated
           </h1>
         </div>
       </div>
     </section>
     <section class="relative py-16">
-      <div class="container mx-auto px-4">
+      <div class="container mx-auto px-4 md:px-10 2xl:px-52">
         <div
           class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-xl rounded-lg -mt-96"
         >
           <div class="flex mt-6 w-full justify-center px-10">
             <div
-              class="mb-6 overflow-hidden bg-white rounded-md shadow w-full overflow-x-auto"
+              class="mb-6 overflow-hidden bg-white rounded-md w-full overflow-x-auto"
             >
-              <table class="w-full text-left border-collapse">
+              <table class="w-full border-separate border-spacing-y-4">
                 <thead class="border-b">
-                  <tr class="text-center">
-                    <th
-                      class="px-5 py-3 text-sm font-medium text-gray-100 uppercase bg-indigo-800"
-                    >
-                      City
-                    </th>
-                    <th
-                      class="px-5 py-3 text-sm font-medium text-gray-100 uppercase bg-indigo-800"
-                    >
-                      Region
-                    </th>
-                    <th
-                      class="px-5 py-3 text-sm font-medium text-gray-100 uppercase bg-indigo-800"
-                    >
-                      State
-                    </th>
-                    <th
-                      class="px-5 py-3 text-sm font-medium text-gray-100 uppercase bg-indigo-800"
-                    >
-                      Low Treshold
-                    </th>
-                    <th
-                      class="px-5 py-3 text-sm font-medium text-gray-100 uppercase bg-indigo-800"
-                    >
-                      High Treshold
-                    </th>
-
-                    <th class="bg-indigo-800"></th>
+                  <tr class="text-center text-gray-700 font-bold text-lg">
+                    <th class="px-5 py-3">City</th>
+                    <th class="px-5 py-3">Location</th>
+                    <th class="px-5 py-3">Active Sensors</th>
+                    <th class="px-5 py-3">Alert Level</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr
                     v-for="(i, index) in citiesList"
                     :key="index"
-                    class="hover:bg-gray-100 text-center cursor-pointer"
+                    class="bg-gray-100 hover:bg-gray-200 text-center cursor-pointer shadow-md"
                     @click="showDetails(i)"
                   >
-                   
                     <td class="px-6 py-4 text-lg text-gray-700 border-b">
                       {{ i.name }}
                     </td>
                     <td class="px-6 py-4 text-gray-500 border-b">
-                      {{ i.region }}
+                      <div class="text-sm font-medium leading-5 text-gray-900">
+                        {{ i?.state }}
+                      </div>
+                      <div class="text-sm leading-5 text-gray-500">
+                        {{ i?.region }}
+                      </div>
                     </td>
                     <td class="px-6 py-4 text-gray-500 border-b">
-                      {{ i.state }}
-                    </td>
-                    <td class="px-6 py-4 border-b">
-                      <span
-                        class="text-yellow-800 bg-yellow-100 rounded-full p-3"
-                        >{{ i.lowThresh }}%</span
-                      >
+                      {{ i?.lastUpdate?.activeSensors || 0 }}
                     </td>
                     <td class="px-6 py-4 text-gray-500 border-b">
-                      <span class="text-red-800 bg-red-100 rounded-full p-3"
-                        >{{ i.highThresh }}%</span
+                      <div
+                        v-if="!i?.lastUpdate?.alertLevel"
+                        class="flex text-gray-800 bg-gray-300 rounded-full p-3 w-fit mx-auto"
                       >
+                        No Data
+                      </div>
+                      <div
+                        v-if="i?.lastUpdate?.alertLevel === 'none'"
+                        class="flex text-green-900 bg-green-200 rounded-full p-3 w-fit mx-auto"
+                      >
+                        Pacific
+                      </div>
+                      <div
+                        v-if="i?.lastUpdate?.alertLevel === 'low'"
+                        class="flex text-orange-800 bg-orange-100 rounded-full p-3 w-fit mx-auto"
+                      >
+                        Low Alert
+                      </div>
+                      <div
+                        v-if="i?.lastUpdate?.alertLevel === 'high'"
+                        class="flex text-red-800 bg-red-200 rounded-full p-3 w-fit mx-auto"
+                      >
+                        High Alert
+                      </div>
                     </td>
                     <td class="px-6 py-4 border-b flex justify-center">
                       <button

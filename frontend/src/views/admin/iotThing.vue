@@ -5,22 +5,56 @@ import {
   BuildingLibraryIcon,
   BuildingOffice2Icon,
   BuildingOfficeIcon,
+  ArrowUpTrayIcon,
+  CubeTransparentIcon,
+  Squares2X2Icon,
+  SquaresPlusIcon,
+  StopIcon,
+  CubeIcon,
 } from "@heroicons/vue/24/outline";
-import { useRouter } from "vue-router";
 
 const store = adminStore();
-const router = useRouter();
 
 const name = ref("");
 const region = ref("");
 const state = ref("");
 const lowThresh = ref(26);
 const highThresh = ref(76);
+const shadowClientID = ref("");
+const shadowPrivateKey = ref(null);
+const shadowCertificate = ref(null);
 //const shadowEndpoint = ref(null);
 
 const error = ref("");
 const success = ref("");
 const hasChanged = ref(false);
+
+function uploadFile(field: string) {
+  eval(field).value.click();
+}
+
+async function fileUploader(field: any) {
+  error.value = "";
+  const file = eval(field).value.files[0];
+
+  //Type check
+  // const acceptedFileTypes = ["pem"];
+  // if (!acceptedFileTypes.some((t) => file.type.includes(t))) {
+  //   error.value = "File type not accepted, you can only upload .pem files.";
+  //   return;
+  // }
+
+  const path = await store.uploadFile(file).catch((e: any) => {
+    error.value = e;
+  });
+
+  if (error.value) {
+    return;
+  }
+
+  //Update user info
+  eval(field).value = path;
+}
 
 //Function that manage the submit event
 async function submit() {
@@ -87,9 +121,9 @@ onBeforeMount(async () => (citiesList.value = await store.citiesList()));
 
 //Function that redirect the admin to the page of the city
 async function showDetails(city: any) {
-  router.push("/" + city.state + "/" + city.name);
+  //TODO: redirect to the page of the city
+  console.log(city);
   return;
-
 }
 </script>
 
@@ -103,11 +137,11 @@ async function showDetails(city: any) {
           >
             <div class="px-6">
               <div class="flex text-gray-700 mt-6 ml-5 mb-2 items-center">
-                <BuildingLibraryIcon
+                <SquaresPlusIcon
                   class="h-12 rounded-full p-2 bg-blue-600 text-white"
                 />
                 <h2 class="text-3xl font-medium text-gray-700 ml-3">
-                  Add New City
+                  Add New IoT Device
                 </h2>
               </div>
               <div class="flex justify-center">
@@ -170,15 +204,13 @@ async function showDetails(city: any) {
                 @change="onChangeInput"
               >
                 <div class="grid md:grid-cols-2 md:gap-6">
-                  <div class="relative z-0 w-full mb-6 col-span-2">
+                  <div class="relative z-0 w-full mb-6 group">
                     <input
                       v-model="name"
                       type="text"
-                      name="name"
-                      id="name"
                       class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                      placeholder=" "
                       required
+                      placeholder=""
                     />
                     <label
                       for="name"
@@ -186,30 +218,10 @@ async function showDetails(city: any) {
                       >Name</label
                     >
                   </div>
-                </div>
-                <div class="grid md:grid-cols-2 md:gap-6 mt-4">
                   <div class="relative z-0 w-full mb-6 group">
                     <input
-                      v-model="region"
+                      v-model="type"
                       type="text"
-                      name="region"
-                      id="region"
-                      class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                      required
-                      placeholder=""
-                    />
-                    <label
-                      for="region"
-                      class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                      >Region</label
-                    >
-                  </div>
-                  <div class="relative z-0 w-full mb-6 group">
-                    <input
-                      v-model="state"
-                      type="text"
-                      name="state"
-                      id="state"
                       class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                       placeholder=""
                       required
@@ -217,86 +229,111 @@ async function showDetails(city: any) {
                     <label
                       for="state"
                       class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                      >State</label
+                      >IoT thing Type</label
                     >
                   </div>
-                  <div
-                    class="flex flex-col space-y-2 px-2 w-full col-span-2 mb-6"
-                  >
-                    <label
-                      for="range"
-                      class="font-medium text-sm text-gray-500 dark:text-gray-400 duration-300 peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                      >Low Alert Threshold<sup class="text-gray-400"
-                        >*</sup
-                      ></label
-                    >
+                  <div class="relative z-0 w-full mb-6 col-span-2">
                     <input
-                      v-model="lowThresh"
-                      class="w-full"
-                      type="range"
-                      min="1"
-                      max="50"
-                      step="1"
+                      v-model="location"
+                      type="text"
+                      class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                      placeholder=" "
+                      required
                     />
-                    <ul class="flex justify-between w-full px-[10px]">
-                      <li class="flex justify-center relative">
-                        <span class="absolute">1</span>
-                      </li>
-                      <li class="flex justify-center relative">
-                        <span class="absolute">10</span>
-                      </li>
-                      <li class="flex justify-center relative">
-                        <span class="absolute">20</span>
-                      </li>
-                      <li class="flex justify-center relative">
-                        <span class="absolute">30</span>
-                      </li>
-                      <li class="flex justify-center relative">
-                        <span class="absolute">40</span>
-                      </li>
-                      <li class="flex justify-center relative">
-                        <span class="absolute">50</span>
-                      </li>
-                    </ul>
+                    <label
+                      for="location"
+                      class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+                      >Location</label
+                    >
                   </div>
-                  <div
-                    class="flex flex-col space-y-2 px-2 w-full col-span-2 mb-6"
-                  >
-                    <label
-                      for="range"
-                      class="font-medium text-sm text-gray-500 dark:text-gray-400 duration-300 peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                      >High Alert Threshold<sup class="text-gray-400"
-                        >*</sup
-                      ></label
-                    >
+                  <div class="relative z-0 w-full mb-6 col-span-2">
                     <input
-                      v-model="highThresh"
-                      class="w-full"
-                      type="range"
-                      min="51"
-                      max="100"
-                      step="1"
+                      v-model="city"
+                      type="text"
+                      class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                      placeholder=" "
+                      required
                     />
-                    <ul class="flex justify-between w-full px-[10px]">
-                      <li class="flex justify-center relative">
-                        <span class="absolute">51</span>
-                      </li>
-                      <li class="flex justify-center relative">
-                        <span class="absolute">60</span>
-                      </li>
-                      <li class="flex justify-center relative">
-                        <span class="absolute">70</span>
-                      </li>
-                      <li class="flex justify-center relative">
-                        <span class="absolute">80</span>
-                      </li>
-                      <li class="flex justify-center relative">
-                        <span class="absolute">90</span>
-                      </li>
-                      <li class="flex justify-center relative">
-                        <span class="absolute">100</span>
-                      </li>
-                    </ul>
+                    <label
+                      for="city"
+                      class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+                      >City</label
+                    >
+                  </div>
+                </div>
+                <div class="mt-6 font-bold text-sm text-gray-500">
+                  <span>AWS IoT Shadow Section</span>
+                </div>
+                <div class="grid md:grid-cols-2 md:gap-6 mt-3">
+                  <div class="relative z-0 w-full mb-6 col-span-2">
+                    <input
+                      v-model="shadowClientID"
+                      type="text"
+                      name="shadowClientID"
+                      id="shadowClientID"
+                      class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                      placeholder=" "
+                      required
+                    />
+                    <label
+                      for="shadowClientID"
+                      class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+                      >Client ID
+                    </label>
+                  </div>
+                </div>
+                <div class="w-full inline-flex">
+                  <div class="w-fit mt-2">Private Key File :</div>
+                  <div class="flex justify-center ml-5">
+                    <div
+                      class="bg-gray-300 h-fit w-fit shadow-xl rounded-full p-2 cursor-pointer"
+                      @click="uploadFile('shadowPrivateKey')"
+                    >
+                      <ArrowUpTrayIcon class="m-auto h-5 w-5 text-gray-900" />
+                      <input
+                        ref="shadowPrivateKey"
+                        type="file"
+                        id="shadowPrivateKey"
+                        hidden
+                        @change="fileUploader('shadowPrivateKey')"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="w-full inline-flex mt-2">
+                  <div class="w-fit mt-2">Certificate File :</div>
+                  <div class="flex justify-center ml-5">
+                    <div
+                      class="bg-gray-300 h-fit w-fit shadow-xl rounded-full p-2 cursor-pointer ml-1"
+                      @click="uploadFile('shadowCertificate')"
+                    >
+                      <ArrowUpTrayIcon class="m-auto h-5 w-5 text-gray-900" />
+                      <input
+                        ref="shadowCertificate"
+                        type="file"
+                        id="shadowCertificate"
+                        hidden
+                        @change="fileUploader('shadowCertificate')"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="w-full inline-flex mt-2">
+                  <div class="w-fit mt-2">Certificate File :</div>
+                  <div class="flex justify-center ml-5">
+                    <div
+                      class="bg-gray-300 h-fit w-fit shadow-xl rounded-full p-2 cursor-pointer ml-1"
+                      @click="uploadFile('shadowCertificate')"
+                    >
+                      <ArrowUpTrayIcon class="m-auto h-5 w-5 text-gray-900" />
+                      <input
+                        ref="shadowCertificate"
+                        type="file"
+                        id="shadowCertificate"
+                        hidden
+                        @change="fileUploader('shadowCertificate')"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -317,10 +354,7 @@ async function showDetails(city: any) {
                     Reset Changes
                   </button>
                 </div>
-                <div class="block mt-9 text-xs text-gray-500">
-                  <sup> *</sup> Threshold values indicate the minimum percentage
-                  of active sensors required to generate the relative alert
-                </div>
+                
               </form>
             </div>
           </div>
@@ -336,11 +370,11 @@ async function showDetails(city: any) {
             class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow sm:rounded-lg bg-gray-50"
           >
             <div class="flex text-gray-700 mt-6 ml-5 mb-5 items-center">
-              <BuildingOffice2Icon
+              <Squares2X2Icon
                 class="h-12 rounded-full p-2 bg-pink-600 text-white"
               />
               <h2 class="text-3xl font-medium text-gray-700 ml-3">
-                Cities List
+                IoT Devices List
               </h2>
             </div>
             <table class="min-w-full">
@@ -378,7 +412,7 @@ async function showDetails(city: any) {
                   >
                     <div class="flex items-center">
                       <div class="flex-shrink-0 w-10 h-10">
-                        <BuildingOfficeIcon
+                        <CubeIcon
                           class="shadow-xl rounded-full w-10 h-10 align-middle border-none absolute text-gray-600 bg-gray-300 p-1"
                         />
                       </div>

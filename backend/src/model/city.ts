@@ -48,8 +48,7 @@ export class City {
 
   @OneToMany(() => recordData, (recordData) => recordData.city, {
     cascade: true,
-    onDelete: "CASCADE",
-    eager: true,
+    onDelete: "CASCADE"
   })
   records: recordData[];
 }

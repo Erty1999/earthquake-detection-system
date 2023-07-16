@@ -10,6 +10,7 @@ import {
   Squares2X2Icon,
   BuildingLibraryIcon,
   BellIcon,
+CpuChipIcon,
 } from "@heroicons/vue/24/outline";
 
 const { currentRoute } = useRouter();
@@ -112,6 +113,17 @@ async function logout() {
           <BuildingOffice2Icon class="w-5 h-5" />
 
           <span class="mx-4">Cities Management</span>
+        </router-link>
+
+        <router-link
+          v-if="user?.isAdmin"
+          class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
+          :class="[$route.name === 'IoTthing' ? activeClass : inactiveClass]"
+          to="/Admin/IoTthing"
+        >
+          <CpuChipIcon class="w-6 h-6" />
+
+          <span class="mx-4">Iot Devices Management</span>
         </router-link>
       </nav>
       <div class="my-4"></div>

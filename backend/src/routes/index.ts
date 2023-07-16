@@ -10,6 +10,7 @@ import { upload } from "./mediaUpload";
 import { City } from "../model/city";
 import { uploadFile } from "./fileUpload";
 import { Subscription } from "../model/subscription";
+import { recordData } from "../model/recordData";
 
 const router = Router();
 
@@ -340,6 +341,18 @@ router.get("/admin/cities", verifyTokenAdmin, async (req, res, next) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 
+  //Retrieve the last update of every city
+  const recordRepository = AppDataSource.getRepository(recordData);
+  for (let city of cityList as City[]) {
+    const cityID = city.id;
+    const lastUpdate = await recordRepository
+      .createQueryBuilder("recordData")
+      .where("recordData.city = :cityID", { cityID })
+      .orderBy("recordData.createdAt", "DESC")
+      .getOne();
+    (city as any).lastUpdate = lastUpdate;
+  }
+
   res.send(cityList);
 });
 
@@ -359,6 +372,18 @@ router.get("/cities", verifyToken, async (req, res, next) => {
 
   if (error) {
     return res.status(500).json({ message: "Internal Server Error" });
+  }
+
+  //Retrieve the last update of every city
+  const recordRepository = AppDataSource.getRepository(recordData);
+  for (let city of cityList as City[]) {
+    const cityID = city.id;
+    const lastUpdate = await recordRepository
+      .createQueryBuilder("recordData")
+      .where("recordData.city = :cityID", { cityID })
+      .orderBy("recordData.createdAt", "DESC")
+      .getOne();
+    (city as any).lastUpdate = lastUpdate;
   }
 
   res.send(cityList);

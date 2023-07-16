@@ -200,7 +200,7 @@ export const userStore = defineStore("userStore", () => {
         const sub = await this.isSubscribed(city.id);
         city.isSubscribed = sub;
       }
-
+      console.log(response)
       return response;
     },
 

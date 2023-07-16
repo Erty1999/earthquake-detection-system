@@ -23,6 +23,7 @@ import error404 from "./views/errors/error404.vue";
 import CitiesList from "./views/Cities.vue";
 import NotificationCentre from "./views/NotificationCentre.vue";
 import City from "./views/City.vue";
+import iotThingVue from "./views/admin/iotThing.vue";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -86,6 +87,12 @@ const routes: RouteRecordRaw[] = [
     path: "/Admin/Users",
     name: "AdminUsers",
     component: Users,
+    beforeEnter: [auth, adminAuth],
+  },
+  {
+    path: "/Admin/IoTthing",
+    name: "IoTthing",
+    component: iotThingVue,
     beforeEnter: [auth, adminAuth],
   },
   {

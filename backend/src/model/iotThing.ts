@@ -2,15 +2,21 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
 import { City } from "./city";
 
 enum iotThingType {
-  sensor = 'sensor',
-  led = 'led',
-  display = 'display',
-  buzzer = 'buzzer'
+  sensor = "sensor",
+  led = "led",
+  display = "display",
+  buzzer = "buzzer",
 }
 @Entity()
 export class iotThing {
   @PrimaryGeneratedColumn("uuid")
   id: number;
+
+  @Column()
+  name: string;
+
+  @Column()
+  loction: string;
 
   @Column()
   thingType: iotThingType;
