@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onBeforeMount } from "vue";
 import { userStore } from "../store/user";
-import { PlusCircleIcon } from "@heroicons/vue/24/outline";
+import { PlusCircleIcon, MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
 import { useRouter } from "vue-router";
 
 const store = userStore();
@@ -38,6 +38,14 @@ async function showDetails(city: any) {
   router.push("/" + city.state + "/" + city.name);
   return;
 }
+
+//Research city
+let searchBar = ref("");
+function filteredList() {
+  return citiesList?.value?.filter((city: any) =>
+    city.name.toLowerCase().includes(searchBar.value.toLowerCase())
+  );
+}
 </script>
 
 <template>
@@ -68,21 +76,27 @@ async function showDetails(city: any) {
         >
           <div class="flex mt-6 w-full justify-center px-10">
             <div
-              class="mb-6 overflow-hidden bg-white rounded-md w-full overflow-x-auto"
+              class="mb-6 overflow-hidden bg-white rounded-md w-full overflow-x-auto flex-col justify-center"
             >
+              <div class="w-full lg:w-1/2 flex mx-auto">
+                <div class="relative mt-4 mb-2 w-full">
+                  <input
+                    v-model="searchBar"
+                    type="text"
+                    placeholder="Search a city name"
+                    class="w-full rounded-lg border border-gray-300 bg-gray-100 py-1.5 pl-10 pr-4 text-gray-700 placeholder-gray-500 rtl:pr-11 rtl:pl-4"
+                  />
+                  <span
+                    class="absolute inset-y-0 left-0 flex items-center pl-3"
+                  >
+                    <MagnifyingGlassIcon class="h-5 w-5 text-gray-500" />
+                  </span>
+                </div>
+              </div>
               <table class="w-full border-separate border-spacing-y-4">
-                <thead class="border-b">
-                  <tr class="text-center text-gray-700 font-bold text-lg">
-                    <th class="px-5 py-3">City</th>
-                    <th class="px-5 py-3">Location</th>
-                    <th class="px-5 py-3">Active Sensors</th>
-                    <th class="px-5 py-3">Alert Level</th>
-                    <th></th>
-                  </tr>
-                </thead>
                 <tbody>
                   <tr
-                    v-for="(i, index) in citiesList"
+                    v-for="(i, index) in filteredList()"
                     :key="index"
                     class="bg-gray-100 hover:bg-gray-200 text-center cursor-pointer shadow-md"
                     @click="showDetails(i)"
@@ -99,12 +113,17 @@ async function showDetails(city: any) {
                       </div>
                     </td>
                     <td class="px-6 py-4 text-gray-500 border-b">
-                      {{ i?.lastUpdate?.activeSensors || 0 }}
+                      <div class="text-sm font-medium leading-5 text-gray-900">
+                        {{ i?.lastUpdate?.totalSensors || 0 }}
+                      </div>
+                      <div class="text-sm leading-5 text-gray-500">
+                        Active Sensors
+                      </div>
                     </td>
                     <td class="px-6 py-4 text-gray-500 border-b">
                       <div
                         v-if="!i?.lastUpdate?.alertLevel"
-                        class="flex text-gray-800 bg-gray-300 rounded-full p-3 w-fit mx-auto"
+                        class="flex flex-col text-gray-800 bg-gray-300 rounded-full p-3 w-fit mx-auto"
                       >
                         No Data
                       </div>

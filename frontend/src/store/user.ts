@@ -80,6 +80,7 @@ export const userStore = defineStore("userStore", () => {
       cookie.set("EA-session", value.token, {
         sameSite: "none",
         secure: true,
+        path: "/",
       });
 
       return value;
@@ -91,6 +92,7 @@ export const userStore = defineStore("userStore", () => {
       cookie.remove("EA-session", {
         sameSite: "none",
         secure: true,
+        path: "/",
       });
 
       //Delete store user istance
@@ -200,7 +202,6 @@ export const userStore = defineStore("userStore", () => {
         const sub = await this.isSubscribed(city.id);
         city.isSubscribed = sub;
       }
-      console.log(response)
       return response;
     },
 
@@ -246,6 +247,62 @@ export const userStore = defineStore("userStore", () => {
 
       await useAuthAxios()
         .delete("/subscription/" + cityID)
+        .then((res) => {
+          response = res.data;
+        })
+        .catch((e) => {
+          error = e;
+        });
+
+      if (error) throw error;
+
+      return response;
+    },
+
+    async cityInfo(cityState: string, cityName: string) {
+      let error;
+      let response;
+
+      await useAuthAxios()
+        .get("/city/" + cityState + "/" + cityName)
+        .then((res) => {
+          response = res.data;
+        })
+        .catch((e) => {
+          error = e;
+        });
+
+      if (error) throw error;
+
+      return response;
+    },
+
+    //Last Day alert data
+    async lastDayGraphData(cityState: string, cityName: string) {
+      let error;
+      let response;
+
+      await useAuthAxios()
+        .get("/city/" + cityState + "/" + cityName + "/lastDayChartData")
+        .then((res) => {
+          response = res.data;
+        })
+        .catch((e) => {
+          error = e;
+        });
+
+      if (error) throw error;
+
+      return response;
+    },
+
+    //Last Month alert data
+    async lastMonthGraphData(cityState: string, cityName: string) {
+      let error;
+      let response;
+
+      await useAuthAxios()
+        .get("/city/" + cityState + "/" + cityName + "/lastMonthChartData")
         .then((res) => {
           response = res.data;
         })

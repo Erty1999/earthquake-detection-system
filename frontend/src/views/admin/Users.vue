@@ -462,12 +462,12 @@ async function makeAdmin(user: any) {
                         <img
                           v-if="user?.avatar"
                           v-bind:src="user?.avatar"
-                          class="object-cover shadow-xl rounded-full h-10 w-10 align-middle absolute border-none bg-gray-300"
+                          class="object-cover shadow-xl rounded-full h-10 w-10 align-middle  border-none bg-gray-300"
                           style="max-width: 150px"
                         />
                         <UserCircleIcon
                           v-else
-                          class="shadow-xl rounded-full w-10 h-10 align-middle border-none absolute text-gray-600 bg-gray-300"
+                          class="shadow-xl rounded-full w-10 h-10 align-middle border-none  text-gray-600 bg-gray-300"
                         />
                       </div>
 

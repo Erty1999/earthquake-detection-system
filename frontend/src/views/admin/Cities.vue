@@ -379,7 +379,7 @@ async function showDetails(city: any) {
                     <div class="flex items-center">
                       <div class="flex-shrink-0 w-10 h-10">
                         <BuildingOfficeIcon
-                          class="shadow-xl rounded-full w-10 h-10 align-middle border-none absolute text-gray-600 bg-gray-300 p-1"
+                          class="shadow-xl rounded-full w-10 h-10 align-middle border-none  text-gray-600 bg-gray-300 p-1"
                         />
                       </div>
 

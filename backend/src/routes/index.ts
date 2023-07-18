@@ -11,6 +11,7 @@ import { City } from "../model/city";
 import { uploadFile } from "./fileUpload";
 import { Subscription } from "../model/subscription";
 import { recordData } from "../model/recordData";
+import { iotThing } from "../model/iotThing";
 
 const router = Router();
 
@@ -356,7 +357,7 @@ router.get("/admin/cities", verifyTokenAdmin, async (req, res, next) => {
   res.send(cityList);
 });
 
-//Return all the cities without relative relations
+//Return all the cities without relative records and subscriptions
 router.get("/cities", verifyToken, async (req, res, next) => {
   let error = false;
 
@@ -364,7 +365,15 @@ router.get("/cities", verifyToken, async (req, res, next) => {
 
   const cityList = await cityRepository
     .find({
-      select: ["id", "name", "region", "state", "lowThresh", "highThresh"],
+      select: [
+        "id",
+        "name",
+        "region",
+        "state",
+        "lowThresh",
+        "highThresh",
+        "iotThings",
+      ],
     })
     .catch((e) => {
       error = true;
@@ -486,9 +495,9 @@ router.delete("/subscription/:id", verifyToken, async (req, res, next) => {
   //Check if subscription exists
   const subsRepository = AppDataSource.getRepository(Subscription);
   try {
-    sub = await subsRepository
-      .findOne({ where: [{ city: { id }, user: { id: reqUser.id } }] })
-      .catch();
+    sub = await subsRepository.findOne({
+      where: [{ city: { id }, user: { id: reqUser.id } }],
+    });
   } catch {
     sub = null;
   }
@@ -503,5 +512,176 @@ router.delete("/subscription/:id", verifyToken, async (req, res, next) => {
 
   res.send(true);
 });
+
+//Return a specific city informations
+router.get("/city/:state/:name", verifyToken, async (req, res, next) => {
+  let error = false;
+
+  const cityName = req.params.name as any;
+  const cityState = req.params.state as any;
+
+  const cityRepository = AppDataSource.getRepository(City);
+
+  const city = await cityRepository
+    .findOne({
+      where: { name: cityName, state: cityState },
+    })
+    .catch((e) => {
+      error = true;
+    });
+
+  if (error) {
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+
+  //Retrieve the last update of every city
+  const recordRepository = AppDataSource.getRepository(recordData);
+
+  const cityID = (city as any)?.id;
+  const lastUpdate = await recordRepository
+    .createQueryBuilder("recordData")
+    .where("recordData.city = :cityID", { cityID })
+    .orderBy("recordData.createdAt", "DESC")
+    .getOne();
+  (city as any).lastUpdate = lastUpdate;
+
+  (city as any).subscriptions = city?.subscriptions.length;
+
+  res.send(city);
+});
+
+//Return a alert changes data of last day
+router.get(
+  "/city/:state/:name/lastDayChartData",
+  verifyToken,
+  async (req, res, next) => {
+    let error = false;
+
+    const cityName = req.params.name as any;
+    const cityState = req.params.state as any;
+
+    const cityRepository = AppDataSource.getRepository(City);
+
+    const city = await cityRepository
+      .findOne({
+        where: { name: cityName, state: cityState },
+      })
+      .catch((e) => {
+        error = true;
+      });
+
+    if (error) {
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+
+    //Retrieve the records of the last 24h (only high and low alert records)
+    const recordRepository = AppDataSource.getRepository(recordData);
+
+    const cityID = (city as any)?.id;
+    const now = new Date();
+    const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+    const lastDay = await recordRepository
+      .createQueryBuilder("recordData")
+      .where("recordData.city = :cityID", { cityID })
+      .andWhere("recordData.createdAt BETWEEN :yesterday AND :now", {
+        yesterday,
+        now,
+      })
+      .orderBy("recordData.createdAt", "ASC")
+      .getMany();
+
+    if (!lastDay?.at(0)) {
+      return res.send({});
+    }
+
+    //Normalize the records showing only the points when the alert level change
+    let lastDayGraphData = {} as any;
+    //Take the first point
+    lastDayGraphData[lastDay.at(0)!.createdAt.toISOString()] =
+      lastDay.at(0)?.alertLevel;
+    //Take all the alert level chenges
+    let lastAlert = lastDay.at(0)?.alertLevel;
+    for (let record of lastDay) {
+      if (record.alertLevel === lastAlert) {
+        continue;
+      }
+      lastAlert = record.alertLevel;
+      lastDayGraphData[record.createdAt.toISOString()] = record.alertLevel;
+    }
+    //Take the last point
+    lastDayGraphData[lastDay.at(lastDay.length - 1)!.createdAt.toISOString()] =
+      lastDay.at(lastDay.length - 1)?.alertLevel;
+
+    res.send(lastDayGraphData);
+  }
+);
+
+router.get(
+  "/city/:state/:name/lastMonthChartData",
+  verifyToken,
+  async (req, res, next) => {
+    let error = false;
+
+    const cityName = req.params.name as any;
+    const cityState = req.params.state as any;
+
+    const cityRepository = AppDataSource.getRepository(City);
+
+    const city = await cityRepository
+      .findOne({
+        where: { name: cityName, state: cityState },
+      })
+      .catch((e) => {
+        error = true;
+      });
+
+    if (error) {
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+
+    //Retrieve the records of the last month (only high and low alert records)
+    const recordRepository = AppDataSource.getRepository(recordData);
+
+    const cityID = (city as any)?.id;
+    const now = new Date();
+    const lastMonth = new Date();
+    lastMonth.setMonth(lastMonth.getMonth() - 1);
+
+    const lastDay = await recordRepository
+      .createQueryBuilder("recordData")
+      .where("recordData.city = :cityID", { cityID })
+      .andWhere("recordData.createdAt BETWEEN :lastMonth AND :now", {
+        lastMonth,
+        now,
+      })
+      .orderBy("recordData.createdAt", "ASC")
+      .getMany();
+
+    if (!lastDay?.at(0)) {
+      return res.send({});
+    }
+
+    //Normalize the records showing only the points when the alert level change
+    let lastDayGraphData = {} as any;
+    //Take the first point
+    lastDayGraphData[lastDay.at(0)!.createdAt.toISOString()] =
+      lastDay.at(0)?.alertLevel;
+    //Take all the alert level chenges
+    let lastAlert = lastDay.at(0)?.alertLevel;
+    for (let record of lastDay) {
+      if (record.alertLevel === lastAlert) {
+        continue;
+      }
+      lastAlert = record.alertLevel;
+      lastDayGraphData[record.createdAt.toISOString()] = record.alertLevel;
+    }
+    //Take the last point
+    lastDayGraphData[lastDay.at(lastDay.length - 1)!.createdAt.toISOString()] =
+      lastDay.at(lastDay.length - 1)?.alertLevel;
+
+    res.send(lastDayGraphData);
+  }
+);
 
 export default router;
