@@ -273,6 +273,9 @@ export const userStore = defineStore("userStore", () => {
         });
 
       if (error) throw error;
+      
+      const sub = await this.isSubscribed((response as any).id);
+      (response as any).isSubscribed = sub;
 
       return response;
     },

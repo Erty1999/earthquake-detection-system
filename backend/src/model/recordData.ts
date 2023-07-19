@@ -16,10 +16,10 @@ export class recordData {
   createdAt: Date;
 
   @Column()
-  activeSensors: number;
+  triggeredSensors: number;
 
   @Column()
-  totalSensors: number;
+  activeSensors: number;
 
   @Column()
   alertLevel: Alertlevel;

@@ -46,6 +46,17 @@ function filteredList() {
     city.name.toLowerCase().includes(searchBar.value.toLowerCase())
   );
 }
+
+function convertDate(time: any) {
+  const date = new Date(time);
+  return date.toLocaleDateString("UTC", {
+    hour: "numeric",
+    minute: "numeric",
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+  });
+}
 </script>
 
 <template>
@@ -114,7 +125,7 @@ function filteredList() {
                     </td>
                     <td class="px-6 py-4 text-gray-500 border-b">
                       <div class="text-sm font-medium leading-5 text-gray-900">
-                        {{ i?.lastUpdate?.totalSensors || 0 }}
+                        {{ i?.lastUpdate?.activeSensors || 0 }}
                       </div>
                       <div class="text-sm leading-5 text-gray-500">
                         Active Sensors
@@ -129,21 +140,27 @@ function filteredList() {
                       </div>
                       <div
                         v-if="i?.lastUpdate?.alertLevel === 'none'"
-                        class="flex text-green-900 bg-green-200 rounded-full p-3 w-fit mx-auto"
+                        class="flex text-green-900 bg-green-200 rounded-full p-1 px-3 w-fit mx-auto"
                       >
                         Pacific
                       </div>
                       <div
                         v-if="i?.lastUpdate?.alertLevel === 'low'"
-                        class="flex text-orange-800 bg-orange-100 rounded-full p-3 w-fit mx-auto"
+                        class="flex text-orange-800 bg-orange-100 rounded-full p-1 px-3 w-fit mx-auto"
                       >
                         Low Alert
                       </div>
                       <div
                         v-if="i?.lastUpdate?.alertLevel === 'high'"
-                        class="flex text-red-800 bg-red-200 rounded-full p-3 w-fit mx-auto"
+                        class="flex text-red-800 bg-red-200 rounded-full p-1 px-3 w-fit mx-auto"
                       >
                         High Alert
+                      </div>
+                      <div
+                        v-if="i?.lastUpdate?.alertLevel"
+                        class="text-sm leading-5 text-gray-500"
+                      >
+                        at {{ convertDate(i?.lastUpdate?.createdAt) }}
                       </div>
                     </td>
                     <td class="px-6 py-4 border-b flex justify-center">
@@ -162,7 +179,7 @@ function filteredList() {
 
                       <button
                         v-else
-                        class="text-white bg-indigo-600 p-2 rounded-lg flex gap-x-1 my-2 z-20"
+                        class="text-white bg-indigo-600 p-2 rounded-lg flex gap-x-1 my-2 z-2"
                         @click="
                           (event) => {
                             follow(i);
