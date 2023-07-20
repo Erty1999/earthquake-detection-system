@@ -24,6 +24,12 @@ export class recordData {
   @Column()
   alertLevel: Alertlevel;
 
+  @Column()
+  lowThresh : number;
+
+  @Column()
+  highThresh : number;
+
   @ManyToOne(() => City, (city) => city.records)
   city: City;
 }

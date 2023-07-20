@@ -273,7 +273,7 @@ export const userStore = defineStore("userStore", () => {
         });
 
       if (error) throw error;
-      
+
       const sub = await this.isSubscribed((response as any).id);
       (response as any).isSubscribed = sub;
 
@@ -306,6 +306,50 @@ export const userStore = defineStore("userStore", () => {
 
       await useAuthAxios()
         .get("/city/" + cityState + "/" + cityName + "/lastMonthChartData")
+        .then((res) => {
+          response = res.data;
+        })
+        .catch((e) => {
+          error = e;
+        });
+
+      if (error) throw error;
+
+      return response;
+    },
+
+    //Retrive records of a given period
+    async recoverRecords(
+      cityState: string,
+      cityName: string,
+      fromDate: string,
+      toDate: string
+    ) {
+      let error;
+      let response;
+
+      //Format Input Data
+      let d1 = new Date(fromDate);
+      let d2 = new Date(toDate);
+      if (fromDate == toDate) {
+        d1.setHours(0);
+        d1.setMinutes(0);
+
+        d2.setHours(23);
+        d2.setMinutes(59);
+      } else {
+        d1.setHours(new Date().getHours());
+        d1.setMinutes(new Date().getMinutes());
+
+        d2.setHours(new Date().getHours());
+        d2.setMinutes(new Date().getMinutes());
+      }
+
+      await useAuthAxios()
+        .post("/city/" + cityState + "/" + cityName + "/recoverRecords", {
+          fromDate: d1.toISOString(),
+          toDate: d2.toISOString(),
+        })
         .then((res) => {
           response = res.data;
         })

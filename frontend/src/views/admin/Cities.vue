@@ -16,7 +16,6 @@ const region = ref("");
 const state = ref("");
 const lowThresh = ref(26);
 const highThresh = ref(76);
-//const shadowEndpoint = ref(null);
 
 const error = ref("");
 const success = ref("");

@@ -328,6 +328,54 @@ router.post("/admin/createCity", verifyTokenAdmin, async (req, res, next) => {
   res.send(city);
 });
 
+//Admit admin to update city
+router.put(
+  "/admin/updateCity/:id",
+  verifyTokenAdmin,
+  async (req, res, next) => {
+    const id = req.params.id as any;
+    let error = false;
+    let city;
+
+    const cityRepository = AppDataSource.getRepository(City);
+
+    try {
+      city = await cityRepository.findOne({ where: [{ id }] }).catch();
+    } catch {
+      city = null;
+    }
+
+    //If no city has the requested id
+    if (!city) {
+      return res.status(404).send("City not found");
+    }
+
+    //Data is fetched from the request body
+    const { name, region, state, lowThresh, highThresh } = req.body;
+
+    //Check if the new value of the city alredy exists (can't exist 2 cities with the same name in the same state)
+    const existingCity = await cityRepository.findOne({
+      where: [{ name, state }],
+    });
+    if (existingCity && existingCity.id != id) {
+      return res.status(409).json({ message: "City already stored" });
+    }
+
+    //Update City
+    city.name = name ?? city.name;
+    city.region = region ?? city.region;
+    city.state = state ?? city.state;
+    city.lowThresh = lowThresh ?? city.lowThresh;
+    city.highThresh = highThresh ?? city.highThresh;
+
+    //Save updates
+    await cityRepository.save(city);
+
+    //Return updated user
+    res.send(city);
+  }
+);
+
 //Admit admin to see all the cities with relative relations
 router.get("/admin/cities", verifyTokenAdmin, async (req, res, next) => {
   let error = false;
@@ -592,7 +640,7 @@ router.get(
       .getMany();
 
     if (!lastDay?.at(0)) {
-      return res.send({});
+      return res.send("");
     }
 
     //Normalize the records showing only the points when the alert level change
@@ -659,7 +707,7 @@ router.get(
       .getMany();
 
     if (!lastDay?.at(0)) {
-      return res.send({});
+      return res.send("");
     }
 
     //Normalize the records showing only the points when the alert level change
@@ -681,6 +729,60 @@ router.get(
       lastDay.at(lastDay.length - 1)?.alertLevel;
 
     res.send(lastDayGraphData);
+  }
+);
+
+router.post(
+  "/city/:state/:name/recoverRecords",
+  verifyToken,
+  async (req, res, next) => {
+    let error = false;
+
+    const cityName = req.params.name as any;
+    const cityState = req.params.state as any;
+
+    //Data is fetched from the request body
+    let { fromDate, toDate } = req.body;
+
+    if (!fromDate || !toDate) {
+      res
+        .status(400)
+        .json({ message: "Bad Request: insert all required fields" });
+    }
+    //Format type
+    fromDate = new Date(fromDate);
+    toDate = new Date(toDate);
+
+    const cityRepository = AppDataSource.getRepository(City);
+
+    const city = await cityRepository
+      .findOne({
+        where: { name: cityName, state: cityState },
+      })
+      .catch((e) => {
+        error = true;
+      });
+
+    if (error) {
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+
+    //Retrieve the records of the last month
+    const recordRepository = AppDataSource.getRepository(recordData);
+
+    const cityID = (city as any)?.id;
+
+    const records = await recordRepository
+      .createQueryBuilder("recordData")
+      .where("recordData.city = :cityID", { cityID })
+      .andWhere("recordData.createdAt BETWEEN :fromDate AND :toDate", {
+        fromDate,
+        toDate,
+      })
+      .orderBy("recordData.createdAt", "ASC")
+      .getMany();
+
+    res.send(records);
   }
 );
 

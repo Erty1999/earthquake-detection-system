@@ -77,6 +77,26 @@ export const adminStore = defineStore("adminStore", () => {
       return response;
     },
 
+    async updateCity(city: City, idCity: string) {
+      let error;
+      let response;
+
+      await useAuthAxios()
+        .put("/admin/updateCity/" + idCity, {
+          ...city,
+        })
+        .then((res) => {
+          response = res.data;
+        })
+        .catch((e) => {
+          error = e;
+        });
+
+      if (error) throw error;
+
+      return response;
+    },
+
     async citiesList() {
       let error;
       let response;
