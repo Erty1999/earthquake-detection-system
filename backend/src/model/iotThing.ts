@@ -36,6 +36,6 @@ export class iotThing {
   @Column()
   shadowEndpoint: string;
 
-  @ManyToOne(() => City, (city) => city.iotThings)
+  @ManyToOne(() => City, (city) => city.iotThings, { nullable: true })
   city: City;
 }

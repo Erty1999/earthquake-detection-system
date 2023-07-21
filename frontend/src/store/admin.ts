@@ -145,6 +145,24 @@ export const adminStore = defineStore("adminStore", () => {
       const path = (response as any).path;
       return path;
     },
+
+    async deleteCity(idCity: string) {
+      let error;
+      let response;
+
+      await useAuthAxios()
+        .delete("/admin/deleteCity/" + idCity)
+        .then((res) => {
+          response = res.data;
+        })
+        .catch((e) => {
+          error = e;
+        });
+
+      if (error) throw error;
+
+      return response;
+    },
   };
 
   return { ...actions };

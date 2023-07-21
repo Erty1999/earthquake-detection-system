@@ -376,6 +376,65 @@ router.put(
   }
 );
 
+//City removing
+router.delete("/admin/deleteCity/:id", verifyToken, async (req, res, next) => {
+  const id = req.params.id as any;
+  console.log(id, "ciao");
+  let city;
+
+  //Check if the city exists
+  const cityRepository = AppDataSource.getRepository(City);
+
+  try {
+    city = await cityRepository.findOne({ where: [{ id }] });
+  } catch {
+    city = null;
+  }
+  if (!city) {
+    return res.status(404).json({ message: "No city founded" });
+  }
+
+  //Implementing manual cascade delete
+  const subRepository = AppDataSource.getRepository(Subscription);
+  const recordRepository = AppDataSource.getRepository(recordData);
+  const iotRepository = AppDataSource.getRepository(iotThing);
+
+  //Delete Subs
+  await subRepository
+    .createQueryBuilder("subscription")
+    .delete()
+    .from(Subscription)
+    .where("city = :id", { id: id })
+    .execute();
+
+  //Delete Records
+  await recordRepository
+    .createQueryBuilder("recordData")
+    .delete()
+    .from(recordData)
+    .where("city = :id", { id: id })
+    .execute();
+
+  //Set Null related iotThings 
+  await recordRepository
+  .createQueryBuilder("iotThing")
+  .update(iotThing)
+  .set({city : (() => null as any)})
+  .where("city = :id", { id: id })
+  .execute();
+
+
+  //Delete City
+  await cityRepository
+    .createQueryBuilder("cityDelete")
+    .delete()
+    .from(City)
+    .where("id = :id", { id: id })
+    .execute();
+
+  res.send(true);
+});
+
 //Admit admin to see all the cities with relative relations
 router.get("/admin/cities", verifyTokenAdmin, async (req, res, next) => {
   let error = false;

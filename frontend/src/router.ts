@@ -4,6 +4,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import auth from "./middleware/require-auth";
 import noAuth from "./middleware/require-no-auth";
 import adminAuth from "./middleware/require-admin";
+import checkCity from "./middleware/checkCity";
 
 import Home from "./views/Home.vue";
 import Forms from "./views/Forms.vue";
@@ -69,7 +70,7 @@ const routes: RouteRecordRaw[] = [
     path: "/:state/:name",
     name: "City",
     component: City,
-    beforeEnter: auth,
+    beforeEnter: [auth, checkCity],
   },
   {
     path: "/NotificationCentre",

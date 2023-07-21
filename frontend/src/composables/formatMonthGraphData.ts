@@ -1,10 +1,10 @@
-export default function formatMonthGraphData(points: any) {
+export default async function formatMonthGraphData(points: any) {
   const graphData = {} as any;
   const graphXvalues = Object.keys(points.value);
   const graphYvalues = Object.values(points.value).map((value) => {
-    if (value === "none") return 1;
-    if (value === "low") return 2;
-    if (value === "high") return 3;
+    if (value === "none") return 0;
+    if (value === "low") return 1;
+    if (value === "high") return 2;
   });
 
   graphData["options"] = {
@@ -55,12 +55,12 @@ export default function formatMonthGraphData(points: any) {
       },
     },
     yaxis: {
-      tickAmount: 4,
+      tickAmount: 2,
       labels: {
         formatter: (value: number) => {
-          if (value === 1) return "Pacific";
-          if (value === 2) return "Low Alert";
-          if (value === 3) return "High Alert";
+          if (value === 0) return "Pacific";
+          if (value === 1) return "Low Alert";
+          if (value === 2) return "High Alert";
         },
         style: {
           colors: ["#228B22", "#b71111", "#fe9511"],

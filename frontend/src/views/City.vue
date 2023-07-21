@@ -5,6 +5,7 @@ import formatDayGraphData from "../composables/formatDayGraphData";
 import formatMonthGraphData from "../composables/formatMonthGraphData";
 import {
   AcademicCapIcon,
+  ArrowPathRoundedSquareIcon,
   ClockIcon,
   PresentationChartLineIcon,
   WalletIcon,
@@ -61,7 +62,7 @@ onBeforeMount(async () => {
     route.params?.name as string
   );
   if (lastDayGraphRowData.value) {
-    lastDayGraphData.value = formatDayGraphData(lastDayGraphRowData);
+    lastDayGraphData.value = await formatDayGraphData(lastDayGraphRowData);
   }
 
   //Last month graph data
@@ -70,9 +71,16 @@ onBeforeMount(async () => {
     route.params?.name as string
   );
   if (lastMonthGraphRowData.value) {
-    lastMonthGraphData.value = formatMonthGraphData(lastMonthGraphRowData);
+    lastMonthGraphData.value = await formatMonthGraphData(
+      lastMonthGraphRowData
+    );
   }
 });
+
+//Function that reload the page in order to refresh page data
+function refreshData() {
+  location.reload();
+}
 
 //Function that manage the subscription
 async function follow() {
@@ -114,6 +122,16 @@ function convertDate(time: any) {
 //Recover recordData from BE
 async function findRecords() {
   noData.value = false;
+  const date1 = new Date(fromDate.value).getTime();
+  const date2 = new Date(toDate.value).getTime();
+
+  //If the toDate is higher than fromDate, switch them
+  if (date1 > date2) {
+    console.log("bella");
+    const temp = toDate.value;
+    toDate.value = fromDate.value;
+    fromDate.value = temp;
+  }
   records.value = await storeUser.recoverRecords(
     route.params?.state as string,
     route.params?.name as string,
@@ -166,7 +184,7 @@ async function submit() {
     updatedCity.name != route.params?.name ||
     updatedCity.state != route.params?.state
   ) {
-     router.push("/" + updatedCity.state + "/" + updatedCity.name);
+    router.push("/" + updatedCity.state + "/" + updatedCity.name);
   }
 
   //Show success message
@@ -191,6 +209,22 @@ function onChangeInput() {
   hasChanged.value = true;
   error.value = "";
   success.value = "";
+}
+
+//Function that manage the deletion of th city
+async function deleteCity() {
+  await storeAdmin.deleteCity(city.value.id).catch((e) => {
+    error.value =
+      e?.response?.data?.message ??
+      "Oops, something went wrong, the city was not deleted";
+  });
+
+  if (error.value) {
+    return;
+  }
+
+  //redirect to cities page
+  router.push("/cities");
 }
 </script>
 
@@ -227,7 +261,18 @@ function onChangeInput() {
         <div
           class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-xl rounded-lg -mt-96"
         >
-          <div class="px-6 w-full flex-col mt-4">
+          <div class="px-6 w-full flex-col mt-2 text-gray-600">
+            <!--refresh data-->
+            <div
+              class="flex ml-auto capitalize w-fit cursor-pointer"
+              @click="refreshData()"
+            >
+              <ArrowPathRoundedSquareIcon class="h-7 w-7 mr-1" /><span
+                class="mt-0.5"
+                >refresh data</span
+              >
+            </div>
+
             <div class="flex flex-wrap w-full">
               <!-- left group -->
               <div class="sm:w-1/3 w-1/2 text-center">
@@ -330,7 +375,9 @@ function onChangeInput() {
 
             <!-- charts-->
             <div class="flex flex-wrap w-full mb-5">
-              <div class="xl:w-1/2 w-full flex-col text-center">
+              <div
+                class="xl:w-1/2 w-full overflow-x-auto overflow-y-hidden flex-col text-center"
+              >
                 <div
                   class="w-fit m-auto bg-gray-100 flex-col pt-6 px-6 rounded-lg shadow-lg mt-4"
                 >
@@ -349,7 +396,9 @@ function onChangeInput() {
                   </div>
                 </div>
               </div>
-              <div class="xl:w-1/2 w-full flex-col text-center">
+              <div
+                class="xl:w-1/2 w-full overflow-x-auto overflow-y-hidden flex-col text-center"
+              >
                 <div
                   class="w-fit m-auto bg-gray-100 flex-col pt-6 px-6 rounded-lg shadow-lg mt-4"
                 >
@@ -555,7 +604,7 @@ function onChangeInput() {
             <section v-if="user?.isAdmin">
               <!-- line -->
               <div class="mt-10 mb-1 border-t"></div>
-              <div class="inline-flex mb-2">
+              <div class="w-full inline-flex mb-2">
                 <AcademicCapIcon class="w-5 h-5 mr-2 text-gray-400" />
                 <h1
                   class="text-sm leading-normal font-bold uppercase text-gray-400"
@@ -563,218 +612,243 @@ function onChangeInput() {
                   Admin Section
                 </h1>
               </div>
-              <div class="flex justify-center">
-                <div
-                  class="inline-flex w-full max-w-sm ml-3 overflow-hidden bg-slate-200 rounded-lg shadow-md my-4"
-                  v-if="error"
-                >
-                  <div class="flex items-center justify-center w-12 bg-red-500">
-                    <svg
-                      class="w-6 h-6 text-white fill-current"
-                      viewBox="0 0 40 40"
-                      xmlns="http://www.w3.org/2000/svg"
+              <!-- change org info section -->
+              <div class="w-full">
+                <div class="flex justify-center">
+                  <div
+                    class="inline-flex w-full max-w-sm ml-3 overflow-hidden bg-slate-200 rounded-lg shadow-md my-4"
+                    v-if="error"
+                  >
+                    <div
+                      class="flex items-center justify-center w-12 bg-red-500"
                     >
-                      <path
-                        d="M20 3.36667C10.8167 3.36667 3.3667 10.8167 3.3667 20C3.3667 29.1833 10.8167 36.6333 20 36.6333C29.1834 36.6333 36.6334 29.1833 36.6334 20C36.6334 10.8167 29.1834 3.36667 20 3.36667ZM19.1334 33.3333V22.9H13.3334L21.6667 6.66667V17.1H27.25L19.1334 33.3333Z"
+                      <svg
+                        class="w-6 h-6 text-white fill-current"
+                        viewBox="0 0 40 40"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M20 3.36667C10.8167 3.36667 3.3667 10.8167 3.3667 20C3.3667 29.1833 10.8167 36.6333 20 36.6333C29.1834 36.6333 36.6334 29.1833 36.6334 20C36.6334 10.8167 29.1834 3.36667 20 3.36667ZM19.1334 33.3333V22.9H13.3334L21.6667 6.66667V17.1H27.25L19.1334 33.3333Z"
+                        />
+                      </svg>
+                    </div>
+
+                    <div class="px-4 py-2 -mx-3">
+                      <div class="mx-3">
+                        <span class="font-semibold text-red-500">Error</span>
+                        <p class="text-sm text-gray-600">
+                          {{ error }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="inline-flex w-full max-w-sm ml-3 overflow-hidden bg-slate-200 rounded-lg shadow-md my-4"
+                    v-if="success"
+                  >
+                    <div
+                      class="flex items-center justify-center w-12 bg-green-500"
+                    >
+                      <svg
+                        class="w-6 h-6 text-white fill-current"
+                        viewBox="0 0 40 40"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M20 3.33331C10.8 3.33331 3.33337 10.8 3.33337 20C3.33337 29.2 10.8 36.6666 20 36.6666C29.2 36.6666 36.6667 29.2 36.6667 20C36.6667 10.8 29.2 3.33331 20 3.33331ZM16.6667 28.3333L8.33337 20L10.6834 17.65L16.6667 23.6166L29.3167 10.9666L31.6667 13.3333L16.6667 28.3333Z"
+                        />
+                      </svg>
+                    </div>
+                    <div class="px-4 py-2 -mx-3">
+                      <div class="mx-3">
+                        <span class="font-semibold text-green-500"
+                          >Success</span
+                        >
+                        <p class="text-sm text-gray-600">
+                          {{ success }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <form
+                  class="mb-2 p-5 w-full"
+                  @submit.prevent="submit"
+                  @reset.prevent="resetValues"
+                  @change="onChangeInput"
+                >
+                  <div class="grid md:grid-cols-2 md:gap-6">
+                    <div class="relative z-0 w-full mb-6 col-span-2">
+                      <input
+                        v-model="name"
+                        type="text"
+                        name="name"
+                        id="name"
+                        class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                        placeholder=" "
+                        required
                       />
-                    </svg>
+                      <label
+                        for="name"
+                        class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+                        >Name</label
+                      >
+                    </div>
+                  </div>
+                  <div class="grid md:grid-cols-2 md:gap-6 mt-4">
+                    <div class="relative z-0 w-full mb-6 group">
+                      <input
+                        v-model="region"
+                        type="text"
+                        name="region"
+                        id="region"
+                        class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                        required
+                        placeholder=""
+                      />
+                      <label
+                        for="region"
+                        class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+                        >Region</label
+                      >
+                    </div>
+                    <div class="relative z-0 w-full mb-6 group">
+                      <input
+                        v-model="state"
+                        type="text"
+                        name="state"
+                        id="state"
+                        class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                        placeholder=""
+                        required
+                      />
+                      <label
+                        for="state"
+                        class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+                        >State</label
+                      >
+                    </div>
+                    <div
+                      class="flex flex-col space-y-2 px-2 w-full col-span-2 mb-6"
+                    >
+                      <label
+                        for="range"
+                        class="font-medium text-sm text-gray-500 dark:text-gray-400 duration-300 peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+                        >Low Alert Threshold<sup class="text-gray-400"
+                          >*</sup
+                        ></label
+                      >
+                      <input
+                        v-model="lowThresh"
+                        class="w-full"
+                        type="range"
+                        min="1"
+                        max="50"
+                        step="1"
+                      />
+                      <ul class="flex justify-between w-full px-[10px]">
+                        <li class="flex justify-center relative">
+                          <span class="absolute">1</span>
+                        </li>
+                        <li class="flex justify-center relative">
+                          <span class="absolute">10</span>
+                        </li>
+                        <li class="flex justify-center relative">
+                          <span class="absolute">20</span>
+                        </li>
+                        <li class="flex justify-center relative">
+                          <span class="absolute">30</span>
+                        </li>
+                        <li class="flex justify-center relative">
+                          <span class="absolute">40</span>
+                        </li>
+                        <li class="flex justify-center relative">
+                          <span class="absolute">50</span>
+                        </li>
+                      </ul>
+                    </div>
+                    <div
+                      class="flex flex-col space-y-2 px-2 w-full col-span-2 mb-6"
+                    >
+                      <label
+                        for="range"
+                        class="font-medium text-sm text-gray-500 dark:text-gray-400 duration-300 peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+                        >High Alert Threshold<sup class="text-gray-400"
+                          >*</sup
+                        ></label
+                      >
+                      <input
+                        v-model="highThresh"
+                        class="w-full"
+                        type="range"
+                        min="51"
+                        max="100"
+                        step="1"
+                      />
+                      <ul class="flex justify-between w-full px-[10px]">
+                        <li class="flex justify-center relative">
+                          <span class="absolute">51</span>
+                        </li>
+                        <li class="flex justify-center relative">
+                          <span class="absolute">60</span>
+                        </li>
+                        <li class="flex justify-center relative">
+                          <span class="absolute">70</span>
+                        </li>
+                        <li class="flex justify-center relative">
+                          <span class="absolute">80</span>
+                        </li>
+                        <li class="flex justify-center relative">
+                          <span class="absolute">90</span>
+                        </li>
+                        <li class="flex justify-center relative">
+                          <span class="absolute">100</span>
+                        </li>
+                      </ul>
+                    </div>
                   </div>
 
-                  <div class="px-4 py-2 -mx-3">
-                    <div class="mx-3">
-                      <span class="font-semibold text-red-500">Error</span>
-                      <p class="text-sm text-gray-600">
-                        {{ error }}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  class="inline-flex w-full max-w-sm ml-3 overflow-hidden bg-slate-200 rounded-lg shadow-md my-4"
-                  v-if="success"
-                >
                   <div
-                    class="flex items-center justify-center w-12 bg-green-500"
+                    class="flex w-full mt-6 justify-center gap-x-6"
+                    v-if="hasChanged"
                   >
-                    <svg
-                      class="w-6 h-6 text-white fill-current"
-                      viewBox="0 0 40 40"
-                      xmlns="http://www.w3.org/2000/svg"
+                    <button
+                      type="submit"
+                      class="sm:w-auto text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-md px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                     >
-                      <path
-                        d="M20 3.33331C10.8 3.33331 3.33337 10.8 3.33337 20C3.33337 29.2 10.8 36.6666 20 36.6666C29.2 36.6666 36.6667 29.2 36.6667 20C36.6667 10.8 29.2 3.33331 20 3.33331ZM16.6667 28.3333L8.33337 20L10.6834 17.65L16.6667 23.6166L29.3167 10.9666L31.6667 13.3333L16.6667 28.3333Z"
-                      />
-                    </svg>
+                      Save changes
+                    </button>
+                    <button
+                      type="reset"
+                      class="font-medium rounded-lg text-md sm:w-auto px-5 py-2.5 text-center text-white bg-red-500 hover:bg-red-400 focus:outline-none focus:bg-red-400 focus:ring focus:ring-red-300 focus:ring-opacity-50"
+                    >
+                      Reset Changes
+                    </button>
                   </div>
-                  <div class="px-4 py-2 -mx-3">
-                    <div class="mx-3">
-                      <span class="font-semibold text-green-500">Success</span>
-                      <p class="text-sm text-gray-600">
-                        {{ success }}
-                      </p>
-                    </div>
+                  <div class="block mt-9 text-xs text-gray-500">
+                    <sup> *</sup> Threshold values indicate the minimum
+                    percentage of triggered sensors required to generate the
+                    relative alert
                   </div>
-                </div>
+                </form>
               </div>
-              <form
-                class="mb-2 p-5 w-full"
-                @submit.prevent="submit"
-                @reset.prevent="resetValues"
-                @change="onChangeInput"
+              <!-- delete section -->
+              <div
+                class="w-full bg-red-100 shadow-xl mx-auto my-auto rounded-lg mb-5 mt-5 gap-x-5 flex p-5"
               >
-                <div class="grid md:grid-cols-2 md:gap-6">
-                  <div class="relative z-0 w-full mb-6 col-span-2">
-                    <input
-                      v-model="name"
-                      type="text"
-                      name="name"
-                      id="name"
-                      class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                      placeholder=" "
-                      required
-                    />
-                    <label
-                      for="name"
-                      class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                      >Name</label
-                    >
-                  </div>
-                </div>
-                <div class="grid md:grid-cols-2 md:gap-6 mt-4">
-                  <div class="relative z-0 w-full mb-6 group">
-                    <input
-                      v-model="region"
-                      type="text"
-                      name="region"
-                      id="region"
-                      class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                      required
-                      placeholder=""
-                    />
-                    <label
-                      for="region"
-                      class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                      >Region</label
-                    >
-                  </div>
-                  <div class="relative z-0 w-full mb-6 group">
-                    <input
-                      v-model="state"
-                      type="text"
-                      name="state"
-                      id="state"
-                      class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                      placeholder=""
-                      required
-                    />
-                    <label
-                      for="state"
-                      class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                      >State</label
-                    >
-                  </div>
-                  <div
-                    class="flex flex-col space-y-2 px-2 w-full col-span-2 mb-6"
-                  >
-                    <label
-                      for="range"
-                      class="font-medium text-sm text-gray-500 dark:text-gray-400 duration-300 peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                      >Low Alert Threshold<sup class="text-gray-400"
-                        >*</sup
-                      ></label
-                    >
-                    <input
-                      v-model="lowThresh"
-                      class="w-full"
-                      type="range"
-                      min="1"
-                      max="50"
-                      step="1"
-                    />
-                    <ul class="flex justify-between w-full px-[10px]">
-                      <li class="flex justify-center relative">
-                        <span class="absolute">1</span>
-                      </li>
-                      <li class="flex justify-center relative">
-                        <span class="absolute">10</span>
-                      </li>
-                      <li class="flex justify-center relative">
-                        <span class="absolute">20</span>
-                      </li>
-                      <li class="flex justify-center relative">
-                        <span class="absolute">30</span>
-                      </li>
-                      <li class="flex justify-center relative">
-                        <span class="absolute">40</span>
-                      </li>
-                      <li class="flex justify-center relative">
-                        <span class="absolute">50</span>
-                      </li>
-                    </ul>
-                  </div>
-                  <div
-                    class="flex flex-col space-y-2 px-2 w-full col-span-2 mb-6"
-                  >
-                    <label
-                      for="range"
-                      class="font-medium text-sm text-gray-500 dark:text-gray-400 duration-300 peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                      >High Alert Threshold<sup class="text-gray-400"
-                        >*</sup
-                      ></label
-                    >
-                    <input
-                      v-model="highThresh"
-                      class="w-full"
-                      type="range"
-                      min="51"
-                      max="100"
-                      step="1"
-                    />
-                    <ul class="flex justify-between w-full px-[10px]">
-                      <li class="flex justify-center relative">
-                        <span class="absolute">51</span>
-                      </li>
-                      <li class="flex justify-center relative">
-                        <span class="absolute">60</span>
-                      </li>
-                      <li class="flex justify-center relative">
-                        <span class="absolute">70</span>
-                      </li>
-                      <li class="flex justify-center relative">
-                        <span class="absolute">80</span>
-                      </li>
-                      <li class="flex justify-center relative">
-                        <span class="absolute">90</span>
-                      </li>
-                      <li class="flex justify-center relative">
-                        <span class="absolute">100</span>
-                      </li>
-                    </ul>
-                  </div>
+                <div class="my-4 font-medium text-md w-max">
+                  Click here if you want to delete the city, but be careful,
+                  this operation
+                  <span class="font-bold text-lg">is not reversible</span>
                 </div>
 
-                <div
-                  class="flex w-full mt-6 justify-center gap-x-6"
-                  v-if="hasChanged"
+                <button
+                  class="ml-auto font-medium rounded-full text-md w-fit px-3 py-2 text-center text-gray-900 bg-red-500 hover:bg-red-400 focus:outline-none focus:bg-red-400 focus:ring focus:ring-red-300 focus:ring-opacity-50"
+                  @click="deleteCity()"
                 >
-                  <button
-                    type="submit"
-                    class="sm:w-auto text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-md px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                  >
-                    Save changes
-                  </button>
-                  <button
-                    type="reset"
-                    class="font-medium rounded-lg text-md sm:w-auto px-5 py-2.5 text-center text-white bg-red-500 hover:bg-red-400 focus:outline-none focus:bg-red-400 focus:ring focus:ring-red-300 focus:ring-opacity-50"
-                  >
-                    Reset Changes
-                  </button>
-                </div>
-                <div class="block mt-9 text-xs text-gray-500">
-                  <sup> *</sup> Threshold values indicate the minimum percentage
-                  of active sensors required to generate the relative alert
-                </div>
-              </form>
+                  Delete City
+                </button>
+              </div>
             </section>
           </div>
         </div>

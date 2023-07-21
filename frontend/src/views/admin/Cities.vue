@@ -318,7 +318,7 @@ async function showDetails(city: any) {
                 </div>
                 <div class="block mt-9 text-xs text-gray-500">
                   <sup> *</sup> Threshold values indicate the minimum percentage
-                  of active sensors required to generate the relative alert
+                  of triggered sensors required to generate the relative alert
                 </div>
               </form>
             </div>
