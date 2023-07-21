@@ -7,6 +7,7 @@ import {
   AcademicCapIcon,
   ArrowPathRoundedSquareIcon,
   ClockIcon,
+  InformationCircleIcon,
   PresentationChartLineIcon,
   WalletIcon,
 } from "@heroicons/vue/24/outline";
@@ -600,10 +601,57 @@ async function deleteCity() {
               </section>
             </div>
 
+            <!-- info section -->
+            <section class="mb-2">
+              <!-- line -->
+              <div class="mt-10 mb-1 border-t"></div>
+              <div class="w-full inline-flex mb-2">
+                <InformationCircleIcon class="w-5 h-5 mr-2 text-gray-400" />
+                <h1
+                  class="text-sm leading-normal font-bold uppercase text-gray-400"
+                >
+                  Info Section
+                </h1>
+              </div>
+              <div class="ml-3">
+                The various alert levels are constantly detected by our sensors
+                scattered around the city. The alert is triggered when the
+                number of sensors detecting vibration exceeds the percentage set
+                by the thresholds. Our operators calibrate the alert thresholds
+                city by city, with the goal of making our service as accurate as
+                possible.
+              </div>
+              <div class="flex gap-x-5 w-full justify-between mt-8">
+                <div class="flex-col w-1/4 text-center">
+                  <div class="m-auto">
+                    <span
+                      class="text-xl font-bold block uppercase tracking-wide text-gray-800"
+                      >{{ city?.activeSensors ?? "0" }}</span
+                    ><span class="text-sm text-gray-500 capitalize">Active Sensors</span>
+                  </div>
+                </div>
+                <div class="flex w-1/4 text-center">
+                  <div class="m-auto">
+                    <span
+                      class="text-xl font-bold block uppercase tracking-wide text-gray-800"
+                      >{{ city?.lowThresh + "%" ?? "undefined" }} </span
+                    ><span class="text-sm text-gray-500 capitalize">current low alert threshold</span>
+                  </div>
+                </div>
+                <div class="flex w-1/4 text-center">
+                  <div class="m-auto">
+                    <span
+                      class="text-xl font-bold block uppercase tracking-wide text-gray-800"
+                      >{{ city?.highThresh + "%" ?? "undefined" }}</span
+                    ><span class="text-sm text-gray-500 capitalize">current high alert threshold</span>
+                  </div>
+                </div>
+              </div>
+            </section>
             <!-- admin section -->
             <section v-if="user?.isAdmin">
               <!-- line -->
-              <div class="mt-10 mb-1 border-t"></div>
+              <div class="mt-12 mb-1 border-t"></div>
               <div class="w-full inline-flex mb-2">
                 <AcademicCapIcon class="w-5 h-5 mr-2 text-gray-400" />
                 <h1
