@@ -5,7 +5,6 @@ export default async function formatDayGraphData(points: any) {
     if (value === "none") return 0;
     if (value === "low") return 1;
     if (value === "high") return 2;
-    
   });
 
 

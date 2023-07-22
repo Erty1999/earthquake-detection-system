@@ -415,14 +415,13 @@ router.delete("/admin/deleteCity/:id", verifyToken, async (req, res, next) => {
     .where("city = :id", { id: id })
     .execute();
 
-  //Set Null related iotThings 
+  //Set Null related iotThings
   await recordRepository
-  .createQueryBuilder("iotThing")
-  .update(iotThing)
-  .set({city : (() => null as any)})
-  .where("city = :id", { id: id })
-  .execute();
-
+    .createQueryBuilder("iotThing")
+    .update(iotThing)
+    .set({ city: () => null as any })
+    .where("city = :id", { id: id })
+    .execute();
 
   //Delete City
   await cityRepository
@@ -569,6 +568,25 @@ router.post("/subscription/:id", verifyToken, async (req, res, next) => {
   await subsRepository.save(sub);
 
   res.send(true);
+});
+
+router.get("/subscription/:id", verifyToken, async (req, res, next) => {
+  const id = req.params.id as any;
+  let sub;
+
+  //Get subscription
+  const subsRepository = AppDataSource.getRepository(Subscription);
+  try {
+    sub = await subsRepository.findOne({ where: [{ id }] , relations: ['city']});
+  } catch {
+    sub = null;
+  }
+  //Check if the save was successful
+  if (!sub) {
+    return res.status(404).json({ message: "No subscrition Founded" });
+  }
+
+  res.send(sub);
 });
 
 router.get("/isSubscribed/:id", verifyToken, async (req, res, next) => {

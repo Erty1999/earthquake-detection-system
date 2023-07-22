@@ -3,6 +3,7 @@ import { ref } from "vue";
 import useAxios from "../composables/useAxios";
 import useAuthAxios from "../composables/useAuthAxios";
 import useToken from "../composables/useToken";
+import formatDayGraphData from "../composables/formatDayGraphData";
 
 export type User = {
   id: string;
@@ -360,6 +361,75 @@ export const userStore = defineStore("userStore", () => {
       if (error) throw error;
 
       return response;
+    },
+
+    async recoverCityFromSubs(subs: Array<any>) {
+      let error;
+      let subList = [];
+      let cityList = [];
+
+      //Recover subs info
+      for (let sub of subs) {
+        let response;
+        await useAuthAxios()
+          .get("/subscription/" + sub?.id)
+          .then((res) => {
+            response = res.data;
+          })
+          .catch((e) => {
+            error = e;
+          });
+
+        if (error) throw error;
+
+        subList.push(response);
+      }
+
+      //Recover city info
+      for (let sub of subList as any) {
+        let response;
+        await useAuthAxios()
+          .get(
+            "/city/" +
+              (sub as any)?.city?.state +
+              "/" +
+              (sub as any)?.city?.name
+          )
+          .then((res) => {
+            response = res.data;
+          })
+          .catch((e) => {
+            error = e;
+          });
+
+        if (error) throw error;
+
+        cityList.push(response);
+      }
+
+      //Recover the graph data
+      for (let city of cityList) {
+        let lastDayGraphRowData = ref();
+        let lastDayGraphData = null;
+
+        //Last day graph data
+        lastDayGraphRowData.value = await this.lastDayGraphData(
+          (city as any)?.state as string,
+          (city as any)?.name as string
+        );
+
+        if (lastDayGraphRowData.value) {
+          lastDayGraphData = await formatDayGraphData(lastDayGraphRowData);
+        }
+
+        //Add graph data without toolbar
+        (city as any)["lastDayGraphData"] = lastDayGraphData;
+        if ((city as any).lastDayGraphData) {
+          (city as any).lastDayGraphData.options.chart.toolbar.show = false;
+        }
+      }
+
+      return cityList;
     },
   };
 
