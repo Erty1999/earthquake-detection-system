@@ -42,6 +42,17 @@ async function unfollow(city: any) {
   //Remove the city from the list
   citiesList.value = citiesList.value.filter((obj: any) => obj.id != city.id);
 }
+
+function convertDate(time: any) {
+  const date = new Date(time);
+  return date.toLocaleDateString("UTC", {
+    hour: "numeric",
+    minute: "numeric",
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+  });
+}
 </script>
 
 <template>
@@ -84,7 +95,7 @@ async function unfollow(city: any) {
       </section>
     </div>
   </div>
-  <div v-else class="w-full p-5 flex-col">
+  <div v-else class="w-full p-5 xl:px-16">
     <!--Search Bar-->
     <div class="w-full lg:w-1/2 flex mx-auto mb-7">
       <div class="relative mt-4 mb-2 w-full">
@@ -103,46 +114,110 @@ async function unfollow(city: any) {
     <div
       v-for="(city, index) in filteredList()"
       :key="index"
-      class="bg-white hover:bg-gray-100 text-center cursor-pointer shadow-xl rounded-md flex p-5 py-8"
+      class="bg-white hover:bg-gray-100 cursor-pointer shadow-xl rounded-md w-full my-8"
       @click="showDetails(city)"
     >
-      <!--City info-->
-      <div class="xl:w-5/12 w-full flex-col text-center">
-        <div class="flex">
-          <div class="w-1/2 text-2xl font-medium">{{ city.name }}</div>
-          <div class="w-1/2">
-            <button
-              class="text-white bg-red-500 p-2 rounded-lg flex px-2.5 m-auto"
-              @click="
-                (event) => {
-                  unfollow(city);
-                  event.stopPropagation();
-                }
-              "
-            >
-              Unfollow
-            </button>
+      <!--name/location-->
+      <div class="w-full flex flex-wrap">
+        <div
+          class="w-full rounded-t-md xl:rounded-tr-none xl:pt-0 xl:w-1/6 xl:rounded-l-md bg-slate-300 flex"
+        >
+          <div class="flex flex-col m-auto text-center capitalize pt-5">
+            <span class="text-3xl font-medium text-gray-800">{{
+              city?.name
+            }}</span>
+            <div class="px-6 py-3 text-gray-500">
+              <div class="text-sm font-medium text-gray-900">
+                {{ city?.state }}
+              </div>
+              <div class="text-sm text-gray-600">
+                {{ city?.region }}
+              </div>
+            </div>
+            <!--unfollow button-->
+            <div class="w-full flex mb-3 xl:mb-0 xl:pb-5">
+              <button
+                class="text-white bg-red-500 p-2 rounded-lg flex px-2.5 m-auto"
+                @click="
+                  (event) => {
+                    unfollow(city);
+                    event.stopPropagation();
+                  }
+                "
+              >
+                Unfollow
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-      <!--Graph last day info-->
-      <div
-        class="xl:w-5/12 w-full overflow-x-auto overflow-y-hidden flex-col text-center"
-      >
-        <div class="w-fit ml-auto flex-col px-3 pt-3 rounded-lg z-1">
-          <h1 class="text-lg font-medium mb-3 text-gray-800">
-            Last Day Alert Levels
-          </h1>
-          <apexchart
-            v-if="city.lastDayGraphData"
-            width="500"
-            height="200"
-            type="line"
-            :options="city.lastDayGraphData.options"
-            :series="city.lastDayGraphData.series"
-          ></apexchart>
-          <div v-else style="width: 500px" class="pb-6">
-            NO RECENT DATA AVAIBLE
+        <!--Graph last day info-->
+        <div
+          class="w-max overflow-x-auto overflow-y-hidden text-center flex m-auto xl:ml-5"
+        >
+          <div class="w-max px-3 pt-3 rounded-lg z-1 mt-3 xl:mt-0">
+            <span class="text-md  text-gray-700">
+              Last Day Alert Levels
+            </span>
+            <apexchart
+              v-if="city.lastDayGraphData"
+              width="500"
+              height="200"
+              type="line"
+              :options="city.lastDayGraphData.options"
+              :series="city.lastDayGraphData.series"
+            ></apexchart>
+            <div v-else style="width: 500px" class="mt-1 pb-3">
+              NO RECENT DATA AVAIBLE
+            </div>
+          </div>
+        </div>
+        <div class="grow text-center flex mx-auto flex-wrap mb-5 xl:mb-0">
+          <!--last update-->
+          <div class="flex w-1/2 m-auto text-center justify-center">
+            <div class="w-full px-4 flex-col text-center  text-gray-700">
+              Last Update:
+              <div
+                v-if="!city?.lastUpdate?.alertLevel"
+                class="flex flex-col text-gray-800 bg-gray-300 rounded-full px-3 py-1 w-fit mx-auto mt-0.5"
+              >
+                No Data
+              </div>
+
+              <div
+                v-if="city?.lastUpdate?.alertLevel === 'none'"
+                class="flex text-green-900 bg-green-200 rounded-full py-1 px-3 w-fit mx-auto"
+              >
+                Pacific
+              </div>
+              <div
+                v-if="city?.lastUpdate?.alertLevel === 'low'"
+                class="flex text-orange-800 bg-orange-100 rounded-full py-1 px-3 w-fit mx-auto"
+              >
+                Low Alert
+              </div>
+              <div
+                v-if="city?.lastUpdate?.alertLevel === 'high'"
+                class="flex text-red-800 bg-red-200 rounded-full py-1 px-3 w-fit mx-auto"
+              >
+                High Alert
+              </div>
+              <div
+                v-if="city?.lastUpdate?.alertLevel"
+                class="text-sm leading-5 text-gray-500"
+              >
+                at :
+                {{ convertDate(city?.lastUpdate?.createdAt) }}
+              </div>
+            </div>
+          </div>
+          <!--active sensors-->
+          <div class="flex w-1/2 m-auto text-center justify-center">
+            <div>
+              <span
+                class="text-xl font-bold block uppercase tracking-wide text-gray-800"
+                >{{ city?.lastUpdate?.activeSensors ?? "0" }}</span
+              ><span class="text-sm text-gray-500">Active Sensors</span>
+            </div>
           </div>
         </div>
       </div>
