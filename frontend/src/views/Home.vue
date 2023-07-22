@@ -120,7 +120,7 @@ function convertDate(time: any) {
       <!--name/location-->
       <div class="w-full flex flex-wrap">
         <div
-          class="w-full rounded-t-md xl:rounded-tr-none xl:pt-0 xl:w-1/6 xl:rounded-l-md bg-slate-300 flex"
+          class="w-full rounded-t-md 2xl:rounded-tr-none 2xl:pt-0 2xl:w-1/6 2xl:rounded-l-md bg-slate-300 flex"
         >
           <div class="flex flex-col m-auto text-center capitalize pt-5">
             <span class="text-3xl font-medium text-gray-800">{{
@@ -135,7 +135,7 @@ function convertDate(time: any) {
               </div>
             </div>
             <!--unfollow button-->
-            <div class="w-full flex mb-3 xl:mb-0 xl:pb-5">
+            <div class="w-full flex mb-3 2xl:mb-0 2xl:pb-5">
               <button
                 class="text-white bg-red-500 p-2 rounded-lg flex px-2.5 m-auto"
                 @click="
@@ -152,9 +152,9 @@ function convertDate(time: any) {
         </div>
         <!--Graph last day info-->
         <div
-          class="w-max overflow-x-auto overflow-y-hidden text-center flex m-auto xl:ml-5"
+          class="w-max overflow-x-auto overflow-y-hidden text-center flex m-auto 2xl:ml-5"
         >
-          <div class="w-max px-3 pt-3 rounded-lg z-1 mt-3 xl:mt-0">
+          <div class="w-max px-3 pt-3 rounded-lg z-1 mt-3 2xl:mt-0">
             <span class="text-md  text-gray-700">
               Last Day Alert Levels
             </span>
@@ -171,7 +171,7 @@ function convertDate(time: any) {
             </div>
           </div>
         </div>
-        <div class="grow text-center flex mx-auto flex-wrap mb-5 xl:mb-0">
+        <div class="grow text-center flex mx-auto flex-wrap mb-5 2xl:mb-0 mt-4 2xl:mt-0">
           <!--last update-->
           <div class="flex w-1/2 m-auto text-center justify-center">
             <div class="w-full px-4 flex-col text-center  text-gray-700">
