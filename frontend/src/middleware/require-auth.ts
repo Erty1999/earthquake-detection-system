@@ -9,14 +9,14 @@ export default async function auth(
   let error = false;
   const store = userStore();
 
-  /*Check jwt validity, if it isn't redirect to login
+  /*Check jwt validity, if it isn't redirect to session invalid page.
     This function also repopulate the store user istance */
   await store.me().catch((_e) => {
     error = true;
   });
 
   if (error) {
-    next("/login");
+    next("/error401");
     return;
   }
 

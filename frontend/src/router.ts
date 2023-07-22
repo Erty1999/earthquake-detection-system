@@ -19,6 +19,7 @@ import Index from "./views/Index.vue";
 import Me from "./views/Me.vue";
 import Cities from "./views/admin/Cities.vue";
 import Users from "./views/admin/Users.vue";
+import error401 from "./views/errors/error401.vue";
 import error403 from "./views/errors/error403.vue";
 import error404 from "./views/errors/error404.vue";
 import CitiesList from "./views/Cities.vue";
@@ -95,6 +96,12 @@ const routes: RouteRecordRaw[] = [
     name: "IoTthing",
     component: iotThingVue,
     beforeEnter: [auth, adminAuth],
+  },
+  {
+    path: "/error401",
+    name: "error401",
+    component: error401,
+    meta: { layout: "empty" },
   },
   {
     path: "/error403",
