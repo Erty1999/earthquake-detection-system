@@ -27,14 +27,11 @@ console.log(user.value);
             class="flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-xl rounded-b-lg"
           >
             <div class="flex flex-col text-gray-700 mt-6">
-              <h2 class="text-3xl font-medium text-gray-700 mx-auto">
-                Welcome {{ user.firstName }},
-              </h2>
               <h2
-                class="mt-2 px-2 text-xl font-medium text-gray-700 mx-auto text-center"
+                class="mt-2 px-2 text-2xl font-medium text-gray-700 mx-auto text-center"
               >
-                here you will be able to see and manage real-time notifications from the
-                cities you follow. 
+                Here you will be able to see and manage <span class="font-bold">real-time notifications</span> from the
+                cities you will follow
               </h2>
               <div class="text-md text-gray-800 mx-4 mt-6 text-center mb-6">
                 find your favorite cities

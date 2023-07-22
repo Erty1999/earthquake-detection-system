@@ -20,5 +20,4 @@ If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has a
 
 
 caching richieste -> https://tanstack.com/query/v4/docs/react/adapters/vue-query
-routing -> https://router.vuejs.org/
 

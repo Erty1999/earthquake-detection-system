@@ -79,9 +79,9 @@ function convertDate(time: any) {
                 Welcome {{ user?.firstName }},
               </h2>
               <h2
-                class="mt-2 px-2 text-xl font-medium text-gray-700 mx-auto text-center"
+                class="mt-2 px-2 text-2xl font-medium text-gray-700 mx-auto text-center"
               >
-                here you you will be able to see a preview of the cities you
+                here you will be able to see a preview of the cities you
                 will follow
               </h2>
               <div class="text-md text-gray-800 mx-4 mt-6 text-center mb-6">
@@ -96,6 +96,7 @@ function convertDate(time: any) {
     </div>
   </div>
   <div v-else class="w-full p-5 xl:px-16">
+    
     <!--Search Bar-->
     <div class="w-full lg:w-1/2 flex mx-auto mb-7">
       <div class="relative mt-4 mb-2 w-full">
