@@ -13,7 +13,6 @@ async function main() {
   await AppDataSource.initialize();
   const app = express();
 
-  app.use("/uploads", express.static("uploads"));
   app.use(cors());
 
   // Basic middleware

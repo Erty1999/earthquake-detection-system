@@ -39,7 +39,11 @@ async function fileUploader(field: any) {
   //   return;
   // }
 
-  const path = await store.uploadFile(file).catch((e: any) => {
+  const id = await store.uploadFile(file).catch((e: any) => {
+    if (e?.response?.status === 413) {
+      error.value = "File too large (max 10mb)";
+      return;
+    }
     error.value = e;
   });
 
@@ -48,7 +52,8 @@ async function fileUploader(field: any) {
   }
 
   //Update user info
-  eval(field).value = path;
+  eval(field).value = id;
+  console.log(id);
 }
 
 //Function that manage the submit event
@@ -349,7 +354,6 @@ async function showDetails(city: any) {
                     Reset Changes
                   </button>
                 </div>
-                
               </form>
             </div>
           </div>

@@ -120,18 +120,15 @@ export const adminStore = defineStore("adminStore", () => {
       let response;
 
       //Parse image format
-      const formData = new FormData();
-      formData.append("file", file, file.name);
+      const base64 = await new Promise((res) => {
+        const reader = new FileReader();
+        reader.onload = () => res(reader.result!);
+        reader.readAsDataURL(file);
+      });
 
-      //Upload Image
+      //Upload File
       await useAuthAxios()
-        .post("/admin/uploadFile", formData, {
-          headers: {
-            accept: "application/json",
-            "Accept-Language": "en-US,en;q=0.8",
-            "Content-Type": `multipart/form-data`,
-          },
-        })
+        .post("/admin/uploadFile", { file: base64 })
         .then((res) => {
           response = res.data;
         })
@@ -141,9 +138,9 @@ export const adminStore = defineStore("adminStore", () => {
 
       if (error) throw error;
 
-      //Return path
-      const path = (response as any).path;
-      return path;
+      //Return id
+      const respFile = response;
+      return respFile;
     },
 
     async deleteCity(idCity: string) {

@@ -12,6 +12,7 @@ import { City } from "../model/city";
 import { Subscription } from "../model/subscription";
 import { recordData } from "../model/recordData";
 import { iotThing } from "../model/iotThing";
+import { File } from "../model/file";
 
 const router = Router();
 
@@ -123,7 +124,9 @@ router.put("/users/:id", verifyToken, async (req, res, next) => {
   const userRepository = AppDataSource.getRepository(User);
 
   try {
-    user = await userRepository.findOne({ where: [{ id }], relations:['avatar'] }).catch();
+    user = await userRepository
+      .findOne({ where: [{ id }], relations: ["avatar"] })
+      .catch();
   } catch {
     user = null;
   }
@@ -523,12 +526,34 @@ router.get("/cities", verifyToken, async (req, res, next) => {
 });
 
 //Images upload
-router.post("/admin/uploadFile", verifyTokenAdmin, async (req, res) => {
-  // console.log(req.file);
-  // const file = req.file;
-  // const path = file?.path;
-  // res.send(path);
-});
+router.post(
+  "/admin/uploadFile",
+  express.json({ limit: "10mb" }),
+  verifyTokenAdmin,
+  async (req, res) => {
+    let error;
+    const file = req.body.file;
+
+    //Input fil check
+    if (!file) {
+      return res.status(400).send("Bad Request");
+    }
+
+    const fileRepository = AppDataSource.getRepository(File);
+
+    const savedFile = fileRepository.create({ data: file });
+    await fileRepository.save(savedFile).catch((e) => {
+      error = true;
+    });
+
+    //Check if the save was successful
+    if (error) {
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+
+    res.json(savedFile.id);
+  }
+);
 
 router.post("/subscription/:id", verifyToken, async (req, res, next) => {
   const reqUser = (req as any).user;

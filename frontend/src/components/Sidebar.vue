@@ -137,7 +137,7 @@ async function logout() {
           <img
             v-if="user?.avatar"
             class="object-cover w-14 h-14 rounded-full m-auto bg-gray-300"
-            v-bind:src="user?.avatar"
+            v-bind:src="user?.avatar?.data"
           />
           <UserCircleIcon
             v-else

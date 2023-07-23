@@ -2,7 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
 import { City } from "./city";
 
 enum Alertlevel {
-  none = "none",
+  pacific = "pacific",
   low = "low",
   high = "high",
 }
@@ -25,10 +25,10 @@ export class recordData {
   alertLevel: Alertlevel;
 
   @Column()
-  lowThresh : number;
+  lowThresh: number;
 
   @Column()
-  highThresh : number;
+  highThresh: number;
 
   @ManyToOne(() => City, (city) => city.records)
   city: City;

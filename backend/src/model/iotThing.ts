@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToOne, JoinColumn } from "typeorm";
 import { City } from "./city";
+import { File } from "./file";
 
 enum iotThingType {
   sensor = "sensor",
@@ -7,6 +8,7 @@ enum iotThingType {
   display = "display",
   buzzer = "buzzer",
 }
+
 @Entity()
 export class iotThing {
   @PrimaryGeneratedColumn("uuid")
@@ -16,7 +18,7 @@ export class iotThing {
   name: string;
 
   @Column()
-  loction: string;
+  location: string;
 
   @Column()
   thingType: iotThingType;
@@ -24,14 +26,26 @@ export class iotThing {
   @Column()
   lastHandshake: Date;
 
-  @Column()
-  shadowPrivateKey: string;
+  @OneToOne(() => File, {
+    onDelete: "CASCADE",
+    nullable: true,
+  })
+  @JoinColumn()
+  shadowPrivateKey: File;
 
-  @Column()
-  shadowCertificate: string;
+  @OneToOne(() => File, {
+    onDelete: "CASCADE",
+    nullable: true,
+  })
+  @JoinColumn()
+  shadowCertificate: File;
 
-  @Column()
-  shadowClientID: string;
+  @OneToOne(() => File, {
+    onDelete: "CASCADE",
+    nullable: true,
+  })
+  @JoinColumn()
+  shadowClientID: File;
 
   @Column()
   shadowEndpoint: string;
