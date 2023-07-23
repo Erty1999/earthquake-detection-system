@@ -3,12 +3,13 @@ import {
   Column,
   PrimaryGeneratedColumn,
   OneToMany,
-  ManyToMany,
-  JoinTable,
+  ManyToOne,
+  OneToOne,
+  JoinColumn,
 } from "typeorm";
 
 import { Subscription } from "./subscription";
-import { City } from "./city";
+import { Image } from "./image";
 
 @Entity()
 export class User {
@@ -36,17 +37,20 @@ export class User {
   @Column({ nullable: true })
   telegramUserID: string;
 
-  @Column({ nullable: true })
-  avatar: string;
-
   @Column()
   isAdmin: boolean;
 
   @OneToMany(() => Subscription, (subscription) => subscription.user, {
     cascade: true,
     eager: true,
-    onDelete : "CASCADE"
+    onDelete: "CASCADE",
   })
   subscriptions: Subscription[];
 
+  @OneToOne(() => Image, {
+    onDelete: "CASCADE",
+    nullable: true,
+  })
+  @JoinColumn()
+  avatar: Image;
 }

@@ -14,7 +14,7 @@ export type User = {
   telNumber: string;
   telegramUserID: string;
   isAdmin?: boolean;
-  avatar?: string;
+  avatar?: { id: string; data: string };
   subscriptions: Array<any>;
 };
 
@@ -137,7 +137,7 @@ export const userStore = defineStore("userStore", () => {
           email: updatedUser.email,
           telNumber: updatedUser.telNumber,
           telegramUserID: updatedUser.telegramUserID,
-          avatar: updatedUser.avatar ?? null,
+          avatar: updatedUser.avatar?.id ?? null,
           pwd: pwd,
           isAdmin: updatedUser.isAdmin,
         })
@@ -158,18 +158,15 @@ export const userStore = defineStore("userStore", () => {
       let response;
 
       //Parse image format
-      const formData = new FormData();
-      formData.append("image", avatar, avatar.name);
+      const base64 = await new Promise((res) => {
+        const reader = new FileReader();
+        reader.onload = () => res(reader.result!);
+        reader.readAsDataURL(avatar);
+      });
 
       //Upload Image
       await useAxios()
-        .post("/upload", formData, {
-          headers: {
-            accept: "application/json",
-            "Accept-Language": "en-US,en;q=0.8",
-            "Content-Type": `multipart/form-data`,
-          },
-        })
+        .post("/upload", { image: base64 })
         .then((res) => {
           response = res.data;
         })
@@ -179,9 +176,9 @@ export const userStore = defineStore("userStore", () => {
 
       if (error) throw error;
 
-      //Return url
-      const url = (response as any).imageUrl;
-      return url;
+      //Return id
+      const image = response;
+      return image;
     },
 
     async citiesList() {

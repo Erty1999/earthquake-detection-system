@@ -2,14 +2,9 @@
 import { ref, onBeforeMount } from "vue";
 import { City, adminStore } from "../../store/admin";
 import {
-  BuildingLibraryIcon,
-  BuildingOffice2Icon,
-  BuildingOfficeIcon,
   ArrowUpTrayIcon,
-  CubeTransparentIcon,
   Squares2X2Icon,
   SquaresPlusIcon,
-  StopIcon,
   CubeIcon,
 } from "@heroicons/vue/24/outline";
 

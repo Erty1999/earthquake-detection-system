@@ -24,11 +24,11 @@ export function verifyToken(req: any, res: any, next: any) {
     const userRepository = AppDataSource.getRepository(User);
     const user = await userRepository.findOne({
       where: [{ id: decoded.id }],
+      relations: ["avatar"],
     });
     if (!user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
-
     //Return the user info through the request (except the password)
     delete (user as any).password;
     req.user = user;
@@ -65,11 +65,9 @@ export function verifyTokenAdmin(req: any, res: any, next: any) {
 
     //Check if it is an Admin
     if (!user.isAdmin) {
-      return res
-        .status(401)
-        .json({
-          message: "Unauthorized: only admins can execute this operation",
-        });
+      return res.status(401).json({
+        message: "Unauthorized: only admins can execute this operation",
+      });
     }
 
     //Return the user info through the request (except the password)

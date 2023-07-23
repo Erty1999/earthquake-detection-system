@@ -4,6 +4,7 @@ import { City } from "./model/city";
 import { Subscription } from "./model/subscription";
 import { iotThing } from "./model/iotThing";
 import { recordData } from "./model/recordData";
+import { Image } from "./model/image";
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -14,7 +15,7 @@ export const AppDataSource = new DataSource({
   database: "esit",
   synchronize: true,
   logging: true,
-  entities: [User, City, Subscription, iotThing, recordData],
+  entities: [User, City, Subscription, iotThing, recordData, Image],
   subscribers: [],
   migrations: [],
 });

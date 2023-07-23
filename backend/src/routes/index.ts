@@ -1,14 +1,14 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import express from "express";
 
 import { AppDataSource } from "../dataSource";
 import { User } from "../model/user";
 import { Router } from "express";
 
 import { verifyToken, verifyTokenAdmin } from "./utils";
-import { upload } from "./mediaUpload";
+import { Image } from "../model/image";
 import { City } from "../model/city";
-import { uploadFile } from "./fileUpload";
 import { Subscription } from "../model/subscription";
 import { recordData } from "../model/recordData";
 import { iotThing } from "../model/iotThing";
@@ -123,7 +123,7 @@ router.put("/users/:id", verifyToken, async (req, res, next) => {
   const userRepository = AppDataSource.getRepository(User);
 
   try {
-    user = await userRepository.findOne({ where: [{ id }] }).catch();
+    user = await userRepository.findOne({ where: [{ id }], relations:['avatar'] }).catch();
   } catch {
     user = null;
   }
@@ -188,11 +188,29 @@ router.put("/users/:id", verifyToken, async (req, res, next) => {
   res.send(user);
 });
 
-//Images upload
-router.post("/upload", upload.single("image"), async (req, res) => {
-  const file = req.file;
-  const imageUrl = `http://localhost:3100/${file?.path}`;
-  res.send({ message: "File uploaded successfully", imageUrl });
+//User Avatar upload
+router.post("/upload", express.json({ limit: "10mb" }), async (req, res) => {
+  let error;
+  const image = req.body.image;
+
+  //Input fil check
+  if (!image) {
+    return res.status(400).send("Bad Request");
+  }
+
+  const imageRepository = AppDataSource.getRepository(Image);
+
+  const img = imageRepository.create({ data: image });
+  await imageRepository.save(img).catch((e) => {
+    error = true;
+  });
+
+  //Check if the save was successful
+  if (error) {
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+
+  res.send(img);
 });
 
 //Admit admin to create new users
@@ -505,17 +523,12 @@ router.get("/cities", verifyToken, async (req, res, next) => {
 });
 
 //Images upload
-router.post(
-  "/admin/uploadFile",
-  verifyTokenAdmin,
-  uploadFile.single("file"),
-  async (req, res) => {
-    console.log(req.file);
-    const file = req.file;
-    const path = file?.path;
-    res.send(path);
-  }
-);
+router.post("/admin/uploadFile", verifyTokenAdmin, async (req, res) => {
+  // console.log(req.file);
+  // const file = req.file;
+  // const path = file?.path;
+  // res.send(path);
+});
 
 router.post("/subscription/:id", verifyToken, async (req, res, next) => {
   const reqUser = (req as any).user;
@@ -577,7 +590,10 @@ router.get("/subscription/:id", verifyToken, async (req, res, next) => {
   //Get subscription
   const subsRepository = AppDataSource.getRepository(Subscription);
   try {
-    sub = await subsRepository.findOne({ where: [{ id }] , relations: ['city']});
+    sub = await subsRepository.findOne({
+      where: [{ id }],
+      relations: ["city"],
+    });
   } catch {
     sub = null;
   }

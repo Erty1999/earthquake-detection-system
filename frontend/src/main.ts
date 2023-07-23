@@ -18,4 +18,5 @@ app.component("EmptyLayout", EmptyLayout);
 app.use(pinia);
 app.use(router);
 app.use(VueApexCharts);
+
 app.mount("#app");

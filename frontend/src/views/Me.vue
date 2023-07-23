@@ -140,7 +140,11 @@ async function avatarUploader() {
     return;
   }
 
-  const url = await store.uploadAvatar(file).catch((e: any) => {
+  const image = await store.uploadAvatar(file).catch((e: any) => {
+    if (e?.response?.status === 413){
+      error.value = "File too large (max 10mb)"
+      return
+    }
     error.value = e;
   });
 
@@ -150,21 +154,16 @@ async function avatarUploader() {
   }
 
   const user = store.user as User;
-  user.avatar = url;
+  user.avatar = image as any;
 
   //Update user info
-  const response = await store.updateUser(user, pwd.value).catch((e) => {
+  await store.updateUser(user, pwd.value).catch((e) => {
     error.value =
       e?.response?.data?.message ??
       "Internal server error, please try again...";
   });
 
   if (error.value) return;
-
-  //Update stored user info
-  store.user = response as any as User;
-  pwd.value = "";
-  pwdConf.value = "";
 
   hasChanged.value = false;
 }
@@ -202,7 +201,7 @@ async function avatarUploader() {
                 <div class="relative">
                   <img
                     v-if="user?.avatar"
-                    v-bind:src="user?.avatar"
+                    v-bind:src="user?.avatar?.data"
                     class="object-cover shadow-xl rounded-full h-32 w-32 align-middle absolute -m-16 -ml-18 lg:-ml-20 border-2 border-gray-900 bg-gray-300"
                     style="max-width: 150px"
                   />

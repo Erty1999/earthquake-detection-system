@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import Sidebar from "../components/Sidebar.vue";
-// import Header from '../components/Header.vue'
 import { useSidebar } from "../composables/useSidebar";
 
 const { isOpen } = useSidebar();
