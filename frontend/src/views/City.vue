@@ -626,7 +626,7 @@ async function deleteCity() {
                   <div class="m-auto">
                     <span
                       class="text-xl font-bold block uppercase tracking-wide text-gray-800"
-                      >{{ city?.activeSensors ?? "0" }}</span
+                      >{{ city?.lastUpdate?.activeSensors ?? "0" }}</span
                     ><span class="text-sm text-gray-500 capitalize">Active Sensors</span>
                   </div>
                 </div>
