@@ -994,6 +994,8 @@ router.post(
       return res.status(500).json({ message: "Internal Server Error" });
     }
 
+    //Retrieve the city information with the device
+    device.city = cityRecovered;
     res.send(device);
   }
 );
