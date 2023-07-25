@@ -1,44 +1,81 @@
 <script setup lang="ts">
 import { ref, onBeforeMount } from "vue";
-import { City, adminStore } from "../../store/admin";
+import { adminStore } from "../../store/admin";
 import {
   ArrowUpTrayIcon,
   Squares2X2Icon,
   SquaresPlusIcon,
-  CubeIcon,
+  ChevronDownIcon,
+  DocumentCheckIcon,
+  MinusIcon,
+  WifiIcon,
 } from "@heroicons/vue/24/outline";
 
 const store = adminStore();
 
 const name = ref("");
-const region = ref("");
-const state = ref("");
-const lowThresh = ref(26);
-const highThresh = ref(76);
-const shadowClientID = ref("");
+const location = ref("");
+const thingType = ref("");
+const city = ref("");
 const shadowPrivateKey = ref(null);
+const shadowPrivateKeyID = ref("");
 const shadowCertificate = ref(null);
-//const shadowEndpoint = ref(null);
+const shadowCertificateID = ref("");
+const shadowCA = ref(null);
+const shadowCAid = ref("");
+const shadowEndpoint = ref("");
 
 const error = ref("");
 const success = ref("");
 const hasChanged = ref(false);
 
+//Cities List
+const citiesList = ref();
+const deviceList = ref();
+
+onBeforeMount(async () => {
+  citiesList.value = await store.citiesList();
+  deviceList.value = await store.thingsList();
+});
+
 function uploadFile(field: string) {
-  eval(field).value.click();
+  if (field === "PK") {
+    (shadowPrivateKey as any).value.click();
+  } else if (field === "CERT") {
+    (shadowCertificate as any).value.click();
+  } else if (field === "CA") {
+    (shadowCA as any).value.click();
+  }
 }
 
 async function fileUploader(field: any) {
   error.value = "";
-  const file = eval(field).value.files[0];
+  let file;
+  // Type check
+  if (field === "PK") {
+    file = (shadowPrivateKey as any).value?.files[0];
+    if (!file.name.includes(".key")) {
+      shadowPrivateKey.value = null;
+      error.value = "File type not accepted, you can only upload '.key' files.";
+      return;
+    }
+  } else if (field === "CERT") {
+    file = (shadowCertificate as any).value?.files[0];
+    if (!file.name.includes(".crt")) {
+      shadowCertificate.value = null;
+      error.value = "File type not accepted, you can only upload '.crt' files.";
+      return;
+    }
+  } else if (field === "CA") {
+    file = (shadowCA as any).value?.files[0];
+    if (!file.name.includes(".pem")) {
+      shadowCA.value = null;
+      error.value = "File type not accepted, you can only upload '.pem' files.";
+      return;
+    }
+  }
 
-  //Type check
-  // const acceptedFileTypes = ["pem"];
-  // if (!acceptedFileTypes.some((t) => file.type.includes(t))) {
-  //   error.value = "File type not accepted, you can only upload .pem files.";
-  //   return;
-  // }
-
+  //Save the file on the db and wait for relative id
   const id = await store.uploadFile(file).catch((e: any) => {
     if (e?.response?.status === 413) {
       error.value = "File too large (max 10mb)";
@@ -51,33 +88,50 @@ async function fileUploader(field: any) {
     return;
   }
 
-  //Update user info
-  eval(field).value = id;
-  console.log(id);
+  if (field === "PK") {
+    (shadowPrivateKeyID as any).value = id;
+  } else if (field === "CERT") {
+    (shadowCertificateID as any).value = id;
+  } else if (field === "CA") {
+    (shadowCAid as any).value = id;
+  }
 }
 
 //Function that manage the submit event
 async function submit() {
+  console.log(error.value, "submit");
   error.value = "";
   success.value = "";
 
   //check possible input errors
-  if (!name.value || !region.value || !state.value) {
+  if (
+    !name.value ||
+    !location.value ||
+    !thingType.value ||
+    !city.value ||
+    !shadowPrivateKeyID.value ||
+    !shadowCertificateID.value ||
+    !shadowCAid.value ||
+    !shadowEndpoint.value
+  ) {
     error.value = "Please complete all fields";
     return;
   }
 
-  //New city istance
-  const newCity = {
+  //New Device istance
+  const newDevice = {
     name: name.value,
-    region: region.value,
-    state: state.value,
-    lowThresh: lowThresh.value,
-    highThresh: highThresh.value,
-  } as City;
+    location: location.value,
+    thingType: thingType.value,
+    shadowPrivateKey: shadowPrivateKeyID.value,
+    shadowCertificate: shadowCertificateID.value,
+    shadowCA: shadowCAid.value,
+    shadowEndpoint: shadowEndpoint.value,
+    city: city.value,
+  };
 
-  //City Creation by admin
-  const response = await store.createCity(newCity).catch((e) => {
+  //Device Creation by admin
+  const response = await store.createThing(newDevice).catch((e) => {
     error.value =
       e?.response?.data?.message ??
       "Internal server error, please try again...";
@@ -88,21 +142,27 @@ async function submit() {
   //Clean the form
   resetValues();
 
-  //Add the new user into the list
-  citiesList.value.unshift(response);
+  //Add the new device into the list
+  deviceList.value.unshift(response);
 
   //Show success message
-  success.value = "City correctly created";
+  success.value = "Iot Thing correctly imported";
 
   hasChanged.value = false;
 }
 
 function resetValues() {
   name.value = "";
-  region.value = "";
-  state.value = "";
-  lowThresh.value = 26;
-  highThresh.value = 76;
+  location.value = "";
+  thingType.value = "";
+  city.value = "";
+  shadowPrivateKey.value = null;
+  shadowCertificate.value = null;
+  shadowCA.value = null;
+  shadowPrivateKeyID.value = "";
+  shadowCertificateID.value = "";
+  shadowCAid.value = "";
+  shadowEndpoint.value = "";
 
   error.value = "";
   success.value = "";
@@ -111,19 +171,18 @@ function resetValues() {
 
 function onChangeInput() {
   hasChanged.value = true;
-  error.value = "";
+  //error.value = "";
   success.value = "";
 }
 
-//CITIES LIST
-const citiesList = ref();
-onBeforeMount(async () => (citiesList.value = await store.citiesList()));
+async function deleteDevice(cityID: string) {
+  await store.deleteThing(cityID).catch((e) => {
+    error.value = e?.response?.data?.message ?? "Elimination Failed";
+  });
 
-//Function that redirect the admin to the page of the city
-async function showDetails(city: any) {
-  //TODO: redirect to the page of the city
-  console.log(city);
-  return;
+  if (error.value) return;
+
+  deviceList.value = await store.thingsList();
 }
 </script>
 
@@ -215,21 +274,52 @@ async function showDetails(city: any) {
                     <label
                       for="name"
                       class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                      >Name</label
+                      >Shadow Name</label
                     >
                   </div>
                   <div class="relative z-0 w-full mb-6 group">
-                    <input
-                      v-model="type"
-                      type="text"
-                      class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                      placeholder=""
+                    <select
+                      v-model="thingType"
+                      class="cursor-pointer block py-2.5 px-0 w-full text-sm placeholder-gray-500 text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                      placeholder="Please select one"
                       required
+                    >
+                      <option value="sensor">Sensor</option>
+                      <option value="led">Led</option>
+                      <option value="display">Display</option>
+                      <option value="buzzer">Buzzer</option>
+                    </select>
+                    <ChevronDownIcon
+                      class="h-5 w-5 ml-auto -mt-7 text-gray-500 dark:text-gray-400 duration-300 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
                     />
                     <label
                       for="state"
                       class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
                       >IoT thing Type</label
+                    >
+                  </div>
+                  <div class="relative z-0 w-full mb-6 col-span-2">
+                    <select
+                      v-model="city"
+                      class="cursor-pointer block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                      required
+                      placeholder=" "
+                    >
+                      <option
+                        v-for="(city, index) in citiesList"
+                        :key="index"
+                        :value="city.id"
+                      >
+                        {{ city.name }}, {{ city.state }}
+                      </option>
+                    </select>
+                    <ChevronDownIcon
+                      class="h-5 w-5 ml-auto -mt-7 text-gray-500 dark:text-gray-400 duration-300 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+                    />
+                    <label
+                      for="city"
+                      class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+                      >City</label
                     >
                   </div>
                   <div class="relative z-0 w-full mb-6 col-span-2">
@@ -246,28 +336,11 @@ async function showDetails(city: any) {
                       >Location</label
                     >
                   </div>
-                  <div class="relative z-0 w-full mb-6 col-span-2">
-                    <input
-                      v-model="city"
-                      type="text"
-                      class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                      placeholder=" "
-                      required
-                    />
-                    <label
-                      for="city"
-                      class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                      >City</label
-                    >
-                  </div>
-                </div>
-                <div class="mt-6 font-bold text-sm text-gray-500">
-                  <span>AWS IoT Shadow Section</span>
                 </div>
                 <div class="grid md:grid-cols-2 md:gap-6 mt-3">
                   <div class="relative z-0 w-full mb-6 col-span-2">
                     <input
-                      v-model="shadowClientID"
+                      v-model="shadowEndpoint"
                       type="text"
                       name="shadowClientID"
                       id="shadowClientID"
@@ -278,60 +351,128 @@ async function showDetails(city: any) {
                     <label
                       for="shadowClientID"
                       class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                      >Client ID
+                      >Rest API Endpoint
                     </label>
                   </div>
                 </div>
-                <div class="w-full inline-flex">
+                <div class="w-full inline-flex mt-1">
                   <div class="w-fit mt-2">Private Key File :</div>
                   <div class="flex justify-center ml-5">
+                    <div v-if="shadowPrivateKeyID" class="flex">
+                      <div
+                        class="bg-gray-300 h-fit w-fit shadow-xl rounded-full p-2"
+                      >
+                        <DocumentCheckIcon
+                          class="m-auto h-5 w-5 text-green-800"
+                        />
+                      </div>
+                      <div
+                        class="bg-red-100 h-fit w-fit shadow-xl rounded-full -ml-2 cursor-pointer"
+                        title="Remove File"
+                        @click="
+                          () => {
+                            shadowPrivateKeyID = '';
+                            shadowPrivateKey = null;
+                          }
+                        "
+                      >
+                        <MinusIcon class="h-5 w-5 text-red-800" />
+                      </div>
+                    </div>
                     <div
+                      v-else
                       class="bg-gray-300 h-fit w-fit shadow-xl rounded-full p-2 cursor-pointer"
-                      @click="uploadFile('shadowPrivateKey')"
+                      @click="uploadFile('PK')"
                     >
                       <ArrowUpTrayIcon class="m-auto h-5 w-5 text-gray-900" />
                       <input
                         ref="shadowPrivateKey"
                         type="file"
-                        id="shadowPrivateKey"
+                        id="PK"
                         hidden
-                        @change="fileUploader('shadowPrivateKey')"
+                        @change="fileUploader('PK')"
+                        accept=".key"
                       />
                     </div>
                   </div>
                 </div>
-                <div class="w-full inline-flex mt-2">
+                <div class="w-full inline-flex mt-3">
                   <div class="w-fit mt-2">Certificate File :</div>
                   <div class="flex justify-center ml-5">
+                    <div v-if="shadowCertificateID" class="flex">
+                      <div
+                        class="bg-gray-300 h-fit w-fit shadow-xl rounded-full p-2"
+                      >
+                        <DocumentCheckIcon
+                          class="m-auto h-5 w-5 text-green-800"
+                        />
+                      </div>
+                      <div
+                        class="bg-red-100 h-fit w-fit shadow-xl rounded-full -ml-2 cursor-pointer"
+                        title="Remove File"
+                        @click="
+                          () => {
+                            (shadowCertificateID = ''),
+                              (shadowCertificate = null);
+                          }
+                        "
+                      >
+                        <MinusIcon class="h-5 w-5 text-red-800" />
+                      </div>
+                    </div>
                     <div
+                      v-else
                       class="bg-gray-300 h-fit w-fit shadow-xl rounded-full p-2 cursor-pointer ml-1"
-                      @click="uploadFile('shadowCertificate')"
+                      @click="uploadFile('CERT')"
                     >
                       <ArrowUpTrayIcon class="m-auto h-5 w-5 text-gray-900" />
                       <input
                         ref="shadowCertificate"
                         type="file"
-                        id="shadowCertificate"
+                        id="CERT"
                         hidden
-                        @change="fileUploader('shadowCertificate')"
+                        @change="fileUploader('CERT')"
+                        accept=".crt"
                       />
                     </div>
                   </div>
                 </div>
-                <div class="w-full inline-flex mt-2">
-                  <div class="w-fit mt-2">Certificate File :</div>
+                <div class="w-full inline-flex mt-3">
+                  <div class="w-fit mt-2">CA File :</div>
                   <div class="flex justify-center ml-5">
+                    <div v-if="shadowCAid" class="flex">
+                      <div
+                        class="bg-gray-300 h-fit w-fit shadow-xl rounded-full p-2"
+                      >
+                        <DocumentCheckIcon
+                          class="m-auto h-5 w-5 text-green-800"
+                        />
+                      </div>
+                      <div
+                        class="bg-red-100 h-fit w-fit shadow-xl rounded-full -ml-2 cursor-pointer"
+                        title="Remove File"
+                        @click="
+                          () => {
+                            (shadowCAid = ''), (shadowCA = null);
+                          }
+                        "
+                      >
+                        <MinusIcon class="h-5 w-5 text-red-800" />
+                      </div>
+                    </div>
                     <div
+                      v-else
                       class="bg-gray-300 h-fit w-fit shadow-xl rounded-full p-2 cursor-pointer ml-1"
-                      @click="uploadFile('shadowCertificate')"
+                      @click="uploadFile('CA')"
                     >
                       <ArrowUpTrayIcon class="m-auto h-5 w-5 text-gray-900" />
                       <input
-                        ref="shadowCertificate"
+                        ref="shadowCA"
                         type="file"
-                        id="shadowCertificate"
+                        id="CA"
                         hidden
-                        @change="fileUploader('shadowCertificate')"
+                        @change="fileUploader('CA')"
+                        accept=".pem"
                       />
                     </div>
                   </div>
@@ -380,24 +521,29 @@ async function showDetails(city: any) {
               <thead>
                 <tr>
                   <th
-                    class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50"
+                    class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-center text-gray-500 uppercase border-b border-gray-200 bg-gray-50"
                   >
-                    Name
+                    Status
                   </th>
                   <th
-                    class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50"
+                    class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-gray-500 uppercase border-b border-gray-200 bg-gray-50 text-center"
+                  >
+                    Shadow Name
+                  </th>
+                  <th
+                    class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-center text-gray-500 uppercase border-b border-gray-200 bg-gray-50"
                   >
                     Location
                   </th>
                   <th
-                    class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50"
+                    class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-center text-gray-500 uppercase border-b border-gray-200 bg-gray-50"
                   >
-                    Low T.
+                    device type
                   </th>
                   <th
-                    class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50"
+                    class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-center text-gray-500 uppercase border-b border-gray-200 bg-gray-50"
                   >
-                    High T.
+                    endpoint
                   </th>
 
                   <th class="px-6 py-3 border-b border-gray-200 bg-gray-50" />
@@ -405,53 +551,72 @@ async function showDetails(city: any) {
               </thead>
 
               <tbody class="bg-white">
-                <tr v-for="(city, index) in citiesList" :key="index">
+                <tr v-for="(device, index) in deviceList" :key="index">
                   <td
-                    class="px-6 py-4 border-b border-gray-200 whitespace-nowrap"
+                    class="px-6 py-4 border-b border-gray-200 whitespace-nowrap text-center"
                   >
-                    <div class="flex items-center">
-                      <div class="flex-shrink-0 w-10 h-10">
-                        <CubeIcon
-                          class="shadow-xl rounded-full w-10 h-10 align-middle border-none text-gray-600 bg-gray-300 p-1"
-                        />
-                      </div>
-
-                      <div class="ml-4">
-                        <div
-                          class="text-sm font-medium leading-5 text-gray-900"
-                        >
-                          {{ city?.name }}
-                        </div>
-                      </div>
+                    <div
+                      v-if="device.status === 'booting'"
+                      class="flex-shrink-0 w-10 h-10"
+                      title="Device Under Activation"
+                    >
+                      <WifiIcon
+                        class="shadow-xl rounded-full w-10 h-10 align-middle border-none text-gray-600 bg-gray-300 p-1"
+                      />
+                    </div>
+                    <div
+                      v-if="device.status === 'active'"
+                      class="flex-shrink-0 w-10 h-10"
+                      title="Active Device"
+                    >
+                      <WifiIcon
+                        class="shadow-xl rounded-full w-10 h-10 align-middle border-none text-green-600 bg-gray-300 p-1"
+                      />
+                    </div>
+                    <div
+                      v-if="device.status === 'inactive'"
+                      class="flex-shrink-0 w-10 h-10"
+                      title="Inactive Device"
+                    >
+                      <WifiIcon
+                        class="shadow-xl rounded-full w-10 h-10 align-middle border-none text-red-600 bg-gray-300 p-1"
+                      />
                     </div>
                   </td>
-
                   <td
-                    class="px-6 py-4 border-b border-gray-200 whitespace-nowrap"
+                    class="px-6 py-4 border-b border-gray-200 whitespace-nowrap text-center"
                   >
                     <div class="text-sm font-medium leading-5 text-gray-900">
-                      {{ city?.state }}
+                      {{ device?.name }}
+                    </div>
+                  </td>
+
+                  <td
+                    class="px-6 py-4 border-b border-gray-200 whitespace-nowrap text-center"
+                  >
+                    <div class="text-sm font-medium leading-5 text-gray-900">
+                      {{ device?.city?.name }}, {{ device?.city?.state }}
                     </div>
                     <div class="text-sm leading-5 text-gray-500">
-                      {{ city?.region }}
+                      {{ device?.location }}
                     </div>
                   </td>
 
                   <td
-                    class="px-6 py-4 border-b border-gray-200 whitespace-nowrap"
+                    class="px-6 py-4 border-b border-gray-200 whitespace-nowrap text-center"
                   >
                     <span
-                      class="inline-flex px-2 text-xs font-semibold leading-5 text-yellow-800 bg-yellow-100 rounded-full"
-                      >{{ city?.lowThresh }}%</span
-                    >
+                      class="inline-flex px-2 text-sm font-medium leading-5 capitalize"
+                      >{{ device?.thingType }}
+                    </span>
                   </td>
 
                   <td
-                    class="px-6 py-4 border-b border-gray-200 whitespace-nowrap"
+                    class="px-6 py-4 border-b border-gray-200 text-center"
                   >
                     <span
-                      class="inline-flex px-2 text-xs font-semibold leading-5 text-red-800 bg-red-100 rounded-full"
-                      >{{ city?.highThresh }}%</span
+                      class="inline-flex px-2 text-xs leading-5"
+                      >{{ device?.shadowEndpoint }}</span
                     >
                   </td>
 
@@ -459,10 +624,10 @@ async function showDetails(city: any) {
                     class="pr-6 py-4 text-sm font-medium leading-5 text-right border-b border-gray-200 whitespace-nowrap"
                   >
                     <button
-                      @click="showDetails(city)"
-                      class="text-indigo-600 hover:text-indigo-900"
+                      @click="deleteDevice(device?.id)"
+                      class="text-red-700 hover:text-red-900"
                     >
-                      Edit
+                      Delete
                     </button>
                   </td>
                 </tr>

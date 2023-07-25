@@ -1,0 +1,13 @@
+{
+  "name": "etl",
+  "version": "1.0.0",
+  "main": "main.js",
+  "author": "marco <marcocabras99@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "dependencies": {
+    "aws-iot-device-sdk": "^2.2.12"
+  }
+}

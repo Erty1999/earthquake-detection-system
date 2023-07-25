@@ -97,6 +97,24 @@ export const adminStore = defineStore("adminStore", () => {
       return response;
     },
 
+    async deleteCity(idCity: string) {
+      let error;
+      let response;
+
+      await useAuthAxios()
+        .delete("/admin/deleteCity/" + idCity)
+        .then((res) => {
+          response = res.data;
+        })
+        .catch((e) => {
+          error = e;
+        });
+
+      if (error) throw error;
+
+      return response;
+    },
+
     async citiesList() {
       let error;
       let response;
@@ -143,12 +161,50 @@ export const adminStore = defineStore("adminStore", () => {
       return respFile;
     },
 
-    async deleteCity(idCity: string) {
+    async createThing(device: any) {
       let error;
       let response;
 
       await useAuthAxios()
-        .delete("/admin/deleteCity/" + idCity)
+        .post("/admin/createIotThing", {
+          ...device,
+        })
+        .then((res) => {
+          response = res.data;
+        })
+        .catch((e) => {
+          error = e;
+        });
+
+      if (error) throw error;
+
+      return response;
+    },
+
+    async deleteThing(idDevice: string) {
+      let error;
+      let response;
+
+      await useAuthAxios()
+        .delete("/admin/deleteIotThing/" + idDevice)
+        .then((res) => {
+          response = res.data;
+        })
+        .catch((e) => {
+          error = e;
+        });
+
+      if (error) throw error;
+
+      return response;
+    },
+
+    async thingsList() {
+      let error;
+      let response;
+
+      await useAuthAxios()
+        .get("/admin/iotThings")
         .then((res) => {
           response = res.data;
         })

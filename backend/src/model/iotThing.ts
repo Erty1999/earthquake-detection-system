@@ -9,6 +9,12 @@ enum iotThingType {
   buzzer = "buzzer",
 }
 
+export enum State {
+  active = "active",
+  inactive = "inactive",
+  booting = "booting"
+}
+
 @Entity()
 export class iotThing {
   @PrimaryGeneratedColumn("uuid")
@@ -24,28 +30,22 @@ export class iotThing {
   thingType: iotThingType;
 
   @Column()
-  lastHandshake: Date;
+  status: State;
 
-  @OneToOne(() => File, {
-    onDelete: "CASCADE",
-    nullable: true,
-  })
+  @OneToOne(() => File)
   @JoinColumn()
   shadowPrivateKey: File;
 
-  @OneToOne(() => File, {
-    onDelete: "CASCADE",
-    nullable: true,
-  })
+  @OneToOne(() => File)
   @JoinColumn()
   shadowCertificate: File;
 
-  @OneToOne(() => File, {
-    onDelete: "CASCADE",
-    nullable: true,
-  })
+  @OneToOne(() => File)
   @JoinColumn()
-  shadowClientID: File;
+  shadowCA: File;
+
+  @Column()
+  shadowClientID: string;
 
   @Column()
   shadowEndpoint: string;
