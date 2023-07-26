@@ -140,13 +140,15 @@ export const adminStore = defineStore("adminStore", () => {
       //Parse image format
       const base64 = await new Promise((res) => {
         const reader = new FileReader();
-        reader.onload = () => res(reader.result!);
+        reader.onload = () => {
+          res(reader.result!);
+        };
         reader.readAsDataURL(file);
       });
 
       //Upload File
       await useAuthAxios()
-        .post("/admin/uploadFile", { file: base64 })
+        .post("/admin/uploadFile", { file: (base64 as any).split(',')[1] })
         .then((res) => {
           response = res.data;
         })
