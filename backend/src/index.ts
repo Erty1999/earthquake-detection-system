@@ -6,11 +6,16 @@ import cors from "cors";
 import "reflect-metadata";
 
 import "express-async-errors";
-import router from "./routes";
-import { AppDataSource } from "./dataSource";
+import cityRouter from "./routes/city";
+import fileRouter from "./routes/file";
+import iotThingRouter from "./routes/iotThing";
+import subRouter from "./routes/subscription";
+import userRouter from "./routes/user";
+import { AppDataSource, createBaseUsers } from "./dataSource";
 
 async function main() {
   await AppDataSource.initialize();
+  await createBaseUsers(AppDataSource);
   const app = express();
 
   app.use(cors());
@@ -29,7 +34,11 @@ async function main() {
   app.use(helmet());
 
   // routes
-  app.use(router);
+  app.use(cityRouter);
+  app.use(fileRouter);
+  app.use(iotThingRouter);
+  app.use(subRouter);
+  app.use(userRouter);
 
   // port
   const port = 3100;

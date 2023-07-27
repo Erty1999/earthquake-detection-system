@@ -5,7 +5,10 @@ import { Subscription } from "./model/subscription";
 import { iotThing } from "./model/iotThing";
 import { recordData } from "./model/recordData";
 import { Image } from "./model/image";
-import { File } from "./model/file"
+import { File } from "./model/file";
+
+import { config } from "dotenv";
+import bcrypt from "bcrypt";
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -20,3 +23,58 @@ export const AppDataSource = new DataSource({
   subscribers: [],
   migrations: [],
 });
+
+export async function createBaseUsers(dataSource: DataSource) {
+  //Dotenv configuation (env variables)
+  config();
+
+  const userRepository = dataSource.getRepository(User);
+
+  //first Admin creation
+  let hashedPassword = await bcrypt
+    .hash(process.env.ADMIN_PWD as any, 10)
+    .catch(() => {
+      throw "add admin credential in the .env file";
+    });
+  const firstAdmin = userRepository.create({
+    firstName: process.env.ADMIN_FN,
+    lastName: process.env.ADMIN_LN,
+    email: process.env.ADMIN_EMAIL,
+    birthday: process.env.ADMIN_BIRTHDAY,
+    password: hashedPassword,
+    isAdmin: true,
+  });
+  await userRepository.save(firstAdmin).catch();
+
+  //etl creation
+  hashedPassword = await bcrypt
+    .hash(process.env.ETL_PWD as any, 10)
+    .catch(() => {
+      throw "add etl credential in the .env file";
+    });
+  const etl = userRepository.create({
+    firstName: process.env.ETL_FN,
+    lastName: process.env.ETL_LN,
+    email: process.env.ETL_EMAIL,
+    birthday: process.env.ETL_BIRTHDAY,
+    password: hashedPassword,
+    isAdmin: false,
+  });
+  await userRepository.save(etl).catch();
+
+  //passive devices manager creation
+  hashedPassword = await bcrypt
+    .hash(process.env.PDM_PWD as any, 10)
+    .catch(() => {
+      throw "add pdm credential in the .env file";
+    });
+  const pdm = userRepository.create({
+    firstName: process.env.PDM_FN,
+    lastName: process.env.PDM_LN,
+    email: process.env.PDM_EMAIL,
+    birthday: process.env.PDM_BIRTHDAY,
+    password: hashedPassword,
+    isAdmin: false,
+  });
+  await userRepository.save(pdm).catch();
+}
