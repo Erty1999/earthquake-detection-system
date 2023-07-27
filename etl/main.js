@@ -1,17 +1,42 @@
-const fs = require("fs");
 const awsIot = require("aws-iot-device-sdk");
 
 function recoverData() {
-  const device = awsIot.device({
-    keyPath:
-      "./cagliari1/d56a1120b5a778a5b607baacf4ecc6b57747f660fee5b5248b0e0c5958c088d9-private.pem.key",
+  import * as awsIot from "aws-iot-device-sdk";
+import { Buffer } from "buffer";
+router.get("/test", async (req, res, next) => {
+  let error = false;
 
-    certPath:
-      "./cagliari1/d56a1120b5a778a5b607baacf4ecc6b57747f660fee5b5248b0e0c5958c088d9-certificate.pem.crt",
+  const iotRepository = AppDataSource.getRepository(iotThing);
 
-    caPath: "./cagliari1/AmazonRootCA1.pem",
-    clientId: "yourClientId",
-    host: "a3b65ekevtnf85-ats.iot.eu-central-1.amazonaws.com",
+  const iotList = await iotRepository
+    .find({ relations: ["shadowPrivateKey", "shadowCertificate", "shadowCA"] })
+    .catch((e) => {
+      error = true;
+    });
+
+  if (error) {
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+
+  const privateKey = Buffer.from(
+    iotList?.at(0)?.shadowPrivateKey.data as any,
+    "base64"
+  )
+  const clientCert = Buffer.from(
+    iotList?.at(0)?.shadowCertificate.data as any,
+    "base64"
+  )
+  const caCert = Buffer.from(
+    iotList?.at(0)?.shadowCA.data as any,
+    "base64"
+  )
+
+  const device = new awsIot.device({
+    privateKey: privateKey,
+    clientCert: clientCert,
+    caCert: caCert,
+    clientId: iotList?.at(0)?.shadowClientID,
+    host: "a3b65ekevtnf85-ats.iot.eu-central-1.amazonaws.com"//iotList?.at(0)?.shadowEndpoint,
   });
 
   device.on("connect", function () {
@@ -25,9 +50,11 @@ function recoverData() {
   });
 
   // Handle incoming messages
-  device.on("message", function (topic, message) {
+  device.on("message", function (topic: any, message: any) {
     console.log("Received message:", message.toString());
   });
+  //res.send(true);
+});
 }
 
 recoverData();

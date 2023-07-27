@@ -126,7 +126,7 @@ async function submit() {
     shadowPrivateKey: shadowPrivateKeyID.value,
     shadowCertificate: shadowCertificateID.value,
     shadowCA: shadowCAid.value,
-    shadowEndpoint: shadowEndpoint.value,
+    shadowEndpoint: shadowEndpoint.value.replace(/^https?:\/\//i, ""),
     city: city.value,
   };
 
