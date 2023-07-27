@@ -1,4 +1,3 @@
-import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import helmet from "helmet";
 import express from "express";
@@ -18,14 +17,12 @@ async function main() {
   await createBaseUsers(AppDataSource);
   const app = express();
 
+  //Allow cors 
   app.use(cors());
 
   // Basic middleware
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-
-  // TODO: get from env
-  app.use(cookieParser("SECRET"));
 
   // logger
   app.use(morgan("dev"));
