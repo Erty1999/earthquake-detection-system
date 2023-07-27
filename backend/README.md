@@ -1,6 +1,9 @@
 ### Configuration
 Before running the software, add these variables to the .env file:
 
+#Port
+PORT=
+
 #first Admin account
 ADMIN_FN=
 ADMIN_LN=

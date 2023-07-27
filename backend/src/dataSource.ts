@@ -30,51 +30,66 @@ export async function createBaseUsers(dataSource: DataSource) {
 
   const userRepository = dataSource.getRepository(User);
 
-  //first Admin creation
-  let hashedPassword = await bcrypt
-    .hash(process.env.ADMIN_PWD as any, 10)
-    .catch(() => {
-      throw "add admin credential in the .env file";
-    });
-  const firstAdmin = userRepository.create({
-    firstName: process.env.ADMIN_FN,
-    lastName: process.env.ADMIN_LN,
-    email: process.env.ADMIN_EMAIL,
-    birthday: process.env.ADMIN_BIRTHDAY,
-    password: hashedPassword,
-    isAdmin: true,
+  //first Admin account creation
+  let alredyExist = await userRepository.findOne({
+    where: [{ email: process.env.ADMIN_EMAIL }],
   });
-  await userRepository.save(firstAdmin).catch();
+  if (!alredyExist) {
+    const hashedPassword = await bcrypt
+      .hash(process.env.ADMIN_PWD as any, 10)
+      .catch(() => {
+        throw "add admin credential in the .env file";
+      });
+    const firstAdmin = userRepository.create({
+      firstName: process.env.ADMIN_FN,
+      lastName: process.env.ADMIN_LN,
+      email: process.env.ADMIN_EMAIL,
+      birthday: process.env.ADMIN_BIRTHDAY,
+      password: hashedPassword,
+      isAdmin: true,
+    });
+    await userRepository.save(firstAdmin).catch();
+  }
 
-  //etl creation
-  hashedPassword = await bcrypt
-    .hash(process.env.ETL_PWD as any, 10)
-    .catch(() => {
-      throw "add etl credential in the .env file";
-    });
-  const etl = userRepository.create({
-    firstName: process.env.ETL_FN,
-    lastName: process.env.ETL_LN,
-    email: process.env.ETL_EMAIL,
-    birthday: process.env.ETL_BIRTHDAY,
-    password: hashedPassword,
-    isAdmin: false,
+  //etl account creation
+  alredyExist = await userRepository.findOne({
+    where: [{ email: process.env.ETL_EMAIL }],
   });
-  await userRepository.save(etl).catch();
+  if (!alredyExist) {
+    const hashedPassword = await bcrypt
+      .hash(process.env.ETL_PWD as any, 10)
+      .catch(() => {
+        throw "add etl credential in the .env file";
+      });
+    const etl = userRepository.create({
+      firstName: process.env.ETL_FN,
+      lastName: process.env.ETL_LN,
+      email: process.env.ETL_EMAIL,
+      birthday: process.env.ETL_BIRTHDAY,
+      password: hashedPassword,
+      isAdmin: false,
+    });
+    await userRepository.save(etl).catch();
+  }
 
-  //passive devices manager creation
-  hashedPassword = await bcrypt
-    .hash(process.env.PDM_PWD as any, 10)
-    .catch(() => {
-      throw "add pdm credential in the .env file";
-    });
-  const pdm = userRepository.create({
-    firstName: process.env.PDM_FN,
-    lastName: process.env.PDM_LN,
-    email: process.env.PDM_EMAIL,
-    birthday: process.env.PDM_BIRTHDAY,
-    password: hashedPassword,
-    isAdmin: false,
+  //passive devices manager account creation
+  alredyExist = await userRepository.findOne({
+    where: [{ email: process.env.PDM_EMAIL }],
   });
-  await userRepository.save(pdm).catch();
+  if (!alredyExist) {
+    const hashedPassword = await bcrypt
+      .hash(process.env.PDM_PWD as any, 10)
+      .catch(() => {
+        throw "add pdm credential in the .env file";
+      });
+    const pdm = userRepository.create({
+      firstName: process.env.PDM_FN,
+      lastName: process.env.PDM_LN,
+      email: process.env.PDM_EMAIL,
+      birthday: process.env.PDM_BIRTHDAY,
+      password: hashedPassword,
+      isAdmin: false,
+    });
+    await userRepository.save(pdm).catch();
+  }
 }

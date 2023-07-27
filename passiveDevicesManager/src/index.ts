@@ -7,6 +7,8 @@ import "reflect-metadata";
 import "express-async-errors";
 import router from "./routes";
 
+import { config } from "dotenv";
+
 async function main() {
   const app = express();
 
@@ -25,8 +27,11 @@ async function main() {
   // routes
   app.use(router);
 
-  // port
-  const port = 3300;
+    //config dotenv
+    config();
+  
+    // port
+    const port = process.env.PORT;
 
   app.listen(port, () => {
     console.log("Started on port " + port);

@@ -6,6 +6,10 @@ import "reflect-metadata";
 
 import "express-async-errors";
 import router from "./routes";
+import { config } from "dotenv";
+
+let jwt = "";
+let IotDevices = [];
 
 async function main() {
   const app = express();
@@ -25,8 +29,11 @@ async function main() {
   // routes
   app.use(router);
 
+  //config dotenv
+  config();
+  
   // port
-  const port = 3200;
+  const port = process.env.PORT;
 
   app.listen(port, () => {
     console.log("Started on port " + port);

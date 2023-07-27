@@ -41,7 +41,7 @@ async function main() {
   app.use(userRouter);
 
   // port
-  const port = 3100;
+  const port = process.env.PORT;
 
   app.listen(port, () => {
     console.log("Started on port " + port);
