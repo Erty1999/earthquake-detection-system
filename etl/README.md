@@ -8,6 +8,8 @@ PORT=
 ETL_EMAIL=
 ETL_PWD=
 
+## Backend base URL
+BE_BASE_URL=
 
 ### `yarn install`
 Install all required packages

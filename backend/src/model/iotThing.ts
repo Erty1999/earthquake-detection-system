@@ -2,7 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToOne, JoinColumn
 import { City } from "./city";
 import { File } from "./file";
 
-enum iotThingType {
+export enum iotThingType {
   sensor = "sensor",
   led = "led",
   display = "display",

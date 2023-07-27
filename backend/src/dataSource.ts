@@ -67,7 +67,7 @@ export async function createBaseUsers(dataSource: DataSource) {
       email: process.env.ETL_EMAIL,
       birthday: process.env.ETL_BIRTHDAY,
       password: hashedPassword,
-      isAdmin: false,
+      isAdmin: true,
     });
     await userRepository.save(etl).catch();
   }
@@ -88,7 +88,7 @@ export async function createBaseUsers(dataSource: DataSource) {
       email: process.env.PDM_EMAIL,
       birthday: process.env.PDM_BIRTHDAY,
       password: hashedPassword,
-      isAdmin: false,
+      isAdmin: true,
     });
     await userRepository.save(pdm).catch();
   }

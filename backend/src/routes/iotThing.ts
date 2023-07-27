@@ -3,7 +3,7 @@ import { Router } from "express";
 
 import { verifyToken, verifyTokenAdmin } from "./utils";
 import { City } from "../model/city";
-import { iotThing, State } from "../model/iotThing";
+import { iotThing, iotThingType, State } from "../model/iotThing";
 
 const iotThingRouter = Router();
 
@@ -95,23 +95,27 @@ iotThingRouter.post(
 );
 
 //Admit admin to see all the iot devices with relative city relation
-iotThingRouter.get("/admin/iotThings", verifyTokenAdmin, async (req, res, next) => {
-  let error = false;
+iotThingRouter.get(
+  "/admin/iotThings",
+  verifyTokenAdmin,
+  async (req, res, next) => {
+    let error = false;
 
-  const iotRepository = AppDataSource.getRepository(iotThing);
+    const iotRepository = AppDataSource.getRepository(iotThing);
 
-  const iotList = await iotRepository
-    .find({ relations: ["city"] })
-    .catch((e) => {
-      error = true;
-    });
+    const iotList = await iotRepository
+      .find({ relations: ["city"] })
+      .catch((e) => {
+        error = true;
+      });
 
-  if (error) {
-    return res.status(500).json({ message: "Internal Server Error" });
+    if (error) {
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+
+    res.send(iotList);
   }
-
-  res.send(iotList);
-});
+);
 
 //Admit admin to delete iot device
 iotThingRouter.delete(
@@ -144,5 +148,42 @@ iotThingRouter.delete(
     res.send(true);
   }
 );
+
+//Admit etl to recover all the sensors with relative city id
+iotThingRouter.get("/sensors", verifyTokenAdmin, async (req, res, next) => {
+  let error = false;
+
+  const iotRepository = AppDataSource.getRepository(iotThing);
+
+  const iotList = await iotRepository
+    .find({
+      where: { thingType: iotThingType.sensor },
+      relations: ["city", "shadowPrivateKey", "shadowCertificate", "shadowCA"],
+      select: [
+        "id",
+        "name",
+        "city",
+        "shadowPrivateKey",
+        "shadowCertificate",
+        "shadowCA",
+        "shadowClientID",
+        "shadowEndpoint",
+      ],
+    })
+    .catch((e) => {
+      error = true;
+    });
+
+  if (error) {
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+
+  //Format data
+  for (let device of iotList as any) {
+    device.city = device?.city?.id;
+  }
+
+  res.send(iotList);
+});
 
 export default iotThingRouter;
