@@ -1,6 +1,8 @@
 import jwt from "jsonwebtoken";
 import { AppDataSource } from "../dataSource";
 import { User } from "../model/user";
+import axios from "axios";
+import { iotThing } from "../model/iotThing";
 
 /*
 The verifyToken function check the validity of the token and if 
@@ -75,4 +77,87 @@ export function verifyTokenAdmin(req: any, res: any, next: any) {
     req.user = user;
     next();
   });
+}
+
+export async function addETLdevice(id: string) {
+  let response;
+  let error;
+
+  //Recover the info of the device from the db
+  const iotRepository = AppDataSource.getRepository(iotThing);
+
+  const iotDevice = await iotRepository
+    .findOne({
+      where: { id: id as any },
+      relations: ["city", "shadowPrivateKey", "shadowCertificate", "shadowCA"],
+      select: [
+        "id",
+        "name",
+        "city",
+        "shadowPrivateKey",
+        "shadowCertificate",
+        "shadowCA",
+        "shadowClientID",
+        "shadowEndpoint",
+      ],
+    })
+    .catch((e) => {
+      console.log(e);
+    });
+
+  //Format data
+  (iotDevice as any).city = iotDevice?.city?.id;
+
+  //Send a post request to add the device to the ETL
+  await axios
+    .post(
+      process.env.ETL_BASE_URL + "/iotDevice",
+      {
+        id: iotDevice?.id,
+        name: iotDevice?.name,
+        city: iotDevice?.city,
+        shadowPrivateKey: iotDevice?.shadowPrivateKey,
+        shadowCertificate: iotDevice?.shadowCertificate,
+        shadowCA: iotDevice?.shadowCA,
+        shadowClientID: iotDevice?.shadowClientID,
+        shadowEndpoint: iotDevice?.shadowEndpoint,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+    .then((res) => {
+      response = true;
+    })
+    .catch((e) => {
+      response = false;
+      console.log(e);
+    });
+
+  return response;
+}
+
+export async function deleteETLdevice(id: string) {
+  let response;
+  let error;
+
+  await axios
+    .delete(process.env.ETL_BASE_URL + "/iotDevice/" + id, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    .then((res) => {
+      response = true;
+    })
+    .catch((e) => {
+      response = false;
+      console.log(e);
+    });
+  if (error) {
+    return error;
+  }
+  return response;
 }

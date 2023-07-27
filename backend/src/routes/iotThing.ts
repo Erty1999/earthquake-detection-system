@@ -1,7 +1,12 @@
 import { AppDataSource } from "../dataSource";
 import { Router } from "express";
 
-import { verifyToken, verifyTokenAdmin } from "./utils";
+import {
+  verifyToken,
+  verifyTokenAdmin,
+  deleteETLdevice,
+  addETLdevice,
+} from "./utils";
 import { City } from "../model/city";
 import { iotThing, iotThingType, State } from "../model/iotThing";
 
@@ -88,6 +93,15 @@ iotThingRouter.post(
       return res.status(500).json({ message: "Internal Server Error" });
     }
 
+    //Add the iotThing to the ETL
+    const response = await addETLdevice(device.id as any);
+    if (!response) {
+      console.log(
+        "iot device with " +
+          device.id +
+          " id was not loaded correctly on the etl"
+      );
+    }
     //Retrieve the city information with the device
     device.city = cityRecovered;
     res.send(device);
@@ -145,6 +159,16 @@ iotThingRouter.delete(
       .where("id = :id", { id: id })
       .execute();
 
+    //Add the iotThing to the ETL
+    const response = await deleteETLdevice(id);
+    if (!response) {
+      console.log(
+        "iot device with " +
+          device.id +
+          " id was not loaded correctly on the etl"
+      );
+      console.log(response);
+    }
     res.send(true);
   }
 );

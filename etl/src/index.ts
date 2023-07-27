@@ -12,7 +12,7 @@ import {
   recoverIotDevices,
   startConnections,
   sendRecords,
-} from "./utils";
+} from "./axiosRequests";
 import { Device } from "./Device";
 
 export let iotDevices: Array<Device>;

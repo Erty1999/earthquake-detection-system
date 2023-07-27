@@ -25,6 +25,12 @@ PDM_BIRTHDAY=
 PDM_EMAIL=
 PDM_PWD=
 
+#ETL base URL
+ETL_BASE_URL=
+
+#PDM base URL
+ETL_BASE_URL=
+
 ### `yarn install`
 Install all required packages
 
