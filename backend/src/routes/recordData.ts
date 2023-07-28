@@ -55,7 +55,7 @@ recordDataRouter.post(
     const recordRepository = AppDataSource.getRepository(recordData);
 
     //Record Generation (one for city)
-    for (let cityID of citiesList as Array<string>) {
+    for (let cityID of citiesList as any) {
       let triggeredSensors = 0;
       //Recover the city informations
       const city = await cityRepository
@@ -93,7 +93,7 @@ recordDataRouter.post(
       const recordData = recordRepository.create({
         createdAt: date as any,
         triggeredSensors: triggeredSensors,
-        activeSensors: recordsCity.length,
+        activeSensors: recordsCity.filter((r) => r.isActive).length,
         alertLevel: alertLevel,
         lowThresh: city.lowThresh,
         highThresh: city.highThresh,

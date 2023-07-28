@@ -44,13 +44,14 @@ async function unfollow(city: any) {
 }
 
 function convertDate(time: any) {
-  const date = new Date(time);
-  return date.toLocaleDateString("UTC", {
-    hour: "numeric",
-    minute: "numeric",
+  const date = new Date(+time);
+  return date.toLocaleString("en-US", {
     year: "numeric",
-    month: "numeric",
-    day: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Europe/Rome",
   });
 }
 </script>
@@ -81,8 +82,8 @@ function convertDate(time: any) {
               <h2
                 class="mt-2 px-2 text-2xl font-medium text-gray-700 mx-auto text-center"
               >
-                here you will be able to see a preview of the cities you
-                will follow
+                here you will be able to see a preview of the cities you will
+                follow
               </h2>
               <div class="text-md text-gray-800 mx-4 mt-6 text-center mb-6">
                 find your favorite cities
@@ -96,7 +97,6 @@ function convertDate(time: any) {
     </div>
   </div>
   <div v-else class="w-full p-5 xl:px-16">
-    
     <!--Search Bar-->
     <div class="w-full lg:w-1/2 flex mx-auto mb-7">
       <div class="relative mt-4 mb-2 w-full">
@@ -156,9 +156,7 @@ function convertDate(time: any) {
           class="w-max overflow-x-auto overflow-y-hidden text-center flex m-auto 2xl:ml-5"
         >
           <div class="w-max px-3 pt-3 rounded-lg z-1 mt-3 2xl:mt-0">
-            <span class="text-md  text-gray-700">
-              Last Day Alert Levels
-            </span>
+            <span class="text-md text-gray-700"> Last Day Alert Levels </span>
             <apexchart
               v-if="city.lastDayGraphData"
               width="500"
@@ -172,10 +170,12 @@ function convertDate(time: any) {
             </div>
           </div>
         </div>
-        <div class="grow text-center flex mx-auto flex-wrap mb-5 2xl:mb-0 mt-4 2xl:mt-0">
+        <div
+          class="grow text-center flex mx-auto flex-wrap mb-5 2xl:mb-0 mt-4 2xl:mt-0"
+        >
           <!--last update-->
           <div class="flex w-1/2 m-auto text-center justify-center">
-            <div class="w-full px-4 flex-col text-center  text-gray-700">
+            <div class="w-full px-4 flex-col text-center text-gray-700">
               Last Update:
               <div
                 v-if="!city?.lastUpdate?.alertLevel"

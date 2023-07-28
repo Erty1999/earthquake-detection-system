@@ -110,13 +110,14 @@ async function unfollow() {
 }
 
 function convertDate(time: any) {
-  const date = new Date(time);
-  return date.toLocaleDateString("UTC", {
-    hour: "numeric",
-    minute: "numeric",
+  const date = new Date(+time);
+  return date.toLocaleString("en-US", {
     year: "numeric",
-    month: "numeric",
-    day: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Europe/Rome",
   });
 }
 
@@ -141,7 +142,6 @@ async function findRecords() {
   if (records.value?.length === 0) {
     noData.value = true;
   }
-  
 }
 
 //Function that manage the submit event
@@ -536,9 +536,7 @@ async function deleteCity() {
                                 <div
                                   class="text-sm font-medium leading-5 text-gray-900"
                                 >
-                                  {{
-                                    record?.createdAt
-                                  }}
+                                  {{ record?.createdAt }}
                                 </div>
                               </div>
                             </div>
@@ -627,7 +625,9 @@ async function deleteCity() {
                     <span
                       class="text-xl font-bold block uppercase tracking-wide text-gray-800"
                       >{{ city?.lastUpdate?.activeSensors ?? "0" }}</span
-                    ><span class="text-sm text-gray-500 capitalize">Active Sensors</span>
+                    ><span class="text-sm text-gray-500 capitalize"
+                      >Active Sensors</span
+                    >
                   </div>
                 </div>
                 <div class="flex w-1/4 text-center">
@@ -635,7 +635,9 @@ async function deleteCity() {
                     <span
                       class="text-xl font-bold block uppercase tracking-wide text-gray-800"
                       >{{ city?.lowThresh + "%" ?? "undefined" }} </span
-                    ><span class="text-sm text-gray-500 capitalize">current low alert threshold</span>
+                    ><span class="text-sm text-gray-500 capitalize"
+                      >current low alert threshold</span
+                    >
                   </div>
                 </div>
                 <div class="flex w-1/4 text-center">
@@ -643,7 +645,9 @@ async function deleteCity() {
                     <span
                       class="text-xl font-bold block uppercase tracking-wide text-gray-800"
                       >{{ city?.highThresh + "%" ?? "undefined" }}</span
-                    ><span class="text-sm text-gray-500 capitalize">current high alert threshold</span>
+                    ><span class="text-sm text-gray-500 capitalize"
+                      >current high alert threshold</span
+                    >
                   </div>
                 </div>
               </div>

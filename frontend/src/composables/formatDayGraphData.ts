@@ -7,7 +7,6 @@ export default async function formatDayGraphData(points: any) {
     if (value === "high") return 2;
   });
 
-
   graphData["options"] = {
     chart: {
       id: "lastDayData",
@@ -41,10 +40,11 @@ export default async function formatDayGraphData(points: any) {
       categories: graphXvalues,
       labels: {
         formatter: (value: any) => {
-          const date = new Date(value);
-          return date.toLocaleTimeString([], {
+          const date = new Date(+value);
+          return date.toLocaleString("en-US", {
             hour: "2-digit",
             minute: "2-digit",
+            second: "2-digit",
             timeZone: "Europe/Rome",
           });
         },
@@ -59,7 +59,7 @@ export default async function formatDayGraphData(points: any) {
           if (value === 2) return "High Alert";
         },
         style: {
-          colors:  ["#228B22", "#b71111", "#fe9511"],
+          colors: ["#228B22", "#b71111", "#fe9511"],
           fontWeight: "bold",
         },
       },

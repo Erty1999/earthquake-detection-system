@@ -9,7 +9,7 @@ export default async function formatMonthGraphData(points: any) {
 
   graphData["options"] = {
     chart: {
-      id : "lastMonthData",
+      id: "lastMonthData",
       type: "line",
       toolbar: {
         show: true,
@@ -32,7 +32,7 @@ export default async function formatMonthGraphData(points: any) {
       },
     },
     stroke: {
-      curve: 'stepline', 
+      curve: "stepline",
     },
     dataLabels: {
       style: {
@@ -43,8 +43,8 @@ export default async function formatMonthGraphData(points: any) {
       categories: graphXvalues,
       labels: {
         formatter: (value: any) => {
-          const date = new Date(value);
-          return date.toLocaleTimeString([], {
+          const date = new Date(+value);
+          return date.toLocaleString("en-US", {
             month: "2-digit",
             day: "2-digit",
             hour: "2-digit",

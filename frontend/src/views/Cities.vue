@@ -48,13 +48,14 @@ function filteredList() {
 }
 
 function convertDate(time: any) {
-  const date = new Date(time);
-  return date.toLocaleDateString("UTC", {
-    hour: "numeric",
-    minute: "numeric",
+  const date = new Date(+time);
+  return date.toLocaleString("en-US", {
     year: "numeric",
-    month: "numeric",
-    day: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Europe/Rome",
   });
 }
 </script>
