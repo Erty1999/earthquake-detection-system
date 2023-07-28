@@ -321,7 +321,7 @@ cityRouter.get(
     //Normalize the records showing only the points when the alert level change
     let lastDayGraphData = {} as any;
     //Take the first point
-    lastDayGraphData[lastDay.at(0)!.createdAt.toISOString()] =
+    lastDayGraphData[lastDay.at(0)!.createdAt] =
       lastDay.at(0)?.alertLevel;
     //Take all the alert level chenges
     let lastAlert = lastDay.at(0)?.alertLevel;
@@ -330,10 +330,10 @@ cityRouter.get(
         continue;
       }
       lastAlert = record.alertLevel;
-      lastDayGraphData[record.createdAt.toISOString()] = record.alertLevel;
+      lastDayGraphData[record.createdAt] = record.alertLevel;
     }
     //Take the last point
-    lastDayGraphData[lastDay.at(lastDay.length - 1)!.createdAt.toISOString()] =
+    lastDayGraphData[lastDay.at(lastDay.length - 1)!.createdAt] =
       lastDay.at(lastDay.length - 1)?.alertLevel;
 
     res.send(lastDayGraphData);
@@ -388,7 +388,7 @@ cityRouter.get(
     //Normalize the records showing only the points when the alert level change
     let lastDayGraphData = {} as any;
     //Take the first point
-    lastDayGraphData[lastDay.at(0)!.createdAt.toISOString()] =
+    lastDayGraphData[lastDay.at(0)!.createdAt] =
       lastDay.at(0)?.alertLevel;
     //Take all the alert level chenges
     let lastAlert = lastDay.at(0)?.alertLevel;
@@ -397,10 +397,10 @@ cityRouter.get(
         continue;
       }
       lastAlert = record.alertLevel;
-      lastDayGraphData[record.createdAt.toISOString()] = record.alertLevel;
+      lastDayGraphData[record.createdAt] = record.alertLevel;
     }
     //Take the last point
-    lastDayGraphData[lastDay.at(lastDay.length - 1)!.createdAt.toISOString()] =
+    lastDayGraphData[lastDay.at(lastDay.length - 1)!.createdAt] =
       lastDay.at(lastDay.length - 1)?.alertLevel;
 
     res.send(lastDayGraphData);

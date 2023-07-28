@@ -1,7 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
 import { City } from "./city";
 
-enum Alertlevel {
+export enum Alertlevel {
   pacific = "pacific",
   low = "low",
   high = "high",
@@ -12,8 +12,8 @@ export class recordData {
   @PrimaryGeneratedColumn("uuid")
   id: number;
 
-  @Column()
-  createdAt: Date;
+  @Column({type : 'bigint'})
+  createdAt: string;
 
   @Column()
   triggeredSensors: number;
