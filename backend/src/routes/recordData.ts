@@ -75,20 +75,23 @@ recordDataRouter.post(
 
       //Calculate the alert level
       let alertLevel;
-      const alertRatio = (recordsCity.length / triggeredSensors) * 100;
+      if (triggeredSensors === 0) alertLevel = Alertlevel.pacific;
+      else {
+        const alertRatio = (recordsCity.length / triggeredSensors) * 100;
 
-      if (alertRatio < city.lowThresh) {
-        alertLevel = Alertlevel.pacific;
-      } else if (alertRatio < city.highThresh) {
-        alertLevel = Alertlevel.low;
-      } else {
-        alertLevel = Alertlevel.high;
+        if (alertRatio < city.lowThresh) {
+          alertLevel = Alertlevel.pacific;
+        } else if (alertRatio < city.highThresh) {
+          alertLevel = Alertlevel.low;
+        } else {
+          alertLevel = Alertlevel.high;
+        }
       }
 
       //RecordData creation and saving
       const date = Date.now();
       const recordData = recordRepository.create({
-        createdAt: (date as any),
+        createdAt: date as any,
         triggeredSensors: triggeredSensors,
         activeSensors: recordsCity.length,
         alertLevel: alertLevel,

@@ -345,8 +345,8 @@ export const userStore = defineStore("userStore", () => {
 
       await useAuthAxios()
         .post("/city/" + cityState + "/" + cityName + "/recoverRecords", {
-          fromDate: d1.toISOString(),
-          toDate: d2.toISOString(),
+          fromDate: d1.getTime(),
+          toDate: d2.getTime(),
         })
         .then((res) => {
           response = res.data;
@@ -356,6 +356,23 @@ export const userStore = defineStore("userStore", () => {
         });
 
       if (error) throw error;
+
+      //Reformat data value
+      if (response && (response as any).length != 0) {
+        for (let record of response as any) {
+          const date = new Date(+record?.createdAt);
+          const formattedDate = date.toLocaleString("en-US", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            timeZone: 'Europe/Rome',
+          });
+          record.createdAt = formattedDate;
+        }
+      }
 
       return response;
     },

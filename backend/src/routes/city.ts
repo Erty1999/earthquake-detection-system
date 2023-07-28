@@ -301,8 +301,9 @@ cityRouter.get(
     const recordRepository = AppDataSource.getRepository(recordData);
 
     const cityID = (city as any)?.id;
-    const now = new Date();
-    const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const now = new Date().getTime();
+    const yesterday = new Date(now - 24 * 60 * 60 * 1000).getTime();
+    
 
     const lastDay = await recordRepository
       .createQueryBuilder("recordData")
@@ -313,10 +314,11 @@ cityRouter.get(
       })
       .orderBy("recordData.createdAt", "ASC")
       .getMany();
-
+      console.log(lastDay)
     if (!lastDay?.at(0)) {
       return res.send("");
     }
+    
 
     //Normalize the records showing only the points when the alert level change
     let lastDayGraphData = {} as any;
@@ -367,15 +369,16 @@ cityRouter.get(
     const recordRepository = AppDataSource.getRepository(recordData);
 
     const cityID = (city as any)?.id;
-    const now = new Date();
+    const now = new Date().getTime();
     const lastMonth = new Date();
     lastMonth.setMonth(lastMonth.getMonth() - 1);
+    const lastMonthTS = lastMonth.getTime()
 
     const lastDay = await recordRepository
       .createQueryBuilder("recordData")
       .where("recordData.city = :cityID", { cityID })
-      .andWhere("recordData.createdAt BETWEEN :lastMonth AND :now", {
-        lastMonth,
+      .andWhere("recordData.createdAt BETWEEN :lastMonthTS AND :now", {
+        lastMonthTS,
         now,
       })
       .orderBy("recordData.createdAt", "ASC")
@@ -425,8 +428,8 @@ cityRouter.post(
         .json({ message: "Bad Request: insert all required fields" });
     }
     //Format type
-    fromDate = new Date(fromDate);
-    toDate = new Date(toDate);
+    fromDate = new Date(fromDate).getTime();
+    toDate = new Date(toDate).getTime();
 
     const cityRepository = AppDataSource.getRepository(City);
 

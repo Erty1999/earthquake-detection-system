@@ -128,7 +128,6 @@ async function findRecords() {
 
   //If the toDate is higher than fromDate, switch them
   if (date1 > date2) {
-    console.log("bella");
     const temp = toDate.value;
     toDate.value = fromDate.value;
     fromDate.value = temp;
@@ -142,6 +141,7 @@ async function findRecords() {
   if (records.value?.length === 0) {
     noData.value = true;
   }
+  
 }
 
 //Function that manage the submit event
@@ -537,7 +537,7 @@ async function deleteCity() {
                                   class="text-sm font-medium leading-5 text-gray-900"
                                 >
                                   {{
-                                    new Date(record?.createdAt).toLocaleString()
+                                    record?.createdAt
                                   }}
                                 </div>
                               </div>
