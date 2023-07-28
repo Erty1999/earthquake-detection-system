@@ -41,19 +41,29 @@ export class Device {
     this.device.on("connect", () => {
       console.log(this.shadowName + " connected to AWS IoT");
 
-      // Subscribe to a topic
+      // Subscribe to specfic topic
       this.device.subscribe(
         "$aws/things/" + this.shadowName + "/shadow/update/accepted"
       );
     });
 
+    //Wait for messages on the subscribed topic
     this.device.on("message", (topic: any, message: any) => {
-      console.log("Received message:", message.toString());
-      this.triggerNumber = this.triggerNumber + 1;
+      //Message parsing to json
+      message = JSON.parse(message.toString());
+      //If it is a message of still alive change his state
+      if (message?.state?.reported?.value === "stillAlive") {
+        this.isActive = true;
+      }
+      //if it is a trigger signal  increase the counter
+      else if (message?.state?.reported?.value === "triggered") {
+        this.triggerNumber = this.triggerNumber + 1;
+      }
     });
   }
 
   public disconnect() {
+    //Close the connection
     this.device.end();
   }
 }

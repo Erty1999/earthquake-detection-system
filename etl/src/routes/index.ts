@@ -16,7 +16,6 @@ router.post("/iotDevice", async (req, res, next) => {
     shadowClientID,
     shadowEndpoint,
   } = req.body;
-  console.log(req.body)
   //Check if all the fields exist
   if (
     !id ||
@@ -45,6 +44,12 @@ router.post("/iotDevice", async (req, res, next) => {
     endpoint: shadowEndpoint,
   });
 
+  //Add the device to the main list
+  iotDevices.push(device);
+
+  //Start device connection
+  device.connect();
+
   //Push the device in the main list
   res.send(true);
 });
@@ -54,7 +59,7 @@ router.delete("/iotDevice/:id", async (req, res, next) => {
 
   //Recover item to disconect and delete
   const device = iotDevices.filter((device) => device.deviceID === id);
-  
+
   //If no device has this id
   if (device.length === 0) {
     return res.status(404).json({ message: "Device not found (etl)" });
