@@ -10,6 +10,7 @@ import fileRouter from "./routes/file";
 import iotThingRouter from "./routes/iotThing";
 import subRouter from "./routes/subscription";
 import userRouter from "./routes/user";
+import recordDataRouter from "./routes/recordData";
 import { AppDataSource, createBaseUsers } from "./dataSource";
 
 async function main() {
@@ -36,6 +37,7 @@ async function main() {
   app.use(iotThingRouter);
   app.use(subRouter);
   app.use(userRouter);
+  app.use(recordDataRouter)
 
   // port
   const port = process.env.PORT;

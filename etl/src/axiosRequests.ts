@@ -80,6 +80,17 @@ export async function startConnections(deviceList: Array<Device>) {
   }
 }
 
+//Send records to the be
 export async function sendRecords(records: any, jwt: string) {
-  console.log(records);
+  await axios
+    .post(process.env.BE_BASE_URL + "/recordData", {records : records},{
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + jwt,
+      },
+    })
+    .catch((error) => {
+      console.log("something went wrong sending the records, error: ")
+      console.error(error);
+    });
 }
