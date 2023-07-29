@@ -9,6 +9,9 @@ import {
   DocumentCheckIcon,
   MinusIcon,
   WifiIcon,
+  LightBulbIcon,
+  TvIcon,
+MusicalNoteIcon,
 } from "@heroicons/vue/24/outline";
 
 const store = adminStore();
@@ -556,7 +559,37 @@ async function deleteDevice(cityID: string) {
                     class="px-6 py-4 border-b border-gray-200 whitespace-nowrap text-center"
                   >
                     <div
-                      v-if="device.status === 'booting'"
+                      v-if="device.thingType === 'led'"
+                      class="flex-shrink-0 w-10 h-10"
+                      title="Led device"
+                    >
+                      <LightBulbIcon
+                        class="shadow-xl rounded-full w-10 h-10 align-middle border-none text-gray-600 bg-gray-300 p-2"
+                      />
+                    </div>
+                    <div
+                      v-if="device.thingType === 'display'"
+                      class="flex-shrink-0 w-10 h-10"
+                      title="Display device"
+                    >
+                      <TvIcon
+                        class="shadow-xl rounded-full w-10 h-10 align-middle border-none text-gray-600 bg-gray-300 p-2"
+                      />
+                    </div>
+                    <div
+                      v-if="device.thingType === 'buzzer'"
+                      class="flex-shrink-0 w-10 h-10"
+                      title="Buzzer device"
+                    >
+                      <MusicalNoteIcon
+                        class="shadow-xl rounded-full w-10 h-10 align-middle border-none text-gray-600 bg-gray-300 p-2"
+                      />
+                    </div>
+                    <div
+                      v-if="
+                        device.status === 'booting' &&
+                        device.thingType === 'sensor'
+                      "
                       class="flex-shrink-0 w-10 h-10"
                       title="Device Under Activation"
                     >
@@ -565,7 +598,10 @@ async function deleteDevice(cityID: string) {
                       />
                     </div>
                     <div
-                      v-if="device.status === 'active'"
+                      v-if="
+                        device.status === 'active' &&
+                        device.thingType === 'sensor'
+                      "
                       class="flex-shrink-0 w-10 h-10"
                       title="Active Device"
                     >
@@ -574,7 +610,10 @@ async function deleteDevice(cityID: string) {
                       />
                     </div>
                     <div
-                      v-if="device.status === 'inactive'"
+                      v-if="
+                        device.status === 'inactive' &&
+                        device.thingType === 'sensor'
+                      "
                       class="flex-shrink-0 w-10 h-10"
                       title="Inactive Device"
                     >
@@ -611,13 +650,10 @@ async function deleteDevice(cityID: string) {
                     </span>
                   </td>
 
-                  <td
-                    class="px-6 py-4 border-b border-gray-200 text-center"
-                  >
-                    <span
-                      class="inline-flex px-2 text-xs leading-5"
-                      >{{ device?.shadowEndpoint }}</span
-                    >
+                  <td class="px-6 py-4 border-b border-gray-200 text-center">
+                    <span class="inline-flex px-2 text-xs leading-5">{{
+                      device?.shadowEndpoint
+                    }}</span>
                   </td>
 
                   <td
