@@ -161,3 +161,116 @@ export async function deleteETLdevice(id: string) {
   }
   return response;
 }
+
+export async function addPDMdevice(id: string) {
+  let response;
+  let error;
+
+  //Recover the info of the device from the db
+  const iotRepository = AppDataSource.getRepository(iotThing);
+
+  const iotDevice = await iotRepository
+    .findOne({
+      where: { id: id as any },
+      relations: ["city", "shadowPrivateKey", "shadowCertificate", "shadowCA"],
+      select: [
+        "id",
+        "name",
+        "city",
+        "shadowPrivateKey",
+        "shadowCertificate",
+        "shadowCA",
+        "shadowClientID",
+        "shadowEndpoint",
+      ],
+    })
+    .catch((e) => {
+      console.log(e);
+    });
+
+  //Format data
+  (iotDevice as any).city = iotDevice?.city?.id;
+
+  //Send a post request to add the device to the PDM
+  await axios
+    .post(
+      process.env.PDM_BASE_URL + "/iotDevice",
+      {
+        id: iotDevice?.id,
+        name: iotDevice?.name,
+        city: iotDevice?.city,
+        shadowPrivateKey: iotDevice?.shadowPrivateKey,
+        shadowCertificate: iotDevice?.shadowCertificate,
+        shadowCA: iotDevice?.shadowCA,
+        shadowClientID: iotDevice?.shadowClientID,
+        shadowEndpoint: iotDevice?.shadowEndpoint,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+    .then((res) => {
+      response = true;
+    })
+    .catch((e) => {
+      response = false;
+      console.log(e);
+    });
+
+  return response;
+}
+
+export async function deletePDMdevice(id: string) {
+  let response;
+  let error;
+
+  await axios
+    .delete(process.env.PDM_BASE_URL + "/iotDevice/" + id, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    .then((res) => {
+      response = true;
+    })
+    .catch((e) => {
+      response = false;
+      console.log(e);
+    });
+  if (error) {
+    return error;
+  }
+  return response;
+}
+
+export async function updateDevicesAlertLevel(
+  idDevice: string,
+  alerLevel: string
+) {
+  let response;
+
+  //Send a post request to update the device alert level status to the PDM
+  await axios
+    .put(
+      process.env.PDM_BASE_URL + "/iotDevice" + idDevice,
+      {
+        status: alerLevel,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+    .then((res) => {
+      response = true;
+    })
+    .catch((e) => {
+      response = false;
+      console.log(e);
+    });
+
+  return response;
+}

@@ -1,11 +1,14 @@
 import { AppDataSource } from "../dataSource";
 import { Router } from "express";
+import { Not } from "typeorm";
 
 import {
   verifyToken,
   verifyTokenAdmin,
   deleteETLdevice,
   addETLdevice,
+  deletePDMdevice,
+  addPDMdevice,
 } from "./utils";
 import { City } from "../model/city";
 import { iotThing, iotThingType, State } from "../model/iotThing";
@@ -93,14 +96,26 @@ iotThingRouter.post(
       return res.status(500).json({ message: "Internal Server Error" });
     }
 
-    //Add the iotThing to the ETL
-    const response = await addETLdevice(device.id as any);
-    if (!response) {
-      console.log(
-        "iot device with " +
-          device.id +
-          " id was not loaded correctly on the etl"
-      );
+    if (device.thingType === iotThingType.sensor) {
+      //Add the iotThing to the ETL
+      const response = await addETLdevice(device.id as any);
+      if (!response) {
+        console.log(
+          "iot device with " +
+            device.id +
+            " id was not loaded correctly on the etl"
+        );
+      }
+    } else {
+      //Add the iotThing to the ETL
+      const response = await addPDMdevice(device.id as any);
+      if (!response) {
+        console.log(
+          "iot device with " +
+            device.id +
+            " id was not loaded correctly on the pdm"
+        );
+      }
     }
     //Retrieve the city information with the device
     device.city = cityRecovered;
@@ -150,6 +165,30 @@ iotThingRouter.delete(
     if (!device) {
       return res.status(404).json({ message: "No IoT Device founded" });
     }
+    let response;
+    if (device.thingType === iotThingType.sensor) {
+      //Delete the sensor from the ETL
+      response = await deleteETLdevice(id);
+      if (!response) {
+        console.log(
+          "iot device with " +
+            device.id +
+            " id was not deleted correctly on the etl"
+        );
+        console.log(response);
+      }
+    } else {
+      //Delete the sensor from the ETL
+      response = await deletePDMdevice(id);
+      if (!response) {
+        console.log(
+          "iot device with " +
+            device.id +
+            " id was not deleted correctly on the pdm"
+        );
+        console.log(response);
+      }
+    }
 
     //Delete IoT Device
     await iotRepository
@@ -159,16 +198,6 @@ iotThingRouter.delete(
       .where("id = :id", { id: id })
       .execute();
 
-    //Add the iotThing to the ETL
-    const response = await deleteETLdevice(id);
-    if (!response) {
-      console.log(
-        "iot device with " +
-          device.id +
-          " id was not loaded correctly on the etl"
-      );
-      console.log(response);
-    }
     res.send(true);
   }
 );
@@ -209,5 +238,51 @@ iotThingRouter.get("/sensors", verifyTokenAdmin, async (req, res, next) => {
 
   res.send(iotList);
 });
+
+//Admit pdm to recover all the passive device
+iotThingRouter.get(
+  "/passiveDevices",
+  verifyTokenAdmin,
+  async (req, res, next) => {
+    let error = false;
+
+    const iotRepository = AppDataSource.getRepository(iotThing);
+
+    const iotList = await iotRepository
+      .find({
+        where: { thingType: Not(iotThingType.sensor) },
+        relations: [
+          "city",
+          "shadowPrivateKey",
+          "shadowCertificate",
+          "shadowCA",
+        ],
+        select: [
+          "id",
+          "name",
+          "city",
+          "shadowPrivateKey",
+          "shadowCertificate",
+          "shadowCA",
+          "shadowClientID",
+          "shadowEndpoint",
+        ],
+      })
+      .catch((e) => {
+        error = true;
+      });
+
+    if (error) {
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+
+    //Format data
+    for (let device of iotList as any) {
+      device.city = device?.city?.id;
+    }
+
+    res.send(iotList);
+  }
+);
 
 export default iotThingRouter;

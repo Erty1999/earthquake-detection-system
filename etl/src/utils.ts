@@ -31,21 +31,25 @@ export async function recoverJWT() {
 export async function recoverIotDevices(jwt: string) {
   let iotDevices = [];
   let rawDevices;
+  let error = true;
 
-  //Recover sensor devices from be
-  await axios
-    .get(process.env.BE_BASE_URL + "/sensors", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + jwt,
-      },
-    })
-    .then((res) => {
-      rawDevices = res?.data;
-    })
-    .catch((error) => {
-      console.error(error);
-    });
+  while (error) {
+    //Recover sensor devices from be
+    await axios
+      .get(process.env.BE_BASE_URL + "/sensors", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + jwt,
+        },
+      })
+      .then((res) => {
+        rawDevices = res?.data;
+        error = false;
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
 
   //If there are no sensors
   if (!rawDevices) {
@@ -83,14 +87,18 @@ export async function startConnections(deviceList: Array<Device>) {
 //Send records to the be
 export async function sendRecords(records: any, jwt: string) {
   await axios
-    .post(process.env.BE_BASE_URL + "/recordData", {records : records},{
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + jwt,
-      },
-    })
+    .post(
+      process.env.BE_BASE_URL + "/recordData",
+      { records: records },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + jwt,
+        },
+      }
+    )
     .catch((error) => {
-      console.log("something went wrong sending the records, error: ")
+      console.log("something went wrong sending the records, error: ");
       console.error(error);
     });
 }
