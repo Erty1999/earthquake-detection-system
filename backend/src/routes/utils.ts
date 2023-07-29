@@ -254,7 +254,7 @@ export async function updateDevicesAlertLevel(
   //Send a post request to update the device alert level status to the PDM
   await axios
     .put(
-      process.env.PDM_BASE_URL + "/iotDevice" + idDevice,
+      process.env.PDM_BASE_URL + "/iotDevice/" + idDevice,
       {
         status: alerLevel,
       },

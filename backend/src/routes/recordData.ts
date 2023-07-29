@@ -78,7 +78,7 @@ recordDataRouter.post(
       let alertLevel;
       if (triggeredSensors === 0) alertLevel = Alertlevel.pacific;
       else {
-        const alertRatio = (recordsCity.length / triggeredSensors) * 100;
+        const alertRatio = (triggeredSensors / recordsCity.length  ) * 100;
 
         if (alertRatio < city.lowThresh) {
           alertLevel = Alertlevel.pacific;
@@ -108,9 +108,7 @@ recordDataRouter.post(
       the passive device of relaative cities*/
       const passiveDevices = await iotRepository
         .find({
-          where: [
-            { city: city.id as any, thingType: Not(iotThingType.sensor) },
-          ],
+          where: [{ city: (city as any), thingType: Not(iotThingType.sensor) }],
         })
         .catch((e) => console.log(e));
       if (passiveDevices && passiveDevices.length !== 0) {

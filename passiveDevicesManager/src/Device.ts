@@ -52,6 +52,7 @@ export class Device {
   }
 
   public updateStatus(status: string) {
+    console.log(this.shadowName, status)
     //If there's a status change
     if (status != this.status) {
       this.status = status;

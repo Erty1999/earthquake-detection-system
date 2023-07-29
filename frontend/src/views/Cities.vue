@@ -140,7 +140,7 @@ function convertDate(time: any) {
                         No Data
                       </div>
                       <div
-                        v-if="i?.lastUpdate?.alertLevel === 'none'"
+                        v-if="i?.lastUpdate?.alertLevel === 'pacific'"
                         class="flex text-green-900 bg-green-200 rounded-full p-1 px-3 w-fit mx-auto"
                       >
                         Pacific

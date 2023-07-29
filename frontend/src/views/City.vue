@@ -322,7 +322,7 @@ async function deleteCity() {
                   </div>
 
                   <div
-                    v-if="city?.lastUpdate?.alertLevel === 'none'"
+                    v-if="city?.lastUpdate?.alertLevel === 'pacific'"
                     class="flex text-green-900 bg-green-200 rounded-full py-1 px-3 w-fit mx-auto"
                   >
                     Pacific
