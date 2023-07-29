@@ -4,6 +4,7 @@ import useAxios from "../composables/useAxios";
 import useAuthAxios from "../composables/useAuthAxios";
 import useToken from "../composables/useToken";
 import formatDayGraphData from "../composables/formatDayGraphData";
+import formatMonthGraphData from "../composables/formatMonthGraphData";
 
 export type User = {
   id: string;
@@ -282,6 +283,7 @@ export const userStore = defineStore("userStore", () => {
     async lastDayGraphData(cityState: string, cityName: string) {
       let error;
       let response;
+      let lastDayGraphData;
 
       await useAuthAxios()
         .get("/city/" + cityState + "/" + cityName + "/lastDayChartData")
@@ -294,13 +296,18 @@ export const userStore = defineStore("userStore", () => {
 
       if (error) throw error;
 
-      return response;
+      if (response) {
+        lastDayGraphData = await formatDayGraphData(response);
+      }
+
+      return lastDayGraphData;
     },
 
     //Last Month alert data
     async lastMonthGraphData(cityState: string, cityName: string) {
       let error;
       let response;
+      let lastMonthGraphData;
 
       await useAuthAxios()
         .get("/city/" + cityState + "/" + cityName + "/lastMonthChartData")
@@ -313,7 +320,11 @@ export const userStore = defineStore("userStore", () => {
 
       if (error) throw error;
 
-      return response;
+      if (response) {
+        lastMonthGraphData = await formatMonthGraphData(response);
+      }
+
+      return lastMonthGraphData;
     },
 
     //Retrive records of a given period
@@ -368,7 +379,7 @@ export const userStore = defineStore("userStore", () => {
             hour: "2-digit",
             minute: "2-digit",
             second: "2-digit",
-            timeZone: 'Europe/Rome',
+            timeZone: "Europe/Rome",
           });
           record.createdAt = formattedDate;
         }
@@ -377,7 +388,7 @@ export const userStore = defineStore("userStore", () => {
       return response;
     },
 
-    async recoverCityFromSubs(subs: Array<any>) {
+    async recoverCitiesFromSubs(subs: Array<any>) {
       let error;
       let subList = [];
       let cityList = [];
@@ -423,18 +434,13 @@ export const userStore = defineStore("userStore", () => {
 
       //Recover the graph data
       for (let city of cityList) {
-        let lastDayGraphRowData = ref();
-        let lastDayGraphData = null;
+        let lastDayGraphData;
 
         //Last day graph data
-        lastDayGraphRowData.value = await this.lastDayGraphData(
+        lastDayGraphData = await this.lastDayGraphData(
           (city as any)?.state as string,
           (city as any)?.name as string
         );
-
-        if (lastDayGraphRowData.value) {
-          lastDayGraphData = await formatDayGraphData(lastDayGraphRowData);
-        }
 
         //Add graph data without toolbar
         (city as any)["lastDayGraphData"] = lastDayGraphData;

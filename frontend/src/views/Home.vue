@@ -14,7 +14,7 @@ const user = computed(() => store.user);
 
 //CITIES LIST
 onBeforeMount(async () => {
-  citiesList.value = await store.recoverCityFromSubs(
+  citiesList.value = await store.recoverCitiesFromSubs(
     user.value?.subscriptions as any
   );
 });

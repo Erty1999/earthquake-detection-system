@@ -1,8 +1,8 @@
 export default async function formatMonthGraphData(points: any) {
   const graphData = {} as any;
-  const graphXvalues = Object.keys(points.value);
-  const graphYvalues = Object.values(points.value).map((value) => {
-    if (value === "none") return 0;
+  const graphXvalues = Object.keys(points);
+  const graphYvalues = Object.values(points).map((value) => {
+    if (value === "pacific") return 0;
     if (value === "low") return 1;
     if (value === "high") return 2;
   });

@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { ref, onBeforeMount, computed } from "vue";
 import { userStore } from "../store/user";
-import formatDayGraphData from "../composables/formatDayGraphData";
-import formatMonthGraphData from "../composables/formatMonthGraphData";
 import {
   AcademicCapIcon,
   ArrowPathRoundedSquareIcon,
@@ -22,8 +20,6 @@ const route = useRoute();
 
 const city = ref();
 
-const lastDayGraphRowData = ref();
-const lastMonthGraphRowData = ref();
 const lastDayGraphData = ref();
 const lastMonthGraphData = ref();
 
@@ -58,24 +54,16 @@ onBeforeMount(async () => {
   lowThresh.value = city.value.lowThresh;
 
   //Last day graph data
-  lastDayGraphRowData.value = await storeUser.lastDayGraphData(
+  lastDayGraphData.value = await storeUser.lastDayGraphData(
     route.params?.state as string,
     route.params?.name as string
   );
-  if (lastDayGraphRowData.value) {
-    lastDayGraphData.value = await formatDayGraphData(lastDayGraphRowData);
-  }
 
   //Last month graph data
-  lastMonthGraphRowData.value = await storeUser.lastMonthGraphData(
+  lastMonthGraphData.value = await storeUser.lastMonthGraphData(
     route.params?.state as string,
     route.params?.name as string
   );
-  if (lastMonthGraphRowData.value) {
-    lastMonthGraphData.value = await formatMonthGraphData(
-      lastMonthGraphRowData
-    );
-  }
 });
 
 //Function that reload the page in order to refresh page data

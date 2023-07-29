@@ -1,3 +1,4 @@
+//https://github.com/aws/aws-iot-device-sdk-js#device
 import { device } from "aws-iot-device-sdk";
 
 export class Device {
