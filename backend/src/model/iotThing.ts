@@ -40,8 +40,7 @@ export class iotThing {
   @JoinColumn()
   shadowCertificate: File;
 
-  @OneToOne(() => File)
-  @JoinColumn()
+  @ManyToOne(() => File)
   shadowCA: File;
 
   @Column()
