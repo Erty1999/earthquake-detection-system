@@ -25,7 +25,7 @@ export class Device {
     this.cityID = data.cityID;
     this.shadowName = data.shadowName;
     this.triggerNumber = 0;
-    this.status = 'No Data'
+    this.status = "No Data";
 
     const privateKey = Buffer.from(data.rowPrivateKey, "base64");
     const clientCert = Buffer.from(data.rowClientCert, "base64");
@@ -46,8 +46,7 @@ export class Device {
 
       // Publish a message
       this.device.publish(
-        "$aws/things/" + this.shadowName + "/shadow/update/accepted",
-        this.status
+        "$aws/things/" + this.shadowName + "/shadow/update", this.status
       );
     });
   }
@@ -58,7 +57,7 @@ export class Device {
       this.status = status;
       // Publish a message
       this.device.publish(
-        "$aws/things/" + this.shadowName + "/shadow/update/accepted",
+        "$aws/things/" + this.shadowName + "/shadow/update",
         this.status
       );
     }
