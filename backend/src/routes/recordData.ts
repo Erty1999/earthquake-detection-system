@@ -66,8 +66,11 @@ recordDataRouter.post(
 
       //Recover all the records of every city
       const recordsCity = (records as Array<any>).filter(
-        (r) => r.cityId === cityID
+        (r) => r.cityId === cityID && r.isActive
       );
+      
+      //If it don't have active records
+      if (recordsCity.length === 0) continue
 
       //Check for trigger events
       for (let record of recordsCity) {
