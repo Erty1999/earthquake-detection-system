@@ -1,10 +1,11 @@
 import { AppDataSource } from "../dataSource";
 import { Router } from "express";
 
-import { verifyTokenAdmin } from "./utils";
+import { updateDevicesAlertLevel, verifyTokenAdmin } from "./utils";
 import { City } from "../model/city";
 import { iotThing, iotThingType, State } from "../model/iotThing";
 import { recordData, Alertlevel } from "../model/recordData";
+import { Not } from "typeorm";
 
 const recordDataRouter = Router();
 
@@ -103,7 +104,20 @@ recordDataRouter.post(
         console.log(e);
       });
 
-      //Send signals to Passive devices manager
+      /*Send alert level to Passive devices manager in order to update 
+      the passive device of relaative cities*/
+      const passiveDevices = await iotRepository
+        .find({
+          where: [
+            { city: city.id as any, thingType: Not(iotThingType.sensor) },
+          ],
+        })
+        .catch((e) => console.log(e));
+      if (passiveDevices && passiveDevices.length !== 0) {
+        for (let passiveDevice of passiveDevices) {
+          updateDevicesAlertLevel(passiveDevice.id as any, alertLevel);
+        }
+      }
 
       //TODO: Notifications?
 
