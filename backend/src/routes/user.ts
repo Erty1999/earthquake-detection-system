@@ -36,9 +36,16 @@ userRouter.post("/login", async function (req, res, next) {
     return res.status(401).json({ message: "Invalid email or password" });
   }
 
-  //Session token creation
-  //HINT: for security add expiresIn: "6h" in the empty object
-  const token = jwt.sign({ id: user.id }, "secret", {});
+  //Session token creation (microservices has no time limitation)
+  let token;
+  if (
+    user.email === process.env.ETL_EMAIL ||
+    user.email === process.env.PDM_EMAIL
+  ) {
+    token = jwt.sign({ id: user.id }, "secret", {});
+  } else {
+    token = jwt.sign({ id: user.id }, "secret", { expiresIn: "3h" });
+  }
 
   delete (user as any).password;
   res.json({ user, token });
