@@ -17,6 +17,7 @@ import userRouter from "./routes/user";
 import recordDataRouter from "./routes/recordData";
 import { AppDataSource, createBaseUsers } from "./dataSource";
 import { data } from "./socket";
+import { startBot } from "./telegramBot";
 
 async function main() {
   await AppDataSource.initialize();
@@ -44,12 +45,16 @@ async function main() {
   app.use(userRouter);
   app.use(recordDataRouter);
 
+  //Start telegram bot
+  startBot()
+
   // port
   const port = process.env.PORT;
-
+  //Listen
   app.listen(port, () => {
     console.log("Started on port " + port);
   });
+
 
   // Create an HTTP server using the Express app instance
   const server = http.createServer(app);

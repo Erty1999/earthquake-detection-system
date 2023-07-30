@@ -8,6 +8,7 @@ import { recordData, Alertlevel } from "../model/recordData";
 import { Not } from "typeorm";
 import { Subscription } from "../model/subscription";
 import { data } from "../socket";
+import { bot } from "../telegramBot";
 
 const recordDataRouter = Router();
 
@@ -68,7 +69,7 @@ recordDataRouter.post(
 
       //Recover all the records of every city
       const recordsCity = (records as Array<any>).filter(
-        (r) => r.cityId === cityID && r.isActive  
+        (r) => r.cityId === cityID && r.isActive
       );
 
       //If it don't have active records
@@ -122,6 +123,9 @@ recordDataRouter.post(
         }
       }
 
+      //If the alert is pacific skip notification
+      if (alertLevel === "pacific") continue;
+
       //Notifications
       let usersSub = null;
       const subscriptionRepository = AppDataSource.getRepository(Subscription);
@@ -130,24 +134,26 @@ recordDataRouter.post(
       if (alertLevel === "low") {
         usersSub = await subscriptionRepository
           .find({
-            where: [{ city: city as any, lowAlert: true }], 
+            where: [{ city: city as any, lowAlert: true }],
+            relations: ["user"],
           })
           .catch((e) => console.log(e));
       } else if (alertLevel === "high") {
         usersSub = await subscriptionRepository
           .find({
             where: [{ city: city as any, highAlert: true }],
+            relations: ["user"],
           })
           .catch((e) => console.log(e));
       }
-    
+
       //If anyone has active notification for this kind of record
       if (!usersSub || usersSub?.length === 0) continue;
-      
-      //Send Notification to the users using relative sockets
-      for (let user of usersSub) {
+
+      //Send Notification to the users using relative sockets (Push notification on app)
+      for (let sub of usersSub) {
         const socket = data.socketArray.filter(
-          (obj) => obj.userID !== (user.id as any)
+          (obj) => obj.userID !== (sub.user.id as any)
         );
         socket
           ?.at(0)
@@ -157,7 +163,18 @@ recordDataRouter.post(
           );
       }
 
-      //TODO : Telegram?
+      //Send Notification to the users using telegram (telegram notification)
+      if (!bot) continue;
+      //Send notifications
+      for (let sub of usersSub) {
+        if (sub.user.telegramUserID) {
+          bot.sendMessage(
+            //sub.user.telegramUserID,
+            sub.user.telegramUserID,
+            alertLevel + " alert detected in " + city.name
+          );
+        }
+      }
     }
 
     res.send(true);

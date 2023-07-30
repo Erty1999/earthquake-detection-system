@@ -14,7 +14,7 @@ export function createSocket() {
   const jwt = cookie.get("EA-session");
 
   if (!jwt) return;
-  socket.value = io("ws://localhost:3101", {
+  socket.value = io(import.meta.env.VITE_BE_SOCKET_URL, {
     extraHeaders: {
       Authorization: "Bearer " + jwt,
     },

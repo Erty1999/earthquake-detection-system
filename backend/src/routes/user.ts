@@ -37,7 +37,8 @@ userRouter.post("/login", async function (req, res, next) {
   }
 
   //Session token creation
-  const token = jwt.sign({ id: user.id }, "secret", { expiresIn: "1h" });
+  //HINT: for security add expiresIn: "6h" in the empty object
+  const token = jwt.sign({ id: user.id }, "secret", {});
 
   delete (user as any).password;
   res.json({ user, token });
