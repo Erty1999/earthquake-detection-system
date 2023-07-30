@@ -1,10 +1,12 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
+
 import useAxios from "../composables/useAxios";
 import useAuthAxios from "../composables/useAuthAxios";
 import useToken from "../composables/useToken";
 import formatDayGraphData from "../composables/formatDayGraphData";
 import formatMonthGraphData from "../composables/formatMonthGraphData";
+import { socket, createSocket, closeSocket } from "../composables/createSocket";
 
 export type User = {
   id: string;
@@ -85,6 +87,9 @@ export const userStore = defineStore("userStore", () => {
         path: "/",
       });
 
+      //Create the socket for notifications
+      createSocket();
+
       return value;
     },
 
@@ -99,6 +104,9 @@ export const userStore = defineStore("userStore", () => {
 
       //Delete store user istance
       user.value = null;
+
+      //Delete socket (disconnect) ///////////////////////////////////////////////////////////////////
+      closeSocket();
     },
 
     async me() {
@@ -122,6 +130,9 @@ export const userStore = defineStore("userStore", () => {
 
       //Populate the store user istance
       user.value = response as any as User;
+
+      //Create the socket for notifications
+      createSocket();
 
       return response;
     },
@@ -453,5 +464,5 @@ export const userStore = defineStore("userStore", () => {
     },
   };
 
-  return { user, ...actions };
+  return { user, socket, ...actions };
 });

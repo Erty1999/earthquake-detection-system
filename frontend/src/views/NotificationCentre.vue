@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { ref } from "vue";
 import { userStore } from "../store/user";
 
 const store = userStore();
+const receivedData = ref();
 const user = computed(() => store.user);
-console.log(user.value);
 </script>
 
 <template>
@@ -30,7 +31,8 @@ console.log(user.value);
               <h2
                 class="mt-2 px-2 text-2xl font-medium text-gray-700 mx-auto text-center"
               >
-                Here you will be able to see and manage <span class="font-bold">real-time notifications</span> from the
+                Here you will be able to see and manage
+                <span class="font-bold">real-time notifications</span> from the
                 cities you will follow
               </h2>
               <div class="text-md text-gray-800 mx-4 mt-6 text-center mb-6">
@@ -44,5 +46,5 @@ console.log(user.value);
       </section>
     </div>
   </div>
-  <div v-else>mo ce se diverte</div>
+  <div v-else>{{ receivedData }}</div>
 </template>

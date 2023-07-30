@@ -314,7 +314,6 @@ cityRouter.get(
       })
       .orderBy("recordData.createdAt", "ASC")
       .getMany();
-      console.log(lastDay)
     if (!lastDay?.at(0)) {
       return res.send("");
     }

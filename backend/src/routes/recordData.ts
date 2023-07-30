@@ -6,6 +6,8 @@ import { City } from "../model/city";
 import { iotThing, iotThingType, State } from "../model/iotThing";
 import { recordData, Alertlevel } from "../model/recordData";
 import { Not } from "typeorm";
+import { Subscription } from "../model/subscription";
+import { data } from "../socket";
 
 const recordDataRouter = Router();
 
@@ -66,11 +68,11 @@ recordDataRouter.post(
 
       //Recover all the records of every city
       const recordsCity = (records as Array<any>).filter(
-        (r) => r.cityId === cityID && r.isActive
+        (r) => r.cityId === cityID && r.isActive  
       );
-      
+
       //If it don't have active records
-      if (recordsCity.length === 0) continue
+      if (recordsCity.length === 0) continue;
 
       //Check for trigger events
       for (let record of recordsCity) {
@@ -81,7 +83,7 @@ recordDataRouter.post(
       let alertLevel;
       if (triggeredSensors === 0) alertLevel = Alertlevel.pacific;
       else {
-        const alertRatio = (triggeredSensors / recordsCity.length  ) * 100;
+        const alertRatio = (triggeredSensors / recordsCity.length) * 100;
 
         if (alertRatio < city.lowThresh) {
           alertLevel = Alertlevel.pacific;
@@ -111,7 +113,7 @@ recordDataRouter.post(
       the passive device of relaative cities*/
       const passiveDevices = await iotRepository
         .find({
-          where: [{ city: (city as any), thingType: Not(iotThingType.sensor) }],
+          where: [{ city: city as any, thingType: Not(iotThingType.sensor) }],
         })
         .catch((e) => console.log(e));
       if (passiveDevices && passiveDevices.length !== 0) {
@@ -120,7 +122,40 @@ recordDataRouter.post(
         }
       }
 
-      //TODO: Notifications?
+      //Notifications
+      let usersSub = null;
+      const subscriptionRepository = AppDataSource.getRepository(Subscription);
+
+      //Recover all users subscribed to the city at the relative alertLevel
+      if (alertLevel === "low") {
+        usersSub = await subscriptionRepository
+          .find({
+            where: [{ city: city as any, lowAlert: true }], 
+          })
+          .catch((e) => console.log(e));
+      } else if (alertLevel === "high") {
+        usersSub = await subscriptionRepository
+          .find({
+            where: [{ city: city as any, highAlert: true }],
+          })
+          .catch((e) => console.log(e));
+      }
+    
+      //If anyone has active notification for this kind of record
+      if (!usersSub || usersSub?.length === 0) continue;
+      
+      //Send Notification to the users using relative sockets
+      for (let user of usersSub) {
+        const socket = data.socketArray.filter(
+          (obj) => obj.userID !== (user.id as any)
+        );
+        socket
+          ?.at(0)
+          ?.socket.emit(
+            "notification",
+            alertLevel + " alert detected in " + city.name
+          );
+      }
 
       //TODO : Telegram?
     }

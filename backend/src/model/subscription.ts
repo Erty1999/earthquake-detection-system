@@ -20,6 +20,4 @@ export class Subscription {
   @Column({default: false})
   highAlert: boolean;
 
-  @Column({default: false})
-  sumUp: boolean;
 }
