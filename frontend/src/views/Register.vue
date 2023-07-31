@@ -272,7 +272,7 @@ async function submit() {
 
             <div>
               <label class="block mb-2 text-sm text-gray-600 dark:text-gray-200"
-                >Telegram User ID</label
+                >Telegram Chat ID</label
               >
               <input
                 v-model="telegramID"

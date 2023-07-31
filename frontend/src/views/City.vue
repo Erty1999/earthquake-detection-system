@@ -235,6 +235,14 @@ async function updateSub(lowAlert: boolean, highAlert: boolean) {
     .catch((e) => {
       console.log(e);
     });
+  notificationLow.value = lowAlert;
+  notificationHigh.value = highAlert;
+  //update no alert checkbox
+  if (!lowAlert && !highAlert) {
+    notificationNo.value = true;
+  } else {
+    notificationNo.value = false;
+  }
 }
 </script>
 
@@ -608,60 +616,6 @@ async function updateSub(lowAlert: boolean, highAlert: boolean) {
               </section>
             </div>
 
-            <!-- info section -->
-            <section class="mb-2">
-              <!-- line -->
-              <div class="mt-10 mb-1 border-t"></div>
-              <div class="w-full inline-flex mb-2">
-                <InformationCircleIcon class="w-5 h-5 mr-2 text-gray-400" />
-                <h1
-                  class="text-sm leading-normal font-bold uppercase text-gray-400"
-                >
-                  Info Section
-                </h1>
-              </div>
-              <div class="ml-3">
-                The various alert levels are constantly detected by our sensors
-                scattered around the city. The alert is triggered when the
-                number of sensors detecting vibration exceeds the percentage set
-                by the thresholds. Our operators calibrate the alert thresholds
-                city by city, with the goal of making our service as accurate as
-                possible.
-              </div>
-              <div class="flex gap-x-5 w-full justify-between mt-8">
-                <div class="flex-col w-1/4 text-center">
-                  <div class="m-auto">
-                    <span
-                      class="text-xl font-bold block uppercase tracking-wide text-gray-800"
-                      >{{ city?.lastUpdate?.activeSensors ?? "0" }}</span
-                    ><span class="text-sm text-gray-500 capitalize"
-                      >Active Sensors</span
-                    >
-                  </div>
-                </div>
-                <div class="flex w-1/4 text-center">
-                  <div class="m-auto">
-                    <span
-                      class="text-xl font-bold block uppercase tracking-wide text-gray-800"
-                      >{{ city?.lowThresh + "%" ?? "undefined" }} </span
-                    ><span class="text-sm text-gray-500 capitalize"
-                      >current low alert threshold</span
-                    >
-                  </div>
-                </div>
-                <div class="flex w-1/4 text-center">
-                  <div class="m-auto">
-                    <span
-                      class="text-xl font-bold block uppercase tracking-wide text-gray-800"
-                      >{{ city?.highThresh + "%" ?? "undefined" }}</span
-                    ><span class="text-sm text-gray-500 capitalize"
-                      >current high alert threshold</span
-                    >
-                  </div>
-                </div>
-              </div>
-            </section>
-
             <!-- notification section -->
             <section v-if="city?.isSubscribed" class="mb-2">
               <!-- line -->
@@ -680,7 +634,7 @@ async function updateSub(lowAlert: boolean, highAlert: boolean) {
                 telegram, use our bot
                 <a
                   href="https://t.me/Earthquake_Control_Bot"
-                  class="text-blue-500 underline"
+                  class="text-blue-500"
                   >@Earthquake_Control_Bot</a
                 >. If you do not receive notifications for more than 24 hours,
                 remember to update the chatID field on your profile by typing
@@ -735,6 +689,62 @@ async function updateSub(lowAlert: boolean, highAlert: boolean) {
                 </div>
               </div>
             </section>
+
+            <!-- info section -->
+            <section class="mb-2">
+              <!-- line -->
+              <div class="mt-10 mb-1 border-t"></div>
+              <div class="w-full inline-flex mb-2">
+                <InformationCircleIcon class="w-5 h-5 mr-2 text-gray-400" />
+                <h1
+                  class="text-sm leading-normal font-bold uppercase text-gray-400"
+                >
+                  Info Section
+                </h1>
+              </div>
+              <div class="ml-3">
+                The various alert levels are constantly detected by our sensors
+                scattered around the city. The alert is triggered when the
+                number of sensors detecting vibration exceeds the percentage set
+                by the thresholds. Our operators calibrate the alert thresholds
+                city by city, with the goal of making our service as accurate as
+                possible.
+              </div>
+              <div class="flex gap-x-5 w-full justify-between mt-8">
+                <div class="flex-col w-1/4 text-center">
+                  <div class="m-auto">
+                    <span
+                      class="text-xl font-bold block uppercase tracking-wide text-gray-800"
+                      >{{ city?.lastUpdate?.activeSensors ?? "0" }}</span
+                    ><span class="text-sm text-gray-500 capitalize"
+                      >Active Sensors</span
+                    >
+                  </div>
+                </div>
+                <div class="flex w-1/4 text-center">
+                  <div class="m-auto">
+                    <span
+                      class="text-xl font-bold block uppercase tracking-wide text-gray-800"
+                      >{{ city?.lowThresh + "%" ?? "undefined" }} </span
+                    ><span class="text-sm text-gray-500 capitalize"
+                      >current low alert threshold</span
+                    >
+                  </div>
+                </div>
+                <div class="flex w-1/4 text-center">
+                  <div class="m-auto">
+                    <span
+                      class="text-xl font-bold block uppercase tracking-wide text-gray-800"
+                      >{{ city?.highThresh + "%" ?? "undefined" }}</span
+                    ><span class="text-sm text-gray-500 capitalize"
+                      >current high alert threshold</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            
             <!-- admin section -->
             <section v-if="user?.isAdmin">
               <!-- line -->
