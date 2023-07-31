@@ -108,7 +108,7 @@ subRouter.get("/isSubscribed/:id", verifyToken, async (req, res, next) => {
     return res.send(false);
   }
 
-  res.send(true);
+  res.send(sub);
 });
 
 //Delete a subscription

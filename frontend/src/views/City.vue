@@ -4,6 +4,7 @@ import { userStore } from "../store/user";
 import {
   AcademicCapIcon,
   ArrowPathRoundedSquareIcon,
+  BellIcon,
   ClockIcon,
   InformationCircleIcon,
   PresentationChartLineIcon,
@@ -39,6 +40,10 @@ const error = ref("");
 const success = ref("");
 const hasChanged = ref(false);
 
+const notificationLow = ref();
+const notificationHigh = ref();
+const notificationNo = ref();
+
 const user = computed(() => storeUser.user);
 
 onBeforeMount(async () => {
@@ -52,6 +57,13 @@ onBeforeMount(async () => {
   region.value = city.value.region;
   state.value = city.value.state;
   lowThresh.value = city.value.lowThresh;
+
+  //Initialize notification section form
+  if (city.value.isSubscribed) {
+    notificationLow.value = city.value.isSubscribed.lowAlert;
+    notificationHigh.value = city.value.isSubscribed.highAlert;
+    notificationNo.value = !notificationLow.value && !notificationHigh.value;
+  }
 
   //Last day graph data
   lastDayGraphData.value = await storeUser.lastDayGraphData(
@@ -214,6 +226,15 @@ async function deleteCity() {
 
   //redirect to cities page
   router.push("/cities");
+}
+
+//Update Notification
+async function updateSub(lowAlert: boolean, highAlert: boolean) {
+  await storeUser
+    .updateSub(city.value.isSubscribed.id, lowAlert, highAlert)
+    .catch((e) => {
+      console.log(e);
+    });
 }
 </script>
 
@@ -635,6 +656,80 @@ async function deleteCity() {
                       >{{ city?.highThresh + "%" ?? "undefined" }}</span
                     ><span class="text-sm text-gray-500 capitalize"
                       >current high alert threshold</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- notification section -->
+            <section v-if="city?.isSubscribed" class="mb-2">
+              <!-- line -->
+              <div class="mt-10 mb-1 border-t"></div>
+              <div class="w-full inline-flex mb-2">
+                <BellIcon class="w-5 h-5 mr-2 text-gray-400" />
+                <h1
+                  class="text-sm leading-normal font-bold uppercase text-gray-400"
+                >
+                  Notification
+                </h1>
+              </div>
+              <div class="ml-3">
+                You can change and choose which notifications you receive for
+                this city. In case you also want to receive notifications on
+                telegram, use our bot
+                <a
+                  href="https://t.me/Earthquake_Control_Bot"
+                  class="text-blue-500 underline"
+                  >@Earthquake_Control_Bot</a
+                >. If you do not receive notifications for more than 24 hours,
+                remember to update the chatID field on your profile by typing
+                "/chatID" on the chat with the bot and entering the returned
+                code.
+              </div>
+              <div class="flex gap-x-5 w-full justify-between mt-8">
+                <div class="flex-col w-1/4 text-center">
+                  <div class="m-auto">
+                    <div>
+                      <input
+                        type="checkbox"
+                        v-model="notificationLow"
+                        @change="updateSub(notificationLow, notificationHigh)"
+                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                      />
+                    </div>
+                    <span class="text-sm text-gray-500 capitalize"
+                      >Low Alert</span
+                    >
+                  </div>
+                </div>
+                <div class="flex w-1/4 text-center">
+                  <div class="m-auto">
+                    <div>
+                      <input
+                        type="checkbox"
+                        v-model="notificationHigh"
+                        @change="updateSub(notificationLow, notificationHigh)"
+                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                      />
+                    </div>
+                    <span class="text-sm text-gray-500 capitalize"
+                      >High Alert</span
+                    >
+                  </div>
+                </div>
+                <div class="flex w-1/4 text-center">
+                  <div class="m-auto">
+                    <div>
+                      <input
+                        type="checkbox"
+                        v-model="notificationNo"
+                        @change="updateSub(false, false)"
+                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                      />
+                    </div>
+                    <span class="text-sm text-gray-500 capitalize"
+                      >No Alert</span
                     >
                   </div>
                 </div>
