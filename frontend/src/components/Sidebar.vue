@@ -127,8 +127,8 @@ async function logout() {
         <router-link
           v-if="user?.isAdmin"
           class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
-          :class="[$route.name === 'IoTthing' ? activeClass : inactiveClass]"
-          to="/Admin/IoTthing"
+          :class="[$route.name === 'IoTdevice' ? activeClass : inactiveClass]"
+          to="/Admin/IoTdevice"
         >
           <CpuChipIcon class="w-6 h-6" />
 

@@ -86,8 +86,8 @@ const routes: RouteRecordRaw[] = [
     beforeEnter: [auth, adminAuth],
   },
   {
-    path: "/Admin/IoTthing",
-    name: "IoTthing",
+    path: "/Admin/IoTdevice",
+    name: "IoTdevice",
     component: iotThingVue,
     beforeEnter: [auth, adminAuth],
   },
