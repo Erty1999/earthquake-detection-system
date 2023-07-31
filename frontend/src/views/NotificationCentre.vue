@@ -4,6 +4,11 @@ import { computed } from "vue";
 import { userStore } from "../store/user";
 import { noticationsStore } from "../store/notifications";
 import { onBeforeRouteLeave } from "vue-router";
+import {
+  BellAlertIcon,
+  Cog8ToothIcon,
+  ExclamationCircleIcon,
+} from "@heroicons/vue/24/outline";
 
 const storeUser = userStore();
 const storeNotification = noticationsStore();
@@ -56,5 +61,73 @@ const notifications = computed(() => storeNotification.notifications);
       </section>
     </div>
   </div>
-  <div v-else>{{ notifications }}</div>
+  <div
+    v-else
+    class="flex gap-y-10 lg:h-[calc(100vh-80px)] h-[calc(100vh-100px)] justify-between flex-wrap"
+  >
+    <!--notification list-->
+    <div
+      class="w-full lg:w-5/12 bg-white rounded-lg shadow-xl h-full overflow-y-auto"
+    >
+      <!--header-->
+      <div
+        class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow rounded-t-lg bg-gray-100 mb-5"
+      >
+        <div class="flex text-gray-700 mt-8 ml-5 mb-8 items-center w-full">
+          <BellAlertIcon class="h-12 rounded-full p-2 bg-red-600 text-white" />
+          <h2 class="text-3xl font-medium text-gray-700 ml-3">Notifications</h2>
+          <button
+            class="ml-auto mr-12 mt-3 text-blue-700"
+            type="button"
+            @click="storeNotification.deleteNotifications()"
+          >
+            Delete All
+          </button>
+        </div>
+      </div>
+      <!--list-->
+      <div
+        v-if="notifications.length != 0"
+        v-for="notif in notifications"
+        class="mb-5 bg-gray-100 p-5 rounded-lg mx-5 font-medium text-gray-700 shadow-md flex"
+      >
+        <ExclamationCircleIcon
+          class="w-6 h-6 mr-5 text-orange-800 bg-orange-100 rounded-full my-auto"
+          v-if="notif.msg.split(' ')[0] === 'Low'"
+        />
+        <ExclamationCircleIcon
+          class="w-6 h-6 mr-5 text-red-800 bg-red-200 rounded-full my-auto"
+          v-if="notif.msg.split(' ')[0] === 'High'"
+        />
+        {{ notif.msg }}
+        <span class="ml-auto text-gray-400 text-sm mt-auto">{{
+          notif.time
+        }}</span>
+      </div>
+      <div
+        v-else
+        class="bg-gray-100 p-5 rounded-lg w-fit mx-auto font-medium text-gray-700 shadow-md"
+      >
+        No new notifications
+      </div>
+    </div>
+    <!--notification manager-->
+    <div
+      class="w-full lg:w-6/12 bg-white rounded-lg shadow-xl h-full overflow-y-auto"
+    >
+      <!--header-->
+      <div
+        class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow rounded-t-lg bg-gray-100"
+      >
+        <div class="flex text-gray-700 mt-8 ml-5 mb-8 items-center w-full">
+          <Cog8ToothIcon class="h-12 rounded-full p-2 bg-pink-600 text-white" />
+          <h2 class="text-3xl font-medium text-gray-700 ml-3">
+            Notification Manager
+          </h2>
+        </div>
+      </div>
+      <!--list-->
+      <div>{{ notifications }}</div>
+    </div>
+  </div>
 </template>

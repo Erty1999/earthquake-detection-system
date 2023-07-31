@@ -68,8 +68,8 @@ const routes: RouteRecordRaw[] = [
     beforeEnter: [auth, checkCity],
   },
   {
-    path: "/NotificationCentre",
-    name: "NotificationCentre",
+    path: "/NotificationCenter",
+    name: "NotificationCenter",
     component: NotificationCentre,
     beforeEnter: auth,
   },
