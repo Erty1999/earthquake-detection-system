@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed } from "vue";
-// import { ref } from "vue";
+import { computed, onBeforeMount } from "vue";
+import { ref } from "vue";
 import { userStore } from "../store/user";
 import { noticationsStore } from "../store/notifications";
-import { onBeforeRouteLeave } from "vue-router";
+import { onBeforeRouteLeave, useRouter } from "vue-router";
 import {
   BellAlertIcon,
   Cog8ToothIcon,
@@ -12,6 +12,7 @@ import {
 
 const storeUser = userStore();
 const storeNotification = noticationsStore();
+const router = useRouter();
 
 //Reset the notification number on sidebar when leave the page
 onBeforeRouteLeave((_to, _from, next) => {
@@ -21,6 +22,21 @@ onBeforeRouteLeave((_to, _from, next) => {
 
 const user = computed(() => storeUser.user);
 const notifications = computed(() => storeNotification.notifications);
+const subscriptions = ref();
+
+//Subscription list
+onBeforeMount(async () => {
+  subscriptions.value = await storeUser.getSubscriptions();
+});
+
+//Function that manage the update of a sub
+async function updateSub(subID: string, lowAlert: boolean, highAlert: boolean) {
+  await storeUser.updateSub(subID, lowAlert, highAlert).catch((e) => {
+    console.log(e);
+  });
+  //refresh subscription list
+  subscriptions.value = await storeUser.getSubscriptions();
+}
 </script>
 
 <template>
@@ -77,6 +93,7 @@ const notifications = computed(() => storeNotification.notifications);
           <BellAlertIcon class="h-12 rounded-full p-2 bg-red-600 text-white" />
           <h2 class="text-3xl font-medium text-gray-700 ml-3">Notifications</h2>
           <button
+            v-if="notifications.length != 0"
             class="ml-auto mr-12 mt-3 text-blue-700"
             type="button"
             @click="storeNotification.deleteNotifications()"
@@ -127,7 +144,59 @@ const notifications = computed(() => storeNotification.notifications);
         </div>
       </div>
       <!--list-->
-      <div>{{ notifications }}</div>
+      <div
+        v-for="sub in subscriptions"
+        class="mb-0.5 bg-gray-50 p-5 font-medium text-gray-700 shadow-md flex"
+      >
+        <!--city-->
+        <div
+          class="flex flex-col text-center w-1/4 cursor-pointer"
+          @click="router.push(sub?.city?.state + '/' + sub?.city?.name)"
+        >
+          <div class="text-sm font-medium leading-5 text-gray-900">
+            {{ sub?.city?.name }}
+          </div>
+          <div class="text-sm leading-5 text-gray-500">
+            {{ sub?.city?.state }}
+          </div>
+        </div>
+        <!--low alert-->
+        <div class="flex flex-col text-center w-1/4">
+          <div>
+            <input
+              type="checkbox"
+              v-model="sub.lowAlert"
+              @change="updateSub(sub.id, sub.lowAlert, sub.highAlert)"
+              class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+            />
+          </div>
+          <div class="text-sm leading-5 text-gray-500">Low Alert</div>
+        </div>
+        <!--high alert-->
+        <div class="flex flex-col text-center w-1/4">
+          <div>
+            <input
+              type="checkbox"
+              v-model="sub.highAlert"
+              class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+              @change="updateSub(sub.id, sub.lowAlert, sub.highAlert)"
+            />
+          </div>
+          <div class="text-sm leading-5 text-gray-500">High Alert</div>
+        </div>
+        <!--disable alert-->
+        <div class="flex flex-col text-center w-1/4">
+          <div>
+            <input
+              type="checkbox"
+              :checked="sub.noAlert"
+              class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+              @change="updateSub(sub.id, false, false)"
+            />
+          </div>
+          <div class="text-sm leading-5 text-gray-500">No Alert</div>
+        </div>
+      </div>
     </div>
   </div>
 </template>

@@ -10,6 +10,7 @@ import { Subscription } from "../model/subscription";
 
 const subRouter = Router();
 
+//Generate a new subscription (request user, id of the city)
 subRouter.post("/subscription/:id", verifyToken, async (req, res, next) => {
   const reqUser = (req as any).user;
   const id = req.params.id as any;
@@ -63,6 +64,7 @@ subRouter.post("/subscription/:id", verifyToken, async (req, res, next) => {
   res.send(true);
 });
 
+//Recover a subscription given a subscription id
 subRouter.get("/subscription/:id", verifyToken, async (req, res, next) => {
   const id = req.params.id as any;
   let sub;
@@ -85,6 +87,7 @@ subRouter.get("/subscription/:id", verifyToken, async (req, res, next) => {
   res.send(sub);
 });
 
+//Return if the user is subscribed to a city specified in the id
 subRouter.get("/isSubscribed/:id", verifyToken, async (req, res, next) => {
   const reqUser = (req as any).user;
   const id = req.params.id as any;
@@ -108,6 +111,7 @@ subRouter.get("/isSubscribed/:id", verifyToken, async (req, res, next) => {
   res.send(true);
 });
 
+//Delete a subscription
 subRouter.delete("/subscription/:id", verifyToken, async (req, res, next) => {
   const reqUser = (req as any).user;
   const id = req.params.id as any;
@@ -132,6 +136,60 @@ subRouter.delete("/subscription/:id", verifyToken, async (req, res, next) => {
   await subsRepository.remove(sub);
 
   res.send(true);
+});
+
+//Retrieve all the subscriptions of a user
+subRouter.get("/subscriptions", verifyToken, async (req, res, next) => {
+  const reqUser = (req as any).user;
+  let subs: any;
+
+  //Check if subscription exists
+  const subsRepository = AppDataSource.getRepository(Subscription);
+  try {
+    subs = await subsRepository.find({
+      where: [{ user: { id: reqUser.id } }],
+      relations: ["city"],
+    });
+  } catch {
+    subs = [];
+  }
+
+  //reformat city data
+  for (let sub of subs) {
+    sub.city = { name: sub?.city?.name, state: sub?.city.state };
+  }
+
+  res.json(subs);
+});
+
+//Update a subscription( id of the sub)
+subRouter.put("/subscription/:id", verifyToken, async (req, res, next) => {
+  const id = req.params.id as any;
+  const lowAlert = req.body?.lowAlert;
+  const highAlert = req.body?.highAlert;
+  let sub;
+
+  //Find the subscriptio
+  const subsRepository = AppDataSource.getRepository(Subscription);
+  try {
+    sub = await subsRepository.findOne({ where: [{ id }] }).catch();
+  } catch {
+    sub = null;
+  }
+
+  //If no sub has the requested id
+  if (!sub) {
+    return res.status(404).send("City not found");
+  }
+
+  //Update
+  sub.lowAlert = lowAlert ?? sub.lowAlert;
+  sub.highAlert = highAlert ?? sub.lowAlert;
+
+  //Save updates
+  await subsRepository.save(sub);
+
+  res.json(sub);
 });
 
 export default subRouter;

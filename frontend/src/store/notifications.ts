@@ -2,10 +2,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 
 export const noticationsStore = defineStore("noticationsStore", () => {
-  const notifications = ref<Array<{ msg: string; time: string }>>([
-    { msg: "High seismic alert detected in Cagliari, Italia", time: "00:00" },
-    { msg: "Low seismic alert detected in Cagliari, Italia", time: "00:00" },
-  ]);
+  const notifications = ref<Array<{ msg: string; time: string }>>([]);
   const newNotifications = ref<number>(0);
 
   const actions = {

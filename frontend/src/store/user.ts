@@ -105,7 +105,7 @@ export const userStore = defineStore("userStore", () => {
       //Delete store user istance
       user.value = null;
 
-      //Delete socket (disconnect) 
+      //Delete socket (disconnect)
       closeSocket();
     },
 
@@ -461,6 +461,62 @@ export const userStore = defineStore("userStore", () => {
       }
 
       return cityList;
+    },
+
+    async getSubscriptions() {
+      let error;
+      let response;
+
+      await useAuthAxios()
+        .get("/subscriptions")
+        .then((res) => {
+          response = res.data;
+        })
+        .catch((e) => {
+          error = e;
+        });
+
+      if (error) throw error;
+
+      if (response) {
+        //set a variable for no alerts
+        for (let sub of response as any) {
+          sub.noAlert = !sub.lowAlert && !sub.highAlert;
+        }
+
+        //Sort the output
+        (response as any).sort((a: any, b: any) =>
+          a?.city?.name.localeCompare(b?.city?.name)
+        );
+      }
+
+      return response;
+    },
+
+    //This function admit user to change sub information
+    async updateSub(
+      subID: string,
+      lowAlert: boolean | null,
+      highAlert: boolean | null
+    ) {
+      let error;
+      let response;
+      
+      await useAuthAxios()
+        .put("/subscription/" + subID, {
+          lowAlert: lowAlert,
+          highAlert: highAlert,
+        })
+        .then((res) => {
+          response = res.data;
+        })
+        .catch((e) => {
+          error = e;
+        });
+
+      if (error) throw error;
+
+      return response;
     },
   };
 
