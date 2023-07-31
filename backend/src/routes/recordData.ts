@@ -59,7 +59,7 @@ recordDataRouter.post(
     const recordRepository = AppDataSource.getRepository(recordData);
 
     //Record Generation (one for city)
-    for (let cityID of citiesList as any) {
+    for (let cityID of (citiesList as any)) {
       let triggeredSensors = 0;
       //Recover the city informations
       const city = await cityRepository
@@ -150,17 +150,21 @@ recordDataRouter.post(
       //If anyone has active notification for this kind of record
       if (!usersSub || usersSub?.length === 0) continue;
 
+      //Create the messsage to send
+      const msg =
+        alertLevel.charAt(0).toUpperCase() + //capitalize first letter
+        alertLevel.slice(1) +
+        " seismic alert detected in " +
+        city.name +
+        ", " +
+        city.state;
+
       //Send Notification to the users using relative sockets (Push notification on app)
       for (let sub of usersSub) {
         const socket = data.socketArray.filter(
-          (obj) => obj.userID !== (sub.user.id as any)
+          (obj) => obj.userID === (sub.user.id as any)
         );
-        socket
-          ?.at(0)
-          ?.socket.emit(
-            "notification",
-            alertLevel + " alert detected in " + city.name
-          );
+        socket?.at(0)?.socket.emit("notification", msg);
       }
 
       //Send Notification to the users using telegram (telegram notification)
@@ -168,11 +172,7 @@ recordDataRouter.post(
       //Send notifications
       for (let sub of usersSub) {
         if (sub.user.telegramUserID) {
-          bot.sendMessage(
-            //sub.user.telegramUserID,
-            sub.user.telegramUserID,
-            alertLevel + " alert detected in " + city.name
-          );
+          bot.sendMessage(sub.user.telegramUserID, msg);
         }
       }
     }

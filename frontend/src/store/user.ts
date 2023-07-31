@@ -105,7 +105,7 @@ export const userStore = defineStore("userStore", () => {
       //Delete store user istance
       user.value = null;
 
-      //Delete socket (disconnect) ///////////////////////////////////////////////////////////////////
+      //Delete socket (disconnect) 
       closeSocket();
     },
 

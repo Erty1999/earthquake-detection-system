@@ -1,11 +1,21 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { ref } from "vue";
+// import { ref } from "vue";
 import { userStore } from "../store/user";
+import { noticationsStore } from "../store/notifications";
+import { onBeforeRouteLeave } from "vue-router";
 
-const store = userStore();
-const receivedData = ref();
-const user = computed(() => store.user);
+const storeUser = userStore();
+const storeNotification = noticationsStore();
+
+//Reset the notification number on sidebar when leave the page
+onBeforeRouteLeave((_to, _from, next) => {
+  storeNotification.resetNewNotifications();
+  next();
+});
+
+const user = computed(() => storeUser.user);
+const notifications = computed(() => storeNotification.notifications);
 </script>
 
 <template>
@@ -46,5 +56,5 @@ const user = computed(() => store.user);
       </section>
     </div>
   </div>
-  <div v-else>{{ receivedData }}</div>
+  <div v-else>{{ notifications }}</div>
 </template>

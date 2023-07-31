@@ -10,14 +10,18 @@ import {
   Squares2X2Icon,
   BuildingLibraryIcon,
   BellIcon,
-CpuChipIcon,
+  CpuChipIcon,
 } from "@heroicons/vue/24/outline";
+import { noticationsStore } from "../store/notifications";
 
 const { currentRoute } = useRouter();
 const { isOpen } = useSidebar();
 
 const router = useRouter();
 const store = userStore();
+const storeNotification = noticationsStore();
+
+const notifications = computed(() => storeNotification.newNotifications);
 
 const user = computed(() => store.user);
 
@@ -72,18 +76,23 @@ async function logout() {
         </router-link>
 
         <router-link
-          class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
+          class="flex items-center pl-6 py-2 mt-4 duration-200 border-l-4"
           :class="[
             $route.name === 'NotificationCentre' ? activeClass : inactiveClass,
           ]"
           to="/NotificationCentre"
+          @click="storeNotification.resetNewNotifications"
         >
           <BellIcon class="w-5 h-5" />
 
           <span class="mx-4">Notification Centre</span>
+          <div
+            v-if="notifications != 0"
+            class="bg-red-600 bg-opacity-70 rounded-full text-md h-6 w-6 flex text-sm font-bold text-white"
+          >
+            <span class="m-auto">{{ notifications }}</span>
+          </div>
         </router-link>
-
-        
 
         <!-- START ADMIN PANEL -->
         <div
