@@ -110,7 +110,7 @@ async function logout() {
         >
           <UserGroupIcon class="w-5 h-5" />
 
-          <span class="mx-4">Users Management</span>
+          <span class="mx-4">User Management</span>
         </router-link>
 
         <router-link
@@ -121,7 +121,7 @@ async function logout() {
         >
           <BuildingOffice2Icon class="w-5 h-5" />
 
-          <span class="mx-4">Cities Management</span>
+          <span class="mx-4">City Management</span>
         </router-link>
 
         <router-link
@@ -132,7 +132,7 @@ async function logout() {
         >
           <CpuChipIcon class="w-6 h-6" />
 
-          <span class="mx-4">Iot Devices Management</span>
+          <span class="mx-4">Iot Device Management</span>
         </router-link>
       </nav>
       <div class="my-4"></div>

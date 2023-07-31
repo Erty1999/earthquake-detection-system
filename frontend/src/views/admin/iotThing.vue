@@ -517,7 +517,7 @@ async function deleteDevice(cityID: string) {
                 class="h-12 rounded-full p-2 bg-pink-600 text-white"
               />
               <h2 class="text-3xl font-medium text-gray-700 ml-3">
-                IoT Devices List
+                IoT Device List
               </h2>
             </div>
             <table class="min-w-full">
