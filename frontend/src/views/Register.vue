@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import modal from "../components/chatIdInfoModal.vue";
 
-import { EyeIcon, EyeSlashIcon } from "@heroicons/vue/20/solid";
+import {
+  EyeIcon,
+  EyeSlashIcon,
+  QuestionMarkCircleIcon,
+} from "@heroicons/vue/20/solid";
 import { userStore, User } from "../store/user";
 
 const currentDate = ref(new Date().toISOString().slice(0, 10));
@@ -22,6 +27,8 @@ const showPwdConf = ref(false);
 const error = ref("");
 
 const router = useRouter();
+
+const showModal = ref(false)
 
 //Pinia store
 const store = userStore();
@@ -79,12 +86,18 @@ async function submit() {
   //Register function call
   await store.register(newUser, pwd.value).catch((e) => {
     error.value =
-      e?.response?.data?.message ?? "Internal server error, please try again...";
+      e?.response?.data?.message ??
+      "Internal server error, please try again...";
   });
 
   if (error.value) return;
 
   return await router.push("/login");
+}
+
+//Manage modal visibility
+function closeModalHandler() {
+  showModal.value = false;
 }
 </script>
 
@@ -118,7 +131,7 @@ async function submit() {
           </div>
 
           <form
-            class="grid grid-cols-1 gap-6 mt-8 md:grid-cols-2"
+            class="grid grid-cols-1 gap-6 mt-6 md:grid-cols-2"
             @submit.prevent="submit"
           >
             <div>
@@ -271,9 +284,10 @@ async function submit() {
             </div>
 
             <div>
-              <label class="block mb-2 text-sm text-gray-600 dark:text-gray-200"
-                >Telegram Chat ID</label
+              <div class=" mb-2 text-sm text-gray-600 dark:text-gray-200 flex"
+                >Telegram Chat ID<QuestionMarkCircleIcon class="w-4 h-4 mt-0.5 ml-1 cursor-pointer hover:opacity-40 text-gray-400" @click="showModal = true"/></div
               >
+              
               <input
                 v-model="telegramID"
                 type="text"
@@ -281,7 +295,7 @@ async function submit() {
                 class="block w-full px-5 py-3 mt-2 text-gray-700 placeholder-gray-400 bg-white border border-gray-200 rounded-lg dark:placeholder-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 focus:border-blue-400 dark:focus:border-blue-400 focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
               />
             </div>
-            <div class="flex md:col-span-2 mt-5">
+            <div class="flex md:col-span-2 mt-3">
               <button
                 class="flex items-center m-auto justify-between gap-x-4 pl-6 pr-4 py-3 text-sm tracking-wide text-white capitalize transition-colors duration-300 transform bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50"
               >
@@ -302,7 +316,15 @@ async function submit() {
               </button>
             </div>
           </form>
-          <div class="block mt-9 text-xs text-gray-500">
+          <p class="mt-3 text-sm text-center text-gray-400">
+            Do you already have an account?
+            <a
+              href="login"
+              class="text-blue-500 focus:outline-none focus:underline hover:underline"
+              >Sign in</a
+            >.
+          </p>
+          <div class="block mt-5 text-xs text-gray-500">
             <sup> *</sup> Required fields
           </div>
           <div class="block mt-1 text-xs text-gray-500">
@@ -312,5 +334,6 @@ async function submit() {
         </div>
       </div>
     </div>
+    <modal v-if="showModal" :modalHandler="closeModalHandler" />
   </section>
 </template>

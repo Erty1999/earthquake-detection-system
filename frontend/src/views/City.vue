@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import modal from "../components/deleteModal.vue";
 import { ref, onBeforeMount, computed } from "vue";
 import { userStore } from "../store/user";
 import {
@@ -43,6 +44,8 @@ const hasChanged = ref(false);
 const notificationLow = ref();
 const notificationHigh = ref();
 const notificationNo = ref();
+
+const showModal = ref(false);
 
 const user = computed(() => storeUser.user);
 
@@ -210,6 +213,12 @@ function onChangeInput() {
   hasChanged.value = true;
   error.value = "";
   success.value = "";
+}
+
+//Manage modal visibility
+function modalHandler(action: boolean) {
+  if (action) deleteCity();
+  showModal.value = false;
 }
 
 //Function that manage the deletion of th city
@@ -744,7 +753,6 @@ async function updateSub(lowAlert: boolean, highAlert: boolean) {
               </div>
             </section>
 
-            
             <!-- admin section -->
             <section v-if="user?.isAdmin">
               <!-- line -->
@@ -989,7 +997,7 @@ async function updateSub(lowAlert: boolean, highAlert: boolean) {
 
                 <button
                   class="ml-auto font-medium rounded-full text-md w-fit px-3 py-2 text-center text-gray-900 bg-red-500 hover:bg-red-400 focus:outline-none focus:bg-red-400 focus:ring focus:ring-red-300 focus:ring-opacity-50"
-                  @click="deleteCity()"
+                  @click="showModal = true"
                 >
                   Delete City
                 </button>
@@ -1000,4 +1008,5 @@ async function updateSub(lowAlert: boolean, highAlert: boolean) {
       </div>
     </section>
   </div>
+  <modal v-if="showModal" :modalHandler="modalHandler" />
 </template>

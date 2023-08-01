@@ -4,15 +4,19 @@ import { ref } from "vue";
 import { userStore } from "../store/user";
 import { noticationsStore } from "../store/notifications";
 import { onBeforeRouteLeave, useRouter } from "vue-router";
+import modal from "../components/chatIdInfoModal.vue";
 import {
   BellAlertIcon,
   Cog8ToothIcon,
   ExclamationCircleIcon,
+  QuestionMarkCircleIcon,
 } from "@heroicons/vue/24/outline";
 
 const storeUser = userStore();
 const storeNotification = noticationsStore();
 const router = useRouter();
+
+const showModal = ref(false);
 
 //Reset the notification number on sidebar when leave the page
 onBeforeRouteLeave((_to, _from, next) => {
@@ -36,6 +40,11 @@ async function updateSub(subID: string, lowAlert: boolean, highAlert: boolean) {
   });
   //refresh subscription list
   subscriptions.value = await storeUser.getSubscriptions();
+}
+
+//Manage modal visibility
+function closeModalHandler() {
+  showModal.value = false;
 }
 </script>
 
@@ -89,9 +98,13 @@ async function updateSub(subID: string, lowAlert: boolean, highAlert: boolean) {
       <div
         class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow rounded-t-lg bg-gray-100 mb-5"
       >
-        <div class="flex text-gray-700 mt-8 ml-5 mb-8 items-center w-full">
+        <div class="flex text-gray-700 mt-8 ml-5 mb-4 items-center w-full">
           <BellAlertIcon class="h-12 rounded-full p-2 bg-red-600 text-white" />
           <h2 class="text-3xl font-medium text-gray-700 ml-3">Notifications</h2>
+          <QuestionMarkCircleIcon
+            class="w-6 h-6 -mt-4 ml-1 cursor-pointer hover:opacity-40 text-gray-700"
+            @click="showModal = true"
+          />
           <button
             v-if="notifications.length != 0"
             class="ml-auto mr-12 mt-3 text-blue-700"
@@ -100,6 +113,9 @@ async function updateSub(subID: string, lowAlert: boolean, highAlert: boolean) {
           >
             Delete All
           </button>
+        </div>
+        <div class="ml-8 text-gray-700 mb-4">
+          Here you can see your notifications in real time 
         </div>
       </div>
       <!--list-->
@@ -136,11 +152,15 @@ async function updateSub(subID: string, lowAlert: boolean, highAlert: boolean) {
       <div
         class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow rounded-t-lg bg-gray-100"
       >
-        <div class="flex text-gray-700 mt-8 ml-5 mb-8 items-center w-full">
+        <div class="flex text-gray-700 mt-8 ml-5 mb-4 items-center w-full">
           <Cog8ToothIcon class="h-12 rounded-full p-2 bg-pink-600 text-white" />
           <h2 class="text-3xl font-medium text-gray-700 ml-3">
             Notification Manager
           </h2>
+          
+        </div>
+        <div class="ml-8 text-gray-700 mb-4">
+          Here you can choose which notifications to receive, city by city
         </div>
       </div>
       <!--list-->
@@ -199,4 +219,5 @@ async function updateSub(subID: string, lowAlert: boolean, highAlert: boolean) {
       </div>
     </div>
   </div>
+  <modal v-if="showModal" :modalHandler="closeModalHandler" />
 </template>
