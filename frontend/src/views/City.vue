@@ -662,7 +662,7 @@ async function updateSub(lowAlert: boolean, highAlert: boolean) {
                       />
                     </div>
                     <span class="text-sm text-gray-500 capitalize"
-                      >Low Alert</span
+                      >Enable Low Alert <br> Notification</span
                     >
                   </div>
                 </div>
@@ -677,7 +677,7 @@ async function updateSub(lowAlert: boolean, highAlert: boolean) {
                       />
                     </div>
                     <span class="text-sm text-gray-500 capitalize"
-                      >High Alert</span
+                      >Enable High Alert <br> Notification </span
                     >
                   </div>
                 </div>
@@ -692,7 +692,7 @@ async function updateSub(lowAlert: boolean, highAlert: boolean) {
                       />
                     </div>
                     <span class="text-sm text-gray-500 capitalize"
-                      >No Alert</span
+                      >Disable <br> Notification</span
                     >
                   </div>
                 </div>
@@ -700,7 +700,7 @@ async function updateSub(lowAlert: boolean, highAlert: boolean) {
             </section>
 
             <!-- info section -->
-            <section class="mb-2">
+            <section class="mb-6">
               <!-- line -->
               <div class="mt-10 mb-1 border-t"></div>
               <div class="w-full inline-flex mb-2">
@@ -828,7 +828,7 @@ async function updateSub(lowAlert: boolean, highAlert: boolean) {
                   class="mb-2 p-5 w-full"
                   @submit.prevent="submit"
                   @reset.prevent="resetValues"
-                  @change="onChangeInput"
+                  @click="onChangeInput"
                 >
                   <div class="grid md:grid-cols-2 md:gap-6">
                     <div class="relative z-0 w-full mb-6 col-span-2">

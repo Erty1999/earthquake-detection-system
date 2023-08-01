@@ -8,8 +8,7 @@ import modal from "../components/chatIdInfoModal.vue";
 import {
   BellAlertIcon,
   Cog8ToothIcon,
-  ExclamationCircleIcon,
-  QuestionMarkCircleIcon,
+  ExclamationCircleIcon
 } from "@heroicons/vue/24/outline";
 
 const storeUser = userStore();
@@ -101,10 +100,7 @@ function closeModalHandler() {
         <div class="flex text-gray-700 mt-8 ml-5 mb-4 items-center w-full">
           <BellAlertIcon class="h-12 rounded-full p-2 bg-red-600 text-white" />
           <h2 class="text-3xl font-medium text-gray-700 ml-3">Notifications</h2>
-          <QuestionMarkCircleIcon
-            class="w-6 h-6 -mt-4 ml-1 cursor-pointer hover:opacity-40 text-gray-700"
-            @click="showModal = true"
-          />
+          
           <button
             v-if="notifications.length != 0"
             class="ml-auto mr-12 mt-3 text-blue-700"
@@ -114,8 +110,8 @@ function closeModalHandler() {
             Delete All
           </button>
         </div>
-        <div class="ml-8 text-gray-700 mb-4">
-          Here you can see your notifications in real time 
+        <div class="mx-8 text-gray-700 mb-4 ">
+          Here you can see your notifications in real time, if u want to receive them also on Telegram <span class="underline text-blue-700 cursor-pointer" @click="showModal = true"> click here </span>
         </div>
       </div>
       <!--list-->
@@ -170,13 +166,13 @@ function closeModalHandler() {
       >
         <!--city-->
         <div
-          class="flex flex-col text-center w-1/4 cursor-pointer"
+          class="flex flex-col text-center w-1/4 my-auto cursor-pointer"
           @click="router.push(sub?.city?.state + '/' + sub?.city?.name)"
         >
-          <div class="text-sm font-medium leading-5 text-gray-900">
+          <div class="text-xl font-medium leading-5 text-gray-900">
             {{ sub?.city?.name }}
           </div>
-          <div class="text-sm leading-5 text-gray-500">
+          <div class="text-md leading-5 text-gray-500">
             {{ sub?.city?.state }}
           </div>
         </div>
@@ -190,7 +186,7 @@ function closeModalHandler() {
               class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             />
           </div>
-          <div class="text-sm leading-5 text-gray-500">Low Alert</div>
+          <div class="text-sm leading-5 text-gray-500">Enable Low Alert <br> Notification</div>
         </div>
         <!--high alert-->
         <div class="flex flex-col text-center w-1/4">
@@ -202,7 +198,7 @@ function closeModalHandler() {
               @change="updateSub(sub.id, sub.lowAlert, sub.highAlert)"
             />
           </div>
-          <div class="text-sm leading-5 text-gray-500">High Alert</div>
+          <div class="text-sm leading-5 text-gray-500">Enable High Alert <br> Notification </div>
         </div>
         <!--disable alert-->
         <div class="flex flex-col text-center w-1/4">
@@ -214,7 +210,7 @@ function closeModalHandler() {
               @change="updateSub(sub.id, false, false)"
             />
           </div>
-          <div class="text-sm leading-5 text-gray-500">No Alert</div>
+          <div class="text-sm leading-5 text-gray-500">Disable <br> Notification</div>
         </div>
       </div>
     </div>

@@ -166,7 +166,7 @@ async function showDetails(city: any) {
                 class="mb-2 p-5 w-full"
                 @submit.prevent="submit"
                 @reset.prevent="resetValues"
-                @change="onChangeInput"
+                @click="onChangeInput"
               >
                 <div class="grid md:grid-cols-2 md:gap-6">
                   <div class="relative z-0 w-full mb-6 col-span-2">
