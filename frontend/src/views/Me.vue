@@ -192,8 +192,7 @@ function closeModalHandler() {
           class="w-full h-full absolute bg-opacity-60 bg-black rounded-t-lg text-white flex"
         >
           <h1 class="mx-auto mt-36 font-bold caitalize text-2xl md:text-4xl">
-            {{ user?.firstName ?? "User" }}
-            {{ user?.lastName ?? "Name" }} Profile
+            My Profile
           </h1>
         </div>
       </div>
@@ -398,8 +397,8 @@ function closeModalHandler() {
                       class="w-6 h-6 cursor-pointer hover:opacity-40 text-black"
                       @click="
                         (e) => {
-                          showModal = true;
                           e.stopPropagation();
+                          showModal = true;
                         }
                       "
                     />
@@ -490,12 +489,11 @@ function closeModalHandler() {
                   Reset Changes
                 </button>
               </div>
-              <modal v-if="showModal" :modalHandler="closeModalHandler" />
             </form>
           </div>
         </div>
       </div>
     </section>
+    <modal v-if="showModal" :modalHandler="closeModalHandler" />
   </div>
-  
 </template>
