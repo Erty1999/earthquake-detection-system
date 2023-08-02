@@ -2,11 +2,13 @@
 import { ref, computed } from "vue";
 import { userStore, User } from "../store/user";
 
+import modal from "../components/chatIdInfoModal.vue";
 import {
   EyeIcon,
   EyeSlashIcon,
   UserCircleIcon,
   ArrowUpTrayIcon,
+  QuestionMarkCircleIcon,
 } from "@heroicons/vue/24/outline";
 
 const store = userStore();
@@ -31,6 +33,8 @@ const error = ref("");
 const success = ref("");
 
 const userAvatar = ref(null);
+
+const showModal = ref(false);
 
 function acceptNumber(e: InputEvent | any) {
   let x = telNumber.value
@@ -166,6 +170,11 @@ async function avatarUploader() {
   if (error.value) return;
 
   hasChanged.value = false;
+}
+
+//Manage modal visibility
+function closeModalHandler() {
+  showModal.value = false;
 }
 </script>
 
@@ -384,6 +393,17 @@ async function avatarUploader() {
                     class="block py-2.5 px-0 w-full text-sm text-gsubmitray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                     placeholder=" "
                   />
+                  <div class="absolute top-3 right-0 cursor-pointer">
+                    <QuestionMarkCircleIcon
+                      class="w-6 h-6 cursor-pointer hover:opacity-40 text-black"
+                      @click="
+                        (e) => {
+                          showModal = true;
+                          e.stopPropagation();
+                        }
+                      "
+                    />
+                  </div>
                   <label
                     for="telegramID"
                     class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
@@ -470,10 +490,12 @@ async function avatarUploader() {
                   Reset Changes
                 </button>
               </div>
+              <modal v-if="showModal" :modalHandler="closeModalHandler" />
             </form>
           </div>
         </div>
       </div>
     </section>
   </div>
+  
 </template>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import modal from "../../components/deleteModal.vue";
 import { ref, onBeforeMount } from "vue";
 import { adminStore } from "../../store/admin";
 import {
@@ -11,7 +12,7 @@ import {
   WifiIcon,
   LightBulbIcon,
   TvIcon,
-MusicalNoteIcon,
+  MusicalNoteIcon,
 } from "@heroicons/vue/24/outline";
 
 const store = adminStore();
@@ -35,6 +36,10 @@ const hasChanged = ref(false);
 //Cities List
 const citiesList = ref();
 const deviceList = ref();
+
+//Modale
+const showModal = ref(false);
+const deviceToDelete = ref("")
 
 onBeforeMount(async () => {
   citiesList.value = await store.citiesList();
@@ -178,14 +183,20 @@ function onChangeInput() {
   success.value = "";
 }
 
-async function deleteDevice(cityID: string) {
-  await store.deleteThing(cityID).catch((e) => {
+async function deleteDevice(deviceID: string) {
+  await store.deleteThing(deviceID).catch((e) => {
     error.value = e?.response?.data?.message ?? "Elimination Failed";
   });
 
   if (error.value) return;
 
   deviceList.value = await store.thingsList();
+}
+
+//Manage modal visibility
+function modalHandler(action: boolean) {
+  if (action) deleteDevice(deviceToDelete.value);
+  showModal.value = false;
 }
 </script>
 
@@ -660,7 +671,12 @@ async function deleteDevice(cityID: string) {
                     class="pr-6 py-4 text-sm font-medium leading-5 text-right border-b border-gray-200 whitespace-nowrap"
                   >
                     <button
-                      @click="deleteDevice(device?.id)"
+                      @click="
+                        () => {
+                          deviceToDelete = device?.id;
+                          showModal = true;
+                        }
+                      "
                       class="text-red-700 hover:text-red-900"
                     >
                       Delete
@@ -674,4 +690,5 @@ async function deleteDevice(cityID: string) {
       </section>
     </div>
   </div>
+  <modal v-if="showModal" :modalHandler="modalHandler" />
 </template>

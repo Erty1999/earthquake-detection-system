@@ -645,8 +645,8 @@ async function updateSub(lowAlert: boolean, highAlert: boolean) {
                   href="https://t.me/Earthquake_Control_Bot"
                   class="text-blue-500"
                   >@Earthquake_Control_Bot</a
-                >. If you do not receive notifications for more than 24 hours,
-                remember to update the chatID field on your profile by typing
+                >. If you do not receive notifications for a while, remember to
+                keep updated the chatID field on your profile by typing
                 "/chatID" on the chat with the bot and entering the returned
                 code.
               </div>
@@ -662,7 +662,8 @@ async function updateSub(lowAlert: boolean, highAlert: boolean) {
                       />
                     </div>
                     <span class="text-sm text-gray-500 capitalize"
-                      >Enable Low Alert <br> Notification</span
+                      >Enable Low Alert <br />
+                      Notification</span
                     >
                   </div>
                 </div>
@@ -677,8 +678,9 @@ async function updateSub(lowAlert: boolean, highAlert: boolean) {
                       />
                     </div>
                     <span class="text-sm text-gray-500 capitalize"
-                      >Enable High Alert <br> Notification </span
-                    >
+                      >Enable High Alert <br />
+                      Notification
+                    </span>
                   </div>
                 </div>
                 <div class="flex w-1/4 text-center">
@@ -692,7 +694,8 @@ async function updateSub(lowAlert: boolean, highAlert: boolean) {
                       />
                     </div>
                     <span class="text-sm text-gray-500 capitalize"
-                      >Disable <br> Notification</span
+                      >Disable <br />
+                      Notification</span
                     >
                   </div>
                 </div>
