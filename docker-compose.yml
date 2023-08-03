@@ -1,0 +1,41 @@
+version: "3.9"
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - 5173:5173
+    depends_on:
+      - backend
+  backend:
+    build: ./backend
+    ports:
+      - 3100:3100
+      - 3101:3101
+    depends_on:
+      - db
+  etl:
+    build: ./etl
+    ports:
+      - 3200:3200
+    depends_on:
+      - backend
+  pdm:
+    build: ./passiveDevicesManager
+    ports:
+      - 3300:3300
+    depends_on:
+      - backend
+  db:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=esit
+
+  adminer:
+    image: adminer
+    ports:
+      - "9998:8080"
+    links:
+      - db

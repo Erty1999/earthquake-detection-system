@@ -46,15 +46,14 @@ async function main() {
   app.use(recordDataRouter);
 
   //Start telegram bot
-  startBot()
+  startBot();
 
   // port
-  const port = process.env.PORT;
+  const port = process.env.PORT_BE;
   //Listen
   app.listen(port, () => {
     console.log("Started on port " + port);
   });
-
 
   // Create an HTTP server using the Express app instance
   const server = http.createServer(app);
@@ -67,6 +66,7 @@ async function main() {
     },
   });
 
+  //Socket Port
   io.listen(3101);
 
   io.on("connection", (socket) => {
@@ -83,12 +83,12 @@ async function main() {
         select: ["id"],
       });
       if (!user) return;
-      const userID = user.id + ""
-      //Check and delete previous open socket 
+      const userID = user.id + "";
+      //Check and delete previous open socket
       data.socketArray = data.socketArray.filter(
         (obj) => obj.userID !== (userID as any)
       );
-      data.socketArray.push({ userID, socket } );
+      data.socketArray.push({ userID, socket });
       console.log(userID + " start a socket connection");
     });
   });
@@ -108,7 +108,7 @@ async function main() {
         select: ["id"],
       });
       if (!user) return;
-      const userID = user.id + ""
+      const userID = user.id + "";
       data.socketArray = data.socketArray.filter(
         (obj) => obj.userID !== (userID as any)
       );
