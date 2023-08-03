@@ -17,9 +17,7 @@ export async function recoverJWT() {
       .then((res) => {
         jwt = res?.data?.token;
       })
-      .catch((error) => {
-        console.error(error);
-      });
+      .catch((error) => {});
     if (!jwt) {
       console.log("JWT recovery failed, retrying in 5 seconds");
       await new Promise((r) => setTimeout(r, 5000));
@@ -66,7 +64,7 @@ export async function recoverIotDevices(jwt: string) {
       rowClientCert: d.shadowCertificate.data,
       rowCaCert: d.shadowCA.data,
       clientId: d.shadowClientID,
-      endpoint: d.shadowEndpoint
+      endpoint: d.shadowEndpoint,
     });
     //Add it to the list
     iotDevices.push(device);

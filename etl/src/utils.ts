@@ -17,9 +17,7 @@ export async function recoverJWT() {
       .then((res) => {
         jwt = res?.data?.token;
       })
-      .catch((error) => {
-        console.error(error);
-      });
+      .catch((error) => {});
     if (!jwt) {
       console.log("JWT recovery failed, retrying in 5 seconds");
       await new Promise((r) => setTimeout(r, 5000));
