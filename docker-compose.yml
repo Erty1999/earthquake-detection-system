@@ -29,8 +29,8 @@ services:
     depends_on:
       - backend
     environment:
-      - VITE_BE_BASE_URL=http://backend:3100
-      - VITE_BE_SOCKET_URL=ws://backend:3101
+      - VITE_BE_BASE_URL=http://localhost:3100
+      - VITE_BE_SOCKET_URL=ws://localhost:3101
 
   etl:
     build: ./etl

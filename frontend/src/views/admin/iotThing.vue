@@ -2,6 +2,7 @@
 import modal from "../../components/deleteModal.vue";
 import { ref, onBeforeMount } from "vue";
 import { adminStore } from "../../store/admin";
+
 import {
   ArrowUpTrayIcon,
   Squares2X2Icon,
@@ -13,12 +14,13 @@ import {
   LightBulbIcon,
   TvIcon,
   MusicalNoteIcon,
+  ArrowPathRoundedSquareIcon
 } from "@heroicons/vue/24/outline";
 
 const store = adminStore();
 
 const name = ref("");
-const location = ref("");
+const locationAddress = ref("");
 const thingType = ref("");
 const city = ref("");
 const shadowPrivateKey = ref(null);
@@ -114,7 +116,7 @@ async function submit() {
   //check possible input errors
   if (
     !name.value ||
-    !location.value ||
+    !locationAddress.value ||
     !thingType.value ||
     !city.value ||
     !shadowPrivateKeyID.value ||
@@ -129,7 +131,7 @@ async function submit() {
   //New Device istance
   const newDevice = {
     name: name.value,
-    location: location.value,
+    location: locationAddress.value,
     thingType: thingType.value,
     shadowPrivateKey: shadowPrivateKeyID.value,
     shadowCertificate: shadowCertificateID.value,
@@ -161,7 +163,7 @@ async function submit() {
 
 function resetValues() {
   name.value = "";
-  location.value = "";
+  locationAddress.value = "";
   thingType.value = "";
   city.value = "";
   shadowPrivateKey.value = null;
@@ -197,6 +199,11 @@ async function deleteDevice(deviceID: string) {
 function modalHandler(action: boolean) {
   if (action) deleteDevice(deviceToDelete.value);
   showModal.value = false;
+}
+
+//Function that reload the page in order to refresh page data
+function refreshData() {
+  location.reload();
 }
 </script>
 
@@ -338,14 +345,14 @@ function modalHandler(action: boolean) {
                   </div>
                   <div class="relative z-0 w-full mb-6 col-span-2">
                     <input
-                      v-model="location"
+                      v-model="locationAddress"
                       type="text"
                       class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                       placeholder=" "
                       required
                     />
                     <label
-                      for="location"
+                      for="locationAddress"
                       class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
                       >Location</label
                     >
@@ -530,7 +537,18 @@ function modalHandler(action: boolean) {
               <h2 class="text-3xl font-medium text-gray-700 ml-3">
                 IoT Device List
               </h2>
+              <!--refresh data-->
+            <div
+              class="flex ml-auto capitalize w-fit cursor-pointer"
+              @click="refreshData()"
+            >
+              <ArrowPathRoundedSquareIcon class="h-7 w-7 mr-1" /><span
+                class="mt-0.5 mr-6"
+                >refresh data</span
+              >
             </div>
+            </div>
+            
             <table class="min-w-full">
               <thead>
                 <tr>
