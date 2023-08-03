@@ -7,6 +7,20 @@ services:
       - 3101:3101
     depends_on:
       - db
+    environment:
+      - PORT_BE=3100
+      - PORT_SOCKET=3101
+      - TYPEORM_CONNECTION=postgres
+      - TYPEORM_HOST=db
+      - TYPEORM_USERNAME=postgres
+      - TYPEORM_PASSWORD=password
+      - TYPEORM_DATABASE=esit
+      - TYPEORM_PORT=5432
+      - TYPEORM_SYNCHRONIZE=true
+      - TYPEORM_LOGGING=true
+      - ETL_BASE_URL=http://etl:3200
+      - PDM_BASE_URL=http://pdm:3300
+
 
   frontend:
     build: ./frontend
@@ -14,6 +28,9 @@ services:
       - 5173:5173
     depends_on:
       - backend
+    environment:
+      - VITE_BE_BASE_URL=http://backend:3100
+      - VITE_BE_SOCKET_URL=ws://backend:3101
 
   etl:
     build: ./etl
@@ -21,6 +38,9 @@ services:
       - 3200:3200
     depends_on:
       - backend
+    environment:
+      - PORT=3200
+      - BE_BASE_URL=http://backend:3100
 
   pdm:
     build: ./passiveDevicesManager
@@ -28,6 +48,9 @@ services:
       - 3300:3300
     depends_on:
       - backend
+    environment:
+      - PORT=3300
+      - BE_BASE_URL=http://backend:3100
 
   db:
     image: postgres
