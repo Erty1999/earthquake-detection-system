@@ -15,13 +15,24 @@ import iotThingRouter from "./routes/iotThing";
 import subRouter from "./routes/subscription";
 import userRouter from "./routes/user";
 import recordDataRouter from "./routes/recordData";
-import { AppDataSource, createBaseUsers } from "./dataSource";
+import { AppDataSource, createBaseUsers, createDataSource } from "./dataSource";
 import { data } from "./socket";
 import { startBot } from "./telegramBot";
+import { config } from "dotenv";
 
 async function main() {
+  //Dotenv configuation (env variables)
+  config();
+
+  //Create Datasource
+  await createDataSource();
+  //Initialize Datasource
   await AppDataSource.initialize();
+
+  //Create first admin and etl/pdm account
   await createBaseUsers(AppDataSource);
+
+  //Create express application
   const app = express();
 
   //Allow cors
@@ -67,7 +78,7 @@ async function main() {
   });
 
   //Socket Port
-  io.listen(3101);
+  io.listen(process.env.PORT_SOCKET as any);
 
   io.on("connection", (socket) => {
     const token = socket.handshake.headers?.authorization?.split(" ")[1];

@@ -7,27 +7,29 @@ import { recordData } from "./model/recordData";
 import { Image } from "./model/image";
 import { File } from "./model/file";
 
-import { config } from "dotenv";
 import bcrypt from "bcrypt";
 
-export const AppDataSource = new DataSource({
-  type: "postgres",
-  host: "db",
-  port: 5432,
-  username: "postgres",
-  password: "password",
-  database: "esit",
-  synchronize: true,
-  logging: true,
-  entities: [User, City, Subscription, iotThing, recordData, Image, File],
-  subscribers: [],
-  migrations: [],
-});
+export let AppDataSource: DataSource;
+
+export async function createDataSource() {
+  const source = new DataSource({
+    type: process.env.TYPEORM_CONNECTION as any,
+    host: process.env.TYPEORM_HOST,
+    port: process.env.TYPEORM_PORT as any,
+    username: process.env.TYPEORM_USERNAME,
+    password: process.env.TYPEORM_PASSWORD,
+    database: process.env.TYPEORM_DATABASE,
+    synchronize: process.env.TYPEORM_SYNCHRONIZE as any,
+    logging: process.env.TYPEORM_LOGGING as any,
+    entities: [User, City, Subscription, iotThing, recordData, Image, File],
+    subscribers: [],
+    migrations: [],
+  });
+  AppDataSource = source;
+  return source;
+}
 
 export async function createBaseUsers(dataSource: DataSource) {
-  //Dotenv configuation (env variables)
-  config();
-
   const userRepository = dataSource.getRepository(User);
 
   //first Admin account creation
