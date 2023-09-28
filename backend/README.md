@@ -1,8 +1,21 @@
-### Configuration
+# Configuration
 Before running the software, add these variables to the .env file:
 
-#Port
+```bash
+#Ports
 PORT=
+PORT_SOCKET=
+
+#DataSource info
+TYPEORM_CONNECTION=
+TYPEORM_HOST=
+TYPEORM_USERNAME=
+TYPEORM_PASSWORD=
+TYPEORM_DATABASE=
+TYPEORM_PORT=
+TYPEORM_SYNCHRONIZE=
+TYPEORM_LOGGING=
+
 
 #first Admin account
 ADMIN_FN=
@@ -31,8 +44,19 @@ ETL_BASE_URL=
 #PDM base URL
 ETL_BASE_URL=
 
-### `yarn install`
-Install all required packages
+#API token Telegram
+TELEGRAM_TOKEN=
+```
+<br>
 
-### `yarn dev`
-Run the server in development mode.
+# Local
+To start this service locally use the following commands:
+
+```bash
+#Install all required packages
+yarn install
+
+#Run the server in development mode.
+yarn dev
+```
+

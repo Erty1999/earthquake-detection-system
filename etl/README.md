@@ -1,18 +1,27 @@
-### Configuration
+# Configuration
 Before running the software, add these variables to the .env file:
 
-#Port
+```bash
+## Port 
 PORT=
 
-#etl account
+# ETL credentials 
 ETL_EMAIL=
 ETL_PWD=
 
 ## Backend base URL
 BE_BASE_URL=
+```
+<br>
 
-### `yarn install`
-Install all required packages
+# Local
+To start this service locally use the following commands:
 
-### `yarn dev`
-Run the server in development mode.
+```bash
+#Install all required packages
+yarn install
+
+#Run the server in development mode.
+yarn dev
+```
+
